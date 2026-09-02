@@ -16,7 +16,7 @@
     <div>
 
         <h1>
-            Dashboard
+            Welcome! canvas & corner interior design
         </h1>
 
         <p>

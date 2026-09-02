@@ -48,10 +48,7 @@ class DashboardController extends Controller
         |
         */
 
-        $recentProjects = Project::with('client')
-            ->latest()
-            ->take(5)
-            ->get();
+        $recentProjects = Project::with('client')->get();
 
 
         /*
@@ -60,7 +57,7 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return view('backend.dashboard', compact(
+        return view('backend.s', compact(
             'totalClients',
             'totalProjects',
             'pendingProjects',

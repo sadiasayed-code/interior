@@ -5,21 +5,20 @@
 }
 
 :root {
-    --primary: #111827;
-    --primary-light: #1f2937;
+    --primary: #000000;;
+    --primary-light: #000000;
+    --bg: #e1cfbd;
+    --white: #000000;
 
-    --bg: #f5f7fa;
-    --white: #ffffff;
+    --border: #440a2d;
 
-    --border: #e5e7eb;
+    --text: #000000;
+    --muted: #000000;
 
-    --text: #111827;
-    --muted: #6b7280;
-
-    --blue: #2563eb;
-    --purple: #7c3aed;
-    --orange: #ea580c;
-    --green: #16a34a;
+    --blue: #000000;
+    --purple: #000000;
+    --orange: #000000;
+    --green: #33463d;
 
     --sidebar-width: 260px;
 }
@@ -61,7 +60,7 @@ body {
 
     width: var(--sidebar-width);
 
-    background: var(--white);
+    backround: var(--white);
 
     border-right: 1px solid var(--border);
 
@@ -161,7 +160,7 @@ body {
 
     text-decoration: none;
 
-    color: #64748b;
+    color: #02070f;
 
     font-size: 13px;
     font-weight: 500;
@@ -670,7 +669,6 @@ td {
     white-space: nowrap;
 }
 
-
 .project-name {
     color: #111827;
 
@@ -1044,7 +1042,7 @@ td small {
 
 .quick-icon.purple {
     background: #f5f3ff;
-    color: #7c3aed;
+    color: #78755b;
 }
 
 
@@ -1277,7 +1275,7 @@ td small {
 .small-action.delete {
     background: #fef2f2;
 
-    color: #dc2626;
+    color: #a09595;
 }
 
 
@@ -2390,7 +2388,7 @@ td small {
     text-align: left;
     font-size: 12px;
     font-weight: 700;
-    color: #6b7280;
+    color: #9c7ea4;
     background: #f8fafc;
     border-bottom: 1px solid #e5e7eb;
     white-space: nowrap;
@@ -4323,11 +4321,11 @@ td small {
 }
 
 .panel table tbody tr:hover {
-    background: #fafafa;
+    background: #7ace7080;
 }
 
 .panel table td strong {
-    color: #111827;
+    color: #240225;
 }
 
 
@@ -4360,8 +4358,8 @@ td small {
 }
 
 .small-action.view:hover {
-    background: #dbeafe;
-    border-color: #bfdbfe;
+    background: #222f3f;
+    border-color: #1f2d3d;
 }
 
 
@@ -4682,7 +4680,7 @@ td small {
 }
 
 .report-financial-card strong {
-    color: #111827;
+    color: #153431;
     font-size: 19px;
     font-weight: 700;
 }
@@ -4693,7 +4691,7 @@ td small {
 ========================================================= */
 
 .report-overall-progress-value {
-    color: #111827;
+    color: #461d2a;
     font-size: 24px;
     font-weight: 700;
 }
@@ -4710,7 +4708,7 @@ td small {
 
     border-radius: 999px;
 
-    background: #e5e7eb;
+    background: #1b3c39;
 }
 
 .report-overall-progress-fill {
@@ -4718,7 +4716,7 @@ td small {
 
     border-radius: 999px;
 
-    background: #2563eb;
+    background: #532138;
 
     transition: width 0.3s ease;
 }
@@ -4747,9 +4745,9 @@ td small {
 
     border-bottom: 1px solid #e5e7eb;
 
-    background: #f8fafc;
+    background: #20364d;
 
-    color: #6b7280;
+    color: #2b323e;
 
     font-size: 11px;
     font-weight: 700;

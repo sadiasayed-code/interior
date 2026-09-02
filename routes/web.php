@@ -13,6 +13,13 @@ use App\Http\Controllers\Backend\BudgetController;
 use App\Http\Controllers\Backend\PaymentController;
 use App\Http\Controllers\Backend\ProgressReportController;
 use App\Http\Controllers\Backend\ReportController;
+use App\Http\Controllers\Frontant\HomeController;
+
+//=========================================================
+// FRONTANT ROUTES
+// =========================================================
+
+Route::get('/', [HomeController::class,'mainPage']);
 
 // =========================================================
 // AUTHENTICATION ROUTES
