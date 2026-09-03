@@ -9,29 +9,95 @@ class Budget extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | MASS ASSIGNMENT
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
         'project_id',
         'estimated_cost',
+        'contract_amount',
         'actual_cost',
     ];
 
-    // Relationships
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATTRIBUTE CASTS
+    |--------------------------------------------------------------------------
+    */
+
+    protected $casts = [
+        'estimated_cost' => 'decimal:2',
+        'contract_amount' => 'decimal:2',
+        'actual_cost' => 'decimal:2',
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUDGET → PROJECT
+    |--------------------------------------------------------------------------
+    |
+    | Every budget belongs to one project.
+    |
+    */
+
     public function project()
     {
         return $this->belongsTo(Project::class);
     }
 
-    // Accessor for variance
-    public function getVarianceAttribute()
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROFIT / LOSS
+    |--------------------------------------------------------------------------
+    |
+    | Profit/Loss = Contract Amount - Actual Cost
+    |
+    */
+
+    public function getProfitLossAttribute()
     {
-        return $this->estimated_cost - ($this->actual_cost ?? 0);
+        if ($this->contract_amount === null) {
+            return null;
+        }
+
+        return (float) $this->contract_amount - (float) $this->actual_cost;
     }
 
-    public function getVarianceStatusAttribute()
+
+    /*
+    |--------------------------------------------------------------------------
+    | FINANCIAL STATUS
+    |--------------------------------------------------------------------------
+    |
+    | PROFIT
+    | LOSS
+    | BREAK-EVEN
+    | PENDING
+    |
+    */
+
+    public function getFinancialStatusAttribute()
     {
-        $variance = $this->variance;
-        if ($variance > 0) return 'Under Budget';
-        if ($variance < 0) return 'Over Budget';
-        return 'On Budget';
+        if ($this->contract_amount === null) {
+            return 'pending';
+        }
+
+        $profitLoss = $this->profit_loss;
+
+        if ($profitLoss > 0) {
+            return 'profit';
+        }
+
+        if ($profitLoss < 0) {
+            return 'loss';
+        }
+
+        return 'break-even';
     }
 }

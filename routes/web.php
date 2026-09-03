@@ -13,13 +13,71 @@ use App\Http\Controllers\Backend\BudgetController;
 use App\Http\Controllers\Backend\PaymentController;
 use App\Http\Controllers\Backend\ProgressReportController;
 use App\Http\Controllers\Backend\ReportController;
-use App\Http\Controllers\Frontant\HomeController;
+use App\Http\Controllers\Backend\ProjectRequestController as  AdminProjectRequestController;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\AuthController as CustomerAuthController;
+use App\Http\Controllers\Frontend\CustomerDashboardController;
+use App\Http\Controllers\Frontend\ProjectRequestController;
+use App\Http\Controllers\Frontend\CustomerProjectController;
+
+
+
+
+
+
+
 
 //=========================================================
 // FRONTANT ROUTES
 // =========================================================
 
-Route::get('/', [HomeController::class,'mainPage']);
+Route::get('/', [HomeController::class, 'mainPage']);
+
+// =========================
+// Customer Authentication
+// =========================
+
+Route::get('/customer/register', [CustomerAuthController::class, 'showRegister'])
+    ->name('customer.register');
+
+Route::post('/customer/register', [CustomerAuthController::class, 'register'])
+    ->name('customer.register.submit');
+
+Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])
+    ->name('customer.login');
+
+Route::post('/customer/login', [CustomerAuthController::class, 'login'])
+    ->name('customer.login.submit');
+
+Route::get('/customer/logout', [CustomerAuthController::class, 'logout'])
+    ->name('customer.logout');
+
+
+// =========================
+// Customer Dashboard
+// =========================
+
+Route::middleware('customer')
+    ->prefix('customer')
+    ->name('customer.')
+    ->group(function () {
+
+        Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+
+        // =========================
+        // Customer Project Request
+        // =========================
+
+        Route::get('/project-request', [ProjectRequestController::class, 'create'])
+            ->name('project-request.create');
+
+        Route::post('/project-request', [ProjectRequestController::class, 'store'])
+            ->name('project-request.store');
+
+        // Project Details
+        Route::get('/project/{project}', [CustomerProjectController::class, 'show'])
+            ->name('project.show');
+    });
 
 // =========================================================
 // AUTHENTICATION ROUTES
@@ -464,7 +522,24 @@ Route::prefix('admin')
             [ProgressReportController::class, 'destroy']
         )->name('progress-reports.destroy');
 
-         /*
+
+        // =========================
+        // Project Requests
+        // =========================
+
+        Route::get('/project-requests', [AdminProjectRequestController::class, 'index'])
+            ->name('project-requests.index');
+
+        Route::get('/project-requests/{project}', [AdminProjectRequestController::class, 'show'])
+            ->name('project-requests.show');
+
+        Route::post('/project-requests/{project}/approve', [AdminProjectRequestController::class, 'approve'])
+            ->name('project-requests.approve');
+
+        Route::post('/project-requests/{project}/reject', [AdminProjectRequestController::class, 'reject'])
+            ->name('project-requests.reject');
+
+        /*
         |--------------------------------------------------------------------------
         | REPORT
         |--------------------------------------------------------------------------

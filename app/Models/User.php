@@ -10,6 +10,12 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /*
+    |--------------------------------------------------------------------------
+    | MASS ASSIGNMENT
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
         'name',
         'email',
@@ -17,10 +23,24 @@ class User extends Authenticatable
         'role',
     ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | HIDDEN FIELDS
+    |--------------------------------------------------------------------------
+    */
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    */
 
     protected function casts(): array
     {
@@ -30,7 +50,31 @@ class User extends Authenticatable
         ];
     }
 
-    // Relationships
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER → CLIENT
+    |--------------------------------------------------------------------------
+    |
+    | A customer user has one client profile.
+    |
+    */
+
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER → PROJECTS
+    |--------------------------------------------------------------------------
+    |
+    | An admin/project manager can be responsible for many projects.
+    |
+    */
+
     public function projects()
     {
         return $this->hasMany(Project::class);

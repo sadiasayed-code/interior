@@ -23,42 +23,76 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate login form
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE LOGIN
+        |--------------------------------------------------------------------------
+        */
+
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
 
-        // Find user by email
+        /*
+        |--------------------------------------------------------------------------
+        | FIND USER
+        |--------------------------------------------------------------------------
+        */
+
         $user = User::where('email', $credentials['email'])->first();
 
 
-        // Check user exists and password is correct
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK USER, PASSWORD AND ROLE
+        |--------------------------------------------------------------------------
+        |
+        | Only users with role = admin can enter the Admin Panel.
+        |
+        */
 
+        if (
+            !$user ||
+            !Hash::check($credentials['password'], $user->password) ||
+            $user->role !== 'admin'
+        ) {
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors([
-                    'email' => 'Invalid email or password.',
+                    'email' => 'Invalid admin email or password.',
                 ]);
         }
 
 
-        // Regenerate session ID after successful login
+        /*
+        |--------------------------------------------------------------------------
+        | REGENERATE SESSION
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->regenerate();
 
 
-        // Store logged-in user ID in session
-        session([
-            'admin_user_id' => $user->id,
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | STORE ADMIN SESSION
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->put('admin_user_id', $user->id);
 
 
-        // Redirect to admin dashboard
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT TO ADMIN DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', 'Welcome back!');
+            ->with('success', 'Welcome back, Admin!');
     }
 
 
@@ -67,19 +101,39 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Remove admin session
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE ADMIN SESSION
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->forget('admin_user_id');
 
 
-        // Destroy current session
+        /*
+        |--------------------------------------------------------------------------
+        | DESTROY CURRENT SESSION
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->invalidate();
 
 
-        // Generate new CSRF token
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE NEW CSRF TOKEN
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->regenerateToken();
 
 
-        // Return to login page
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN TO LOGIN
+        |--------------------------------------------------------------------------
+        */
+
         return redirect()
             ->route('login')
             ->with('success', 'You have been logged out.');

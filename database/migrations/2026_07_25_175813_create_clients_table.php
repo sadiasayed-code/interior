@@ -10,10 +10,18 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')
+                ->nullable()
+                ->unique()
+                ->constrained('users')
+                ->nullOnDelete();
+
             $table->string('name');
-            $table->string('phone',12)->nullable();
-            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
             $table->text('address')->nullable();
+
             $table->timestamps();
         });
     }

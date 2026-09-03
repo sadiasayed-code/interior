@@ -15,6 +15,7 @@
 
     {{-- Load CSS directly from public folder --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
 </head>
 
 
@@ -24,19 +25,15 @@
 
 
         {{-- =====================================================
-        SIDEBAR
-    ====================================================== --}}
-
-        {{-- =====================================================
-    SIDEBAR
-====================================================== --}}
+            SIDEBAR
+        ====================================================== --}}
 
         <aside class="sidebar" id="sidebar">
 
 
             {{-- =================================================
-        BRAND
-    ================================================== --}}
+                BRAND
+            ================================================== --}}
 
             <div class="brand">
 
@@ -61,8 +58,8 @@
 
 
             {{-- =================================================
-        MAIN MENU
-    ================================================== --}}
+                MAIN MENU
+            ================================================== --}}
 
             <div class="menu-section">
 
@@ -72,13 +69,14 @@
 
 
                 {{-- =================================================
-            Dashboard
-        ================================================== --}}
+                    Dashboard
+                ================================================== --}}
 
                 <a
                     href="{{ route('admin.dashboard') }}"
                     class="menu-item
-            {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                >
 
                     <span class="icon">
                         ⌂
@@ -93,13 +91,14 @@
 
 
                 {{-- =================================================
-            Clients
-        ================================================== --}}
+                    Clients
+                ================================================== --}}
 
                 <a
                     href="{{ route('admin.clients.index') }}"
                     class="menu-item
-            {{ request()->routeIs('admin.clients.*') ? 'active' : '' }}">
+                    {{ request()->routeIs('admin.clients.*') ? 'active' : '' }}"
+                >
 
                     <span class="icon">
                         ♙
@@ -114,13 +113,14 @@
 
 
                 {{-- =================================================
-            Projects
-        ================================================== --}}
+                    Projects
+                ================================================== --}}
 
                 <a
                     href="{{ route('admin.projects.index') }}"
                     class="menu-item
-            {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
+                    {{ request()->routeIs('admin.projects.*') || request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
+                >
 
                     <span class="icon">
                         ▣
@@ -135,13 +135,37 @@
 
 
                 {{-- =================================================
-            Materials
-        ================================================== --}}
+                    Project Requests
+                ================================================== --}}
+
+                <a
+                    href="{{ route('admin.project-requests.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
+                    style="padding-left: 48px; font-size: 13px;"
+                >
+
+                    <span class="icon">
+                        ↳
+                    </span>
+
+                    <span>
+                        Project Requests
+                    </span>
+
+                </a>
+
+
+
+                {{-- =================================================
+                    Materials
+                ================================================== --}}
 
                 <a
                     href="{{ route('admin.materials.index') }}"
                     class="menu-item
-            {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
+                    {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}"
+                >
 
                     <span class="icon">
                         ◆
@@ -156,13 +180,14 @@
 
 
                 {{-- =================================================
-            Suppliers
-        ================================================== --}}
+                    Suppliers
+                ================================================== --}}
 
                 <a
                     href="{{ route('admin.suppliers.index') }}"
                     class="menu-item
-            {{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
+                    {{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}"
+                >
 
                     <span class="icon">
                         ▤
@@ -177,139 +202,141 @@
 
 
                 {{-- =================================================
-            Project Materials
-            -------------------------------------------------
-            Route will be added after the module is completed.
-        ================================================== --}}
+                    Project Materials
+                ================================================== --}}
 
-               
-
-        <a
-            href="{{ route('admin.project-materials.index') }}"
-                class="menu-item
-                {{ request()->routeIs('admin.project-materials.*') ? 'active' : '' }}"
+                <a
+                    href="{{ route('admin.project-materials.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.project-materials.*') ? 'active' : '' }}"
                 >
 
-                <span class="icon">
-                    ▦
-                </span>
+                    <span class="icon">
+                        ▦
+                    </span>
 
-                <span>
-                    Project Materials
-                </span>
+                    <span>
+                        Project Materials
+                    </span>
 
                 </a>
-
-                
 
 
             </div>
 
 
-{{-- =====================================================
-    MANAGEMENT MENU
-====================================================== --}}
 
-<div class="menu-section">
+            {{-- =====================================================
+                MANAGEMENT MENU
+            ====================================================== --}}
 
-    <p class="menu-title">
-        MANAGEMENT
-    </p>
+            <div class="menu-section">
 
-
-    {{-- =================================================
-        Budgets
-    ================================================== --}}
-
-    <a
-        href="{{ route('admin.budgets.index') }}"
-        class="menu-item
-        {{ request()->routeIs('admin.budgets.*') ? 'active' : '' }}"
-    >
-
-        <span class="icon">
-            ৳
-        </span>
-
-        <span>
-            Budgets
-        </span>
-
-    </a>
+                <p class="menu-title">
+                    MANAGEMENT
+                </p>
 
 
+                {{-- =================================================
+                    Budgets
+                ================================================== --}}
 
-    {{-- =================================================
-        Payments
-    ================================================== --}}
+                <a
+                    href="{{ route('admin.budgets.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.budgets.*') ? 'active' : '' }}"
+                >
 
-    <a
-        href="{{ route('admin.payments.index') }}"
-        class="menu-item
-        {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}"
-    >
+                    <span class="icon">
+                        ৳
+                    </span>
 
-        <span class="icon">
-            ▣
-        </span>
+                    <span>
+                        Budgets
+                    </span>
 
-        <span>
-            Payments
-        </span>
-
-    </a>
+                </a>
 
 
 
-    {{-- =================================================
-        Progress Reports
-    ================================================== --}}
+                {{-- =================================================
+                    Payments
+                ================================================== --}}
 
-    <a
-        href="{{ route('admin.progress-reports.index') }}"
-        class="menu-item
-        {{ request()->routeIs('admin.progress-reports.*') ? 'active' : '' }}"
-    >
+                <a
+                    href="{{ route('admin.payments.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}"
+                >
 
-        <span class="icon">
-            ↗
-        </span>
+                    <span class="icon">
+                        ▣
+                    </span>
 
-        <span>
-            Progress Reports
-        </span>
+                    <span>
+                        Payments
+                    </span>
 
-    </a>
+                </a>
 
 
 
-    {{-- =================================================
-        Reports
-    ================================================== --}}
+                {{-- =================================================
+                    Progress Reports
+                ================================================== --}}
 
-    <a
-        href="{{ route('admin.reports.index') }}"
-        class="menu-item
-        {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
-    >
+                <a
+                    href="{{ route('admin.progress-reports.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.progress-reports.*') ? 'active' : '' }}"
+                >
 
-        <span class="icon">
-            ▥
-        </span>
+                    <span class="icon">
+                        ↗
+                    </span>
 
-        <span>
-            Reports
-        </span>
+                    <span>
+                        Progress Reports
+                    </span>
 
-    </a>
+                </a>
 
-</div>
+
+
+                {{-- =================================================
+                    Reports
+                ================================================== --}}
+
+                <a
+                    href="{{ route('admin.reports.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
+                >
+
+                    <span class="icon">
+                        ▥
+                    </span>
+
+                    <span>
+                        Reports
+                    </span>
+
+                </a>
+
+            </div>
+
+
+
+            {{-- =====================================================
+                SIDEBAR BOTTOM
+            ====================================================== --}}
 
             <div class="sidebar-bottom">
 
                 <a
                     href="{{ route('logout') }}"
-                    class="menu-item logout">
+                    class="menu-item logout"
+                >
 
                     <span class="icon">
                         ↪
@@ -329,13 +356,14 @@
 
 
         {{-- =====================================================
-        MAIN CONTENT
-    ====================================================== --}}
+            MAIN CONTENT
+        ====================================================== --}}
 
         <main class="main-content">
 
 
             {{-- TOPBAR --}}
+
             <header class="topbar">
 
 
@@ -343,10 +371,12 @@
 
 
                     {{-- Mobile menu button --}}
+
                     <button
                         type="button"
                         class="mobile-menu"
-                        id="mobileMenuButton">
+                        id="mobileMenuButton"
+                    >
                         ☰
                     </button>
 
@@ -371,9 +401,11 @@
 
 
                     {{-- Notification --}}
+
                     <button
                         type="button"
-                        class="notification">
+                        class="notification"
+                    >
 
                         ♧
 
@@ -386,6 +418,7 @@
 
 
                     {{-- Admin Profile --}}
+
                     <div class="profile">
 
                         <div class="profile-avatar">
@@ -419,77 +452,85 @@
 
 
             {{-- =================================================
-            PAGE CONTENT
-        ================================================== --}}
+                PAGE CONTENT
+            ================================================== --}}
 
             <section class="page-content">
 
 
                 {{-- Success Message --}}
+
                 @if(session('success'))
 
-                <div
-                    class="alert alert-success"
-                    id="successAlert">
+                    <div
+                        class="alert alert-success"
+                        id="successAlert"
+                    >
 
-                    <span>
-                        {{ session('success') }}
-                    </span>
+                        <span>
+                            {{ session('success') }}
+                        </span>
 
-                    <button
-                        type="button"
-                        class="alert-close"
-                        onclick="closeAlert('successAlert')">
-                        ×
-                    </button>
+                        <button
+                            type="button"
+                            class="alert-close"
+                            onclick="closeAlert('successAlert')"
+                        >
+                            ×
+                        </button>
 
-                </div>
+                    </div>
 
                 @endif
 
 
+
                 {{-- Validation Errors --}}
+
                 @if($errors->any())
 
-                <div
-                    class="alert alert-error"
-                    id="errorAlert">
+                    <div
+                        class="alert alert-error"
+                        id="errorAlert"
+                    >
 
-                    <div>
+                        <div>
 
-                        <strong>
-                            Please fix the following errors:
-                        </strong>
+                            <strong>
+                                Please fix the following errors:
+                            </strong>
 
-                        <ul>
+                            <ul>
 
-                            @foreach($errors->all() as $error)
+                                @foreach($errors->all() as $error)
 
-                            <li>
-                                {{ $error }}
-                            </li>
+                                    <li>
+                                        {{ $error }}
+                                    </li>
 
-                            @endforeach
+                                @endforeach
 
-                        </ul>
+                            </ul>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="alert-close"
+                            onclick="closeAlert('errorAlert')"
+                        >
+                            ×
+                        </button>
 
                     </div>
-
-
-                    <button
-                        type="button"
-                        class="alert-close"
-                        onclick="closeAlert('errorAlert')">
-                        ×
-                    </button>
-
-                </div>
 
                 @endif
 
 
 
                 {{-- Child page content will appear here --}}
+
                 @yield('content')
 
 
@@ -499,7 +540,9 @@
 
     </div>
 
+
     {{-- Load JavaScript directly from public folder --}}
+
     <script src="{{ asset('js/app.js') }}"></script>
 
 </body>
