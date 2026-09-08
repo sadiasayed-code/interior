@@ -65,7 +65,7 @@
             </h2>
 
             <p>
-                Update the estimated and actual project costs.
+                Update the estimated, contract and actual project costs.
             </p>
 
         </div>
@@ -252,6 +252,51 @@
 
 
                 {{-- =================================================
+                    CONTRACT AMOUNT
+                ================================================== --}}
+
+                <div class="form-group">
+
+                    <label for="contract_amount">
+
+                        Contract Amount
+
+                        <span class="required">
+                            *
+                        </span>
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="contract_amount"
+                        id="contract_amount"
+                        value="{{ old(
+                            'contract_amount',
+                            $budget->contract_amount
+                        ) }}"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter contract amount"
+                        required
+                        @disabled($projectStatus === 'cancelled')
+                    >
+
+
+                    @error('contract_amount')
+
+                        <small class="field-error">
+                            {{ $message }}
+                        </small>
+
+                    @enderror
+
+                </div>
+
+
+
+                {{-- =================================================
                     ACTUAL COST
                 ================================================== --}}
 
@@ -343,6 +388,24 @@
 
 
                     {{-- =================================================
+                        CONTRACT
+                    ================================================== --}}
+
+                    <div class="budget-summary-card">
+
+                        <span>
+                            Contract Amount
+                        </span>
+
+                        <strong id="previewContract">
+                            ৳0.00
+                        </strong>
+
+                    </div>
+
+
+
+                    {{-- =================================================
                         ACTUAL
                     ================================================== --}}
 
@@ -382,7 +445,28 @@
 
 
                     {{-- =================================================
-                        STATUS
+                        PROFIT / LOSS
+                    ================================================== --}}
+
+                    <div class="budget-summary-card">
+
+                        <span>
+                            Profit / Loss
+                        </span>
+
+                        <strong
+                            id="previewProfitLoss"
+                            class="text-muted"
+                        >
+                            ৳0.00
+                        </strong>
+
+                    </div>
+
+
+
+                    {{-- =================================================
+                        BUDGET STATUS
                     ================================================== --}}
 
                     <div class="budget-summary-card">
@@ -404,10 +488,34 @@
 
                     </div>
 
+
+
+                    {{-- =================================================
+                        FINANCIAL STATUS
+                    ================================================== --}}
+
+                    <div class="budget-summary-card">
+
+                        <span>
+                            Financial Status
+                        </span>
+
+                        <strong>
+
+                            <span
+                                id="previewFinancialStatus"
+                                class="status-badge status-info"
+                            >
+                                Break-even
+                            </span>
+
+                        </strong>
+
+                    </div>
+
                 </div>
 
             </div>
-
 
 
 
@@ -471,30 +579,60 @@ document.addEventListener('DOMContentLoaded', function () {
             'estimated_cost'
         );
 
+
+    const contractInput =
+        document.getElementById(
+            'contract_amount'
+        );
+
+
     const actualInput =
         document.getElementById(
             'actual_cost'
         );
+
 
     const previewEstimated =
         document.getElementById(
             'previewEstimated'
         );
 
+
+    const previewContract =
+        document.getElementById(
+            'previewContract'
+        );
+
+
     const previewActual =
         document.getElementById(
             'previewActual'
         );
+
 
     const previewVariance =
         document.getElementById(
             'previewVariance'
         );
 
+
+    const previewProfitLoss =
+        document.getElementById(
+            'previewProfitLoss'
+        );
+
+
     const previewStatus =
         document.getElementById(
             'previewStatus'
         );
+
+
+    const previewFinancialStatus =
+        document.getElementById(
+            'previewFinancialStatus'
+        );
+
 
     const form =
         document.getElementById(
@@ -538,20 +676,44 @@ document.addEventListener('DOMContentLoaded', function () {
             ) || 0;
 
 
+        const contract =
+            parseFloat(
+                contractInput.value
+            ) || 0;
+
+
         const actual =
             parseFloat(
                 actualInput.value
             ) || 0;
 
 
+
         /*
         |--------------------------------------------------------------------------
         | VARIANCE
         |--------------------------------------------------------------------------
+        |
+        | Estimated Cost - Actual Cost
+        |
         */
 
         const variance =
             estimated - actual;
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROFIT / LOSS
+        |--------------------------------------------------------------------------
+        |
+        | Contract Amount - Actual Cost
+        |
+        */
+
+        const profitLoss =
+            contract - actual;
 
 
 
@@ -564,6 +726,19 @@ document.addEventListener('DOMContentLoaded', function () {
         previewEstimated.textContent =
             `৳${formatMoney(
                 estimated
+            )}`;
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTRACT
+        |--------------------------------------------------------------------------
+        */
+
+        previewContract.textContent =
+            `৳${formatMoney(
+                contract
             )}`;
 
 
@@ -610,7 +785,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | VARIANCE
+        | VARIANCE DISPLAY
         |--------------------------------------------------------------------------
         */
 
@@ -653,7 +828,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | RESET STATUS CLASSES
+        | RESET PROFIT / LOSS CLASSES
+        |--------------------------------------------------------------------------
+        */
+
+        previewProfitLoss.classList.remove(
+            'text-success',
+            'text-danger',
+            'text-muted'
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROFIT / LOSS DISPLAY
+        |--------------------------------------------------------------------------
+        */
+
+        if (profitLoss > 0) {
+
+            previewProfitLoss.textContent =
+                `+৳${formatMoney(
+                    profitLoss
+                )}`;
+
+            previewProfitLoss.classList.add(
+                'text-success'
+            );
+
+        }
+        else if (profitLoss < 0) {
+
+            previewProfitLoss.textContent =
+                `-৳${formatMoney(
+                    Math.abs(profitLoss)
+                )}`;
+
+            previewProfitLoss.classList.add(
+                'text-danger'
+            );
+
+        }
+        else {
+
+            previewProfitLoss.textContent =
+                '৳0.00';
+
+            previewProfitLoss.classList.add(
+                'text-muted'
+            );
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET BUDGET STATUS
         |--------------------------------------------------------------------------
         */
 
@@ -669,7 +901,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | STATUS
+        | BUDGET STATUS
         |--------------------------------------------------------------------------
         */
 
@@ -704,6 +936,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET FINANCIAL STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        previewFinancialStatus.classList.remove(
+            'status-success',
+            'status-danger',
+            'status-info',
+            'status-warning',
+            'status-secondary'
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FINANCIAL STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if (profitLoss > 0) {
+
+            previewFinancialStatus.textContent =
+                'Profit';
+
+            previewFinancialStatus.classList.add(
+                'status-success'
+            );
+
+        }
+        else if (profitLoss < 0) {
+
+            previewFinancialStatus.textContent =
+                'Loss';
+
+            previewFinancialStatus.classList.add(
+                'status-danger'
+            );
+
+        }
+        else {
+
+            previewFinancialStatus.textContent =
+                'Break-even';
+
+            previewFinancialStatus.classList.add(
+                'status-info'
+            );
+
+        }
+
     }
 
 
@@ -715,6 +1002,12 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     estimatedInput.addEventListener(
+        'input',
+        calculateBudget
+    );
+
+
+    contractInput.addEventListener(
         'input',
         calculateBudget
     );
@@ -760,6 +1053,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert(
                         'The budget of a cancelled project cannot be edited.'
                     );
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CONTRACT AMOUNT REQUIRED
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    contractInput.value === ''
+                ) {
+
+                    event.preventDefault();
+
+                    alert(
+                        'Please enter the contract amount.'
+                    );
+
+                    contractInput.focus();
 
                     return;
 

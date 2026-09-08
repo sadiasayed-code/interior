@@ -20,7 +20,7 @@
         </h1>
 
         <p>
-            Manage estimated and actual costs for each project.
+            Manage estimated, contract and actual costs for each project.
         </p>
 
     </div>
@@ -57,7 +57,7 @@
             </h2>
 
             <p>
-                Compare estimated costs with actual project costs.
+                Compare estimated, contract and actual project costs.
             </p>
 
         </div>
@@ -108,6 +108,13 @@
                     </th>
 
 
+                    {{-- Contract --}}
+
+                    <th>
+                        CONTRACT AMOUNT
+                    </th>
+
+
                     {{-- Actual --}}
 
                     <th>
@@ -122,10 +129,24 @@
                     </th>
 
 
-                    {{-- Status --}}
+                    {{-- Budget Status --}}
 
                     <th>
-                        STATUS
+                        BUDGET STATUS
+                    </th>
+
+
+                    {{-- Profit / Loss --}}
+
+                    <th>
+                        PROFIT / LOSS
+                    </th>
+
+
+                    {{-- Financial Status --}}
+
+                    <th>
+                        FINANCIAL STATUS
                     </th>
 
 
@@ -151,27 +172,58 @@
 
                         /*
                         |--------------------------------------------------------------------------
-                        | VARIANCE
+                        | COST VALUES
                         |--------------------------------------------------------------------------
                         */
 
-                        $variance =
-                            (float) $budget->variance;
+                        $estimatedCost =
+                            (float) $budget->estimated_cost;
+
+                        $contractAmount =
+                            (float) $budget->contract_amount;
+
+                        $actualCost =
+                            (float) ($budget->actual_cost ?? 0);
+
 
 
                         /*
                         |--------------------------------------------------------------------------
-                        | STATUS
+                        | VARIANCE
+                        |--------------------------------------------------------------------------
+                        |
+                        | Estimated Cost - Actual Cost
+                        |
+                        */
+
+                        $variance =
+                            $estimatedCost - $actualCost;
+
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | VARIANCE STATUS
                         |--------------------------------------------------------------------------
                         */
 
                         $varianceStatus =
-                            $budget->variance_status;
+                            $budget->variance_status
+                            ?? (
+                                $variance > 0
+                                    ? 'Under Budget'
+                                    : (
+                                        $variance < 0
+                                            ? 'Over Budget'
+                                            : 'On Budget'
+                                    )
+                            );
+
 
 
                         /*
                         |--------------------------------------------------------------------------
-                        | STATUS CLASS
+                        | VARIANCE STATUS CLASS
                         |--------------------------------------------------------------------------
                         */
 
@@ -194,9 +246,10 @@
                         };
 
 
+
                         /*
                         |--------------------------------------------------------------------------
-                        | VARIANCE CLASS
+                        | VARIANCE TEXT CLASS
                         |--------------------------------------------------------------------------
                         */
 
@@ -205,6 +258,83 @@
                                 ? 'text-success'
                                 : (
                                     $variance < 0
+                                        ? 'text-danger'
+                                        : 'text-muted'
+                                );
+
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PROFIT / LOSS
+                        |--------------------------------------------------------------------------
+                        |
+                        | Contract Amount - Actual Cost
+                        |
+                        */
+
+                        $profitLoss =
+                            $contractAmount - $actualCost;
+
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | FINANCIAL STATUS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $financialStatus =
+                            $budget->financial_status
+                            ?? (
+                                $profitLoss > 0
+                                    ? 'Profit'
+                                    : (
+                                        $profitLoss < 0
+                                            ? 'Loss'
+                                            : 'Break-even'
+                                    )
+                            );
+
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | FINANCIAL STATUS CLASS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $financialStatusClass = match(
+                            $financialStatus
+                        ) {
+
+                            'Profit' =>
+                                'status-success',
+
+                            'Loss' =>
+                                'status-danger',
+
+                            'Break-even' =>
+                                'status-info',
+
+                            default =>
+                                'status-secondary',
+
+                        };
+
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PROFIT / LOSS TEXT CLASS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $profitLossClass =
+                            $profitLoss > 0
+                                ? 'text-success'
+                                : (
+                                    $profitLoss < 0
                                         ? 'text-danger'
                                         : 'text-muted'
                                 );
@@ -255,7 +385,26 @@
                             <strong>
 
                                 ৳{{ number_format(
-                                    (float) $budget->estimated_cost,
+                                    $estimatedCost,
+                                    2
+                                ) }}
+
+                            </strong>
+
+                        </td>
+
+
+
+                        {{-- =================================================
+                            CONTRACT AMOUNT
+                        ================================================== --}}
+
+                        <td>
+
+                            <strong>
+
+                                ৳{{ number_format(
+                                    $contractAmount,
                                     2
                                 ) }}
 
@@ -274,7 +423,7 @@
                             @if($budget->actual_cost !== null)
 
                                 ৳{{ number_format(
-                                    (float) $budget->actual_cost,
+                                    $actualCost,
                                     2
                                 ) }}
 
@@ -325,7 +474,7 @@
 
 
                         {{-- =================================================
-                            VARIANCE STATUS
+                            BUDGET STATUS
                         ================================================== --}}
 
                         <td>
@@ -335,6 +484,58 @@
                             >
 
                                 {{ $varianceStatus }}
+
+                            </span>
+
+                        </td>
+
+
+
+                        {{-- =================================================
+                            PROFIT / LOSS
+                        ================================================== --}}
+
+                        <td>
+
+                            <strong class="{{ $profitLossClass }}">
+
+                                @if($profitLoss > 0)
+
+                                    +৳{{ number_format(
+                                        abs($profitLoss),
+                                        2
+                                    ) }}
+
+                                @elseif($profitLoss < 0)
+
+                                    -৳{{ number_format(
+                                        abs($profitLoss),
+                                        2
+                                    ) }}
+
+                                @else
+
+                                    ৳0.00
+
+                                @endif
+
+                            </strong>
+
+                        </td>
+
+
+
+                        {{-- =================================================
+                            FINANCIAL STATUS
+                        ================================================== --}}
+
+                        <td>
+
+                            <span
+                                class="status-badge {{ $financialStatusClass }}"
+                            >
+
+                                {{ $financialStatus }}
 
                             </span>
 
@@ -438,7 +639,7 @@
                     <tr>
 
                         <td
-                            colspan="7"
+                            colspan="11"
                             class="empty-state"
                         >
 

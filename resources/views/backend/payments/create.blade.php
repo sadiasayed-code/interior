@@ -178,13 +178,13 @@
 
 
                     {{-- =================================================
-                        PROJECT BUDGET
+                        CONTRACT AMOUNT
                     ================================================== --}}
 
                     <div class="payment-summary-card">
 
                         <span>
-                            Project Budget
+                            Contract Amount
                         </span>
 
                         <strong id="projectBudget">
@@ -485,8 +485,6 @@
 
 
 
-
-
             {{-- =================================================
                 FORM ACTIONS
             ================================================== --}}
@@ -528,15 +526,13 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-
     /*
     |--------------------------------------------------------------------------
-    | PROJECT DATA
+    | PROJECT DATA FROM CONTROLLER
     |--------------------------------------------------------------------------
     */
 
     const projectData = @json($projectData);
-
 
 
     /*
@@ -584,7 +580,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-
     /*
     |--------------------------------------------------------------------------
     | FORMAT MONEY
@@ -602,7 +597,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
 
     /*
@@ -633,6 +627,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'text-muted';
 
 
+        projectStatusMessage.textContent =
+            '';
+
+
         amountMessage.textContent =
             '';
 
@@ -653,10 +651,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
-    | SET AMOUNT ERROR
+    | SHOW ERROR
     |--------------------------------------------------------------------------
     */
 
@@ -674,10 +671,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
-    | SET AMOUNT SUCCESS
+    | SHOW SUCCESS / INFO
     |--------------------------------------------------------------------------
     */
 
@@ -695,7 +691,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
     | CALCULATE AFTER PAYMENT
@@ -703,7 +698,6 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     function calculateAfterPayment() {
-
 
         const projectId =
             projectSelect.value;
@@ -733,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function () {
         |--------------------------------------------------------------------------
         */
 
-        if (project.budget === null) {
+        if (project.contract_amount === null) {
 
             remainingAfterPayment.textContent =
                 'No Budget';
@@ -752,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | REMAINING AMOUNT
+        | CURRENT REMAINING
         |--------------------------------------------------------------------------
         */
 
@@ -762,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | ALREADY FULLY PAID
+        | FULLY PAID
         |--------------------------------------------------------------------------
         */
 
@@ -772,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '৳0.00';
 
             remainingAfterPayment.className =
-                'text-muted';
+                'text-success';
 
             amountInput.value =
                 '';
@@ -795,7 +789,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | ENABLE AMOUNT
+        | ENABLE PAYMENT INPUT
         |--------------------------------------------------------------------------
         */
 
@@ -820,14 +814,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
         |--------------------------------------------------------------------------
-        | NO AMOUNT YET
+        | NO PAYMENT AMOUNT
         |--------------------------------------------------------------------------
         */
 
         if (paymentAmount <= 0) {
 
             remainingAfterPayment.textContent =
-                `৳${formatMoney(remaining)}`;
+                `৳${formatMoney(
+                    remaining
+                )}`;
 
             remainingAfterPayment.className =
                 'text-danger';
@@ -910,8 +906,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 )}.`
             );
 
-        }
-        else {
+        } else {
 
             remainingAfterPayment.textContent =
                 '৳0.00';
@@ -929,7 +924,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
     | UPDATE PROJECT SUMMARY
@@ -937,7 +931,6 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     function updatePaymentSummary() {
-
 
         const projectId =
             projectSelect.value;
@@ -952,9 +945,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!projectId) {
 
             resetSummary();
-
-            projectStatusMessage.textContent =
-                '';
 
             return;
 
@@ -1005,7 +995,6 @@ document.addEventListener('DOMContentLoaded', function () {
             '#6b7280';
 
 
-
         /*
         |--------------------------------------------------------------------------
         | CANCELLED PROJECT
@@ -1013,8 +1002,7 @@ document.addEventListener('DOMContentLoaded', function () {
         */
 
         if (
-            project.status ===
-            'cancelled'
+            project.status === 'cancelled'
         ) {
 
             projectStatusMessage.textContent =
@@ -1034,18 +1022,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-
         /*
         |--------------------------------------------------------------------------
-        | BUDGET
+        | CONTRACT AMOUNT
         |--------------------------------------------------------------------------
         */
 
-        if (project.budget !== null) {
+        if (
+            project.contract_amount !== null
+        ) {
 
             projectBudget.textContent =
                 `৳${formatMoney(
-                    project.budget
+                    project.contract_amount
                 )}`;
 
         } else {
@@ -1054,7 +1043,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 'No Budget';
 
         }
-
 
 
         /*
@@ -1067,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', function () {
             `৳${formatMoney(
                 project.total_paid
             )}`;
-
 
 
         /*
@@ -1092,29 +1079,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentRemaining.className =
                     'text-danger';
 
-            }
-            else if (
-                project.remaining < 0
-            ) {
-
-                currentRemaining.textContent =
-                    `-৳${formatMoney(
-                        Math.abs(
-                            project.remaining
-                        )
-                    )}`;
-
-                currentRemaining.className =
-                    'text-success';
-
-            }
-            else {
+            } else {
 
                 currentRemaining.textContent =
                     '৳0.00';
 
                 currentRemaining.className =
-                    'text-muted';
+                    'text-success';
 
             }
 
@@ -1129,17 +1100,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-
         /*
         |--------------------------------------------------------------------------
-        | CALCULATE PAYMENT
+        | CALCULATE
         |--------------------------------------------------------------------------
         */
 
         calculateAfterPayment();
 
     }
-
 
 
     /*
@@ -1161,10 +1130,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-
     /*
     |--------------------------------------------------------------------------
-    | PAYMENT AMOUNT CHANGE
+    | AMOUNT CHANGE
     |--------------------------------------------------------------------------
     */
 
@@ -1178,7 +1146,6 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-
     /*
     |--------------------------------------------------------------------------
     | FORM SUBMIT PROTECTION
@@ -1189,16 +1156,9 @@ document.addEventListener('DOMContentLoaded', function () {
         'submit',
         function (event) {
 
-
             const projectId =
                 projectSelect.value;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PROJECT REQUIRED
-            |--------------------------------------------------------------------------
-            */
 
             if (!projectId) {
 
@@ -1212,12 +1172,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PROJECT DATA
-            |--------------------------------------------------------------------------
-            */
 
             const project =
                 projectData[projectId];
@@ -1238,13 +1192,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
-            | CANCELLED PROJECT
+            | CANCELLED
             |--------------------------------------------------------------------------
             */
 
             if (
-                project.status ===
-                'cancelled'
+                project.status === 'cancelled'
             ) {
 
                 event.preventDefault();
@@ -1265,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', function () {
             */
 
             if (
-                project.budget === null
+                project.contract_amount === null
             ) {
 
                 event.preventDefault();
@@ -1304,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 event.preventDefault();
 
                 alert(
-                    'This project has already received the full budget amount.'
+                    'This project has already received the full contract amount.'
                 );
 
                 return;
@@ -1370,7 +1323,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
-
 
 
     /*

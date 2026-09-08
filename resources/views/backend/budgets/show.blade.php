@@ -6,7 +6,6 @@
 
 @section('content')
 
-
 {{-- =====================================================
     PAGE HEADER
 ====================================================== --}}
@@ -20,11 +19,10 @@
         </h1>
 
         <p>
-            Financial summary for this project.
+            Complete financial summary for this project.
         </p>
 
     </div>
-
 
     <div class="table-actions">
 
@@ -35,17 +33,13 @@
             ← Back
         </a>
 
-
         @if(
             $budget->project &&
             $budget->project->status !== 'cancelled'
         )
 
             <a
-                href="{{ route(
-                    'admin.budgets.edit',
-                    $budget
-                ) }}"
+                href="{{ route('admin.budgets.edit', $budget) }}"
                 class="primary-btn"
             >
                 Edit Budget
@@ -84,10 +78,7 @@
 
     <div class="detail-grid">
 
-
-        {{-- =================================================
-            PROJECT NAME
-        ================================================== --}}
+        {{-- PROJECT --}}
 
         <div class="detail-item">
 
@@ -96,18 +87,13 @@
             </span>
 
             <strong class="detail-value">
-
                 {{ $budget->project->project_name ?? 'N/A' }}
-
             </strong>
 
         </div>
 
 
-
-        {{-- =================================================
-            CLIENT
-        ================================================== --}}
+        {{-- CLIENT --}}
 
         <div class="detail-item">
 
@@ -116,18 +102,13 @@
             </span>
 
             <strong class="detail-value">
-
                 {{ $budget->project->client->name ?? 'N/A' }}
-
             </strong>
 
         </div>
 
 
-
-        {{-- =================================================
-            PROJECT STATUS
-        ================================================== --}}
+        {{-- PROJECT STATUS --}}
 
         <div class="detail-item">
 
@@ -135,17 +116,12 @@
                 Project Status
             </span>
 
-
             @php
 
                 $projectStatus =
-                    $budget->project->status
-                    ?? null;
+                    $budget->project->status ?? null;
 
-
-                $projectStatusClass = match(
-                    $projectStatus
-                ) {
+                $projectStatusClass = match($projectStatus) {
 
                     'pending' =>
                         'status-warning',
@@ -169,10 +145,7 @@
 
             @endphp
 
-
-            <span
-                class="status-badge {{ $projectStatusClass }}"
-            >
+            <span class="status-badge {{ $projectStatusClass }}">
 
                 {{ $projectStatus
                     ? ucfirst(
@@ -190,10 +163,7 @@
         </div>
 
 
-
-        {{-- =================================================
-            BUDGET CREATED
-        ================================================== --}}
+        {{-- BUDGET CREATED --}}
 
         <div class="detail-item">
 
@@ -222,6 +192,153 @@
     FINANCIAL SUMMARY
 ====================================================== --}}
 
+@php
+
+    $estimatedCost =
+        (float) $budget->estimated_cost;
+
+    $contractAmount =
+        (float) $budget->contract_amount;
+
+    $actualCost =
+        (float) ($budget->actual_cost ?? 0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VARIANCE
+    |--------------------------------------------------------------------------
+    | Estimated Cost - Actual Cost
+    |
+    | Positive = Under Budget
+    | Negative = Over Budget
+    |--------------------------------------------------------------------------
+    */
+
+    $variance =
+        $estimatedCost - $actualCost;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROFIT / LOSS
+    |--------------------------------------------------------------------------
+    | Contract Amount - Actual Cost
+    |
+    | Positive = Profit
+    | Negative = Loss
+    | Zero = Break-even
+    |--------------------------------------------------------------------------
+    */
+
+    $profitLoss =
+        $contractAmount - $actualCost;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VARIANCE STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    if ($variance > 0) {
+
+        $varianceStatus = 'Under Budget';
+
+    } elseif ($variance < 0) {
+
+        $varianceStatus = 'Over Budget';
+
+    } else {
+
+        $varianceStatus = 'On Budget';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FINANCIAL STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    if ($profitLoss > 0) {
+
+        $financialStatus = 'Profit';
+
+    } elseif ($profitLoss < 0) {
+
+        $financialStatus = 'Loss';
+
+    } else {
+
+        $financialStatus = 'Break-even';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CSS CLASSES
+    |--------------------------------------------------------------------------
+    */
+
+    $varianceClass =
+        $variance > 0
+            ? 'text-success'
+            : (
+                $variance < 0
+                    ? 'text-danger'
+                    : 'text-muted'
+            );
+
+
+    $profitLossClass =
+        $profitLoss > 0
+            ? 'text-success'
+            : (
+                $profitLoss < 0
+                    ? 'text-danger'
+                    : 'text-muted'
+            );
+
+
+    $varianceStatusClass = match($varianceStatus) {
+
+        'Under Budget' =>
+            'status-success',
+
+        'Over Budget' =>
+            'status-danger',
+
+        'On Budget' =>
+            'status-info',
+
+        default =>
+            'status-secondary',
+
+    };
+
+
+    $financialStatusClass = match($financialStatus) {
+
+        'Profit' =>
+            'status-success',
+
+        'Loss' =>
+            'status-danger',
+
+        'Break-even' =>
+            'status-info',
+
+        default =>
+            'status-secondary',
+
+    };
+
+@endphp
+
+
 <div class="panel">
 
     <div class="panel-header">
@@ -233,13 +350,12 @@
             </h2>
 
             <p>
-                Estimated cost compared with actual cost.
+                Complete budget, contract and financial performance.
             </p>
 
         </div>
 
     </div>
-
 
 
     <div class="budget-detail-grid">
@@ -258,7 +374,30 @@
             <strong>
 
                 ৳{{ number_format(
-                    (float) $budget->estimated_cost,
+                    $estimatedCost,
+                    2
+                ) }}
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- =================================================
+            CONTRACT AMOUNT
+        ================================================== --}}
+
+        <div class="budget-detail-card">
+
+            <span>
+                Contract Amount
+            </span>
+
+            <strong>
+
+                ৳{{ number_format(
+                    $contractAmount,
                     2
                 ) }}
 
@@ -280,18 +419,10 @@
 
             <strong>
 
-                @if($budget->actual_cost !== null)
-
-                    ৳{{ number_format(
-                        (float) $budget->actual_cost,
-                        2
-                    ) }}
-
-                @else
-
-                    Not Set
-
-                @endif
+                ৳{{ number_format(
+                    $actualCost,
+                    2
+                ) }}
 
             </strong>
 
@@ -302,23 +433,6 @@
         {{-- =================================================
             VARIANCE
         ================================================== --}}
-
-        @php
-
-            $variance =
-                (float) $variance;
-
-            $varianceClass =
-                $variance > 0
-                    ? 'text-success'
-                    : (
-                        $variance < 0
-                            ? 'text-danger'
-                            : 'text-muted'
-                    );
-
-        @endphp
-
 
         <div class="budget-detail-card">
 
@@ -358,29 +472,6 @@
             BUDGET STATUS
         ================================================== --}}
 
-        @php
-
-            $varianceStatusClass = match(
-                $varianceStatus
-            ) {
-
-                'Under Budget' =>
-                    'status-success',
-
-                'Over Budget' =>
-                    'status-danger',
-
-                'On Budget' =>
-                    'status-info',
-
-                default =>
-                    'status-secondary',
-
-            };
-
-        @endphp
-
-
         <div class="budget-detail-card">
 
             <span>
@@ -389,11 +480,71 @@
 
             <strong>
 
-                <span
-                    class="status-badge {{ $varianceStatusClass }}"
-                >
+                <span class="status-badge {{ $varianceStatusClass }}">
 
                     {{ $varianceStatus }}
+
+                </span>
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- =================================================
+            PROFIT / LOSS
+        ================================================== --}}
+
+        <div class="budget-detail-card">
+
+            <span>
+                Profit / Loss
+            </span>
+
+            <strong class="{{ $profitLossClass }}">
+
+                @if($profitLoss > 0)
+
+                    +৳{{ number_format(
+                        $profitLoss,
+                        2
+                    ) }}
+
+                @elseif($profitLoss < 0)
+
+                    -৳{{ number_format(
+                        abs($profitLoss),
+                        2
+                    ) }}
+
+                @else
+
+                    ৳0.00
+
+                @endif
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- =================================================
+            FINANCIAL STATUS
+        ================================================== --}}
+
+        <div class="budget-detail-card">
+
+            <span>
+                Financial Status
+            </span>
+
+            <strong>
+
+                <span class="status-badge {{ $financialStatusClass }}">
+
+                    {{ $financialStatus }}
 
                 </span>
 
@@ -408,7 +559,7 @@
 
 
 {{-- =====================================================
-    BUDGET ANALYSIS
+    FINANCIAL ANALYSIS
 ====================================================== --}}
 
 <div class="panel">
@@ -418,11 +569,11 @@
         <div>
 
             <h2>
-                Budget Analysis
+                Financial Analysis
             </h2>
 
             <p>
-                Current budget performance.
+                Detailed analysis of project financial performance.
             </p>
 
         </div>
@@ -432,6 +583,10 @@
 
     <div class="budget-analysis">
 
+
+        {{-- =================================================
+            BUDGET ANALYSIS
+        ================================================== --}}
 
         @if($variance > 0)
 
@@ -444,12 +599,14 @@
                     </strong>
 
                     <p>
+
                         The current actual cost is
                         ৳{{ number_format(
                             abs($variance),
                             2
                         ) }}
                         below the estimated budget.
+
                     </p>
 
                 </div>
@@ -468,12 +625,14 @@
                     </strong>
 
                     <p>
+
                         The current actual cost exceeds
                         the estimated budget by
                         ৳{{ number_format(
                             abs($variance),
                             2
                         ) }}.
+
                     </p>
 
                 </div>
@@ -492,8 +651,91 @@
                     </strong>
 
                     <p>
+
                         The actual cost matches the
                         estimated budget.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        @endif
+
+
+
+        {{-- =================================================
+            PROFIT / LOSS ANALYSIS
+        ================================================== --}}
+
+        @if($profitLoss > 0)
+
+            <div class="alert alert-success">
+
+                <div>
+
+                    <strong>
+                        Project is Profitable
+                    </strong>
+
+                    <p>
+
+                        The contract amount is
+                        ৳{{ number_format(
+                            $profitLoss,
+                            2
+                        ) }}
+                        higher than the actual cost.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        @elseif($profitLoss < 0)
+
+            <div class="alert alert-error">
+
+                <div>
+
+                    <strong>
+                        Project is Running at a Loss
+                    </strong>
+
+                    <p>
+
+                        The actual cost is
+                        ৳{{ number_format(
+                            abs($profitLoss),
+                            2
+                        ) }}
+                        higher than the contract amount.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        @else
+
+            <div class="alert alert-success">
+
+                <div>
+
+                    <strong>
+                        Project is Break-even
+                    </strong>
+
+                    <p>
+
+                        The contract amount and actual
+                        cost are exactly equal.
+
                     </p>
 
                 </div>
@@ -509,11 +751,145 @@
 
 
 {{-- =====================================================
+    FINANCIAL BREAKDOWN
+====================================================== --}}
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Financial Breakdown
+            </h2>
+
+            <p>
+                How the project's financial figures are calculated.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="detail-grid">
+
+
+        {{-- VARIANCE FORMULA --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Budget Variance
+            </span>
+
+            <strong class="detail-value">
+
+                Estimated Cost − Actual Cost
+
+            </strong>
+
+        </div>
+
+
+        {{-- VARIANCE RESULT --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Variance Result
+            </span>
+
+            <strong class="{{ $varianceClass }}">
+
+                @if($variance > 0)
+
+                    +৳{{ number_format(
+                        abs($variance),
+                        2
+                    ) }}
+
+                @elseif($variance < 0)
+
+                    -৳{{ number_format(
+                        abs($variance),
+                        2
+                    ) }}
+
+                @else
+
+                    ৳0.00
+
+                @endif
+
+            </strong>
+
+        </div>
+
+
+        {{-- PROFIT LOSS FORMULA --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Profit / Loss Formula
+            </span>
+
+            <strong class="detail-value">
+
+                Contract Amount − Actual Cost
+
+            </strong>
+
+        </div>
+
+
+        {{-- PROFIT LOSS RESULT --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Profit / Loss Result
+            </span>
+
+            <strong class="{{ $profitLossClass }}">
+
+                @if($profitLoss > 0)
+
+                    +৳{{ number_format(
+                        $profitLoss,
+                        2
+                    ) }}
+
+                @elseif($profitLoss < 0)
+
+                    -৳{{ number_format(
+                        abs($profitLoss),
+                        2
+                    ) }}
+
+                @else
+
+                    ৳0.00
+
+                @endif
+
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{{-- =====================================================
     ACTIONS
 ====================================================== --}}
 
 <div class="form-actions">
-
 
     <a
         href="{{ route('admin.budgets.index') }}"
@@ -529,10 +905,7 @@
     )
 
         <a
-            href="{{ route(
-                'admin.budgets.edit',
-                $budget
-            ) }}"
+            href="{{ route('admin.budgets.edit', $budget) }}"
             class="primary-btn"
         >
             Edit Budget

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Budget;
 use App\Models\Payment;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -19,12 +18,6 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | GET PROJECTS HAVING PAYMENTS
-        |--------------------------------------------------------------------------
-        */
-
         $projects = Project::with([
             'payments',
             'budget',
@@ -34,62 +27,75 @@ class PaymentController extends Controller
         ->latest()
         ->get();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE PAYMENT SUMMARY
-        |--------------------------------------------------------------------------
-        */
-
         foreach ($projects as $project) {
 
             /*
             |--------------------------------------------------------------------------
-            | TOTAL PAYMENT
+            | TOTAL PAID
             |--------------------------------------------------------------------------
             */
 
-            $totalPaid = $project->payments->sum(
-                'amount'
-            );
+            $totalPaid = (float) $project->payments->sum('amount');
 
 
             /*
             |--------------------------------------------------------------------------
-            | BUDGET
+            | CONTRACT AMOUNT
             |--------------------------------------------------------------------------
             */
 
-            $estimatedCost =
-                $project->budget
-                    ? (float) $project->budget->estimated_cost
-                    : 0;
+            $contractAmount = $project->budget
+                ? (float) $project->budget->contract_amount
+                : 0;
 
 
             /*
             |--------------------------------------------------------------------------
-            | REMAINING
+            | REMAINING AMOUNT
             |--------------------------------------------------------------------------
             */
 
-            $remaining =
-                $estimatedCost - $totalPaid;
+            $remainingAmount =
+                $contractAmount - $totalPaid;
 
 
             /*
             |--------------------------------------------------------------------------
-            | ATTACH CALCULATED VALUES
+            | PAYMENT STATUS
             |--------------------------------------------------------------------------
             */
+
+            if (!$project->budget) {
+
+                $paymentStatus = 'No Budget';
+
+            } elseif ($remainingAmount > 0) {
+
+                $paymentStatus = 'Partially Paid';
+
+            } else {
+
+                $paymentStatus = 'Fully Paid';
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTACH VALUES
+            |--------------------------------------------------------------------------
+            */
+
+            $project->contract_amount =
+                $contractAmount;
 
             $project->total_paid =
                 $totalPaid;
 
-            $project->estimated_cost =
-                $estimatedCost;
-
             $project->remaining_amount =
-                $remaining;
+                max($remainingAmount, 0);
+
+            $project->payment_status =
+                $paymentStatus;
         }
 
 
@@ -107,306 +113,357 @@ class PaymentController extends Controller
      *
      * Show payment creation form.
      */
- public function create()
-{
-    $projects = Project::with([
-        'payments',
-        'budget',
-    ])
-    ->where('status', '!=', 'cancelled')
-    ->orderBy('project_name')
-    ->get();
-
+    public function create()
+    {
+        $projects = Project::with([
+            'payments',
+            'budget',
+        ])
+        ->where('status', '!=', 'cancelled')
+        ->orderBy('project_name')
+        ->get();
 
-    $projectData = [];
 
-    foreach ($projects as $project) {
+        $projectData = [];
 
-        $totalPaid = $project->payments->sum('amount');
 
-        $budget = $project->budget
-            ? (float) $project->budget->estimated_cost
-            : null;
+        foreach ($projects as $project) {
 
-        $remaining = $budget !== null
-            ? $budget - $totalPaid
-            : null;
+            /*
+            |--------------------------------------------------------------------------
+            | TOTAL PAID
+            |--------------------------------------------------------------------------
+            */
 
+            $totalPaid =
+                (float) $project->payments->sum('amount');
 
-        $projectData[$project->id] = [
 
-            'name' => $project->project_name,
+            /*
+            |--------------------------------------------------------------------------
+            | CONTRACT AMOUNT
+            |--------------------------------------------------------------------------
+            */
 
-            'status' => $project->status,
+            $contractAmount = $project->budget
+                ? (float) $project->budget->contract_amount
+                : null;
 
-            'budget' => $budget,
 
-            'total_paid' => (float) $totalPaid,
+            /*
+            |--------------------------------------------------------------------------
+            | REMAINING
+            |--------------------------------------------------------------------------
+            */
 
-            'remaining' => $remaining,
+            $remaining = $contractAmount !== null
+                ? max($contractAmount - $totalPaid, 0)
+                : null;
 
-        ];
-    }
 
+            /*
+            |--------------------------------------------------------------------------
+            | PAYMENT STATUS
+            |--------------------------------------------------------------------------
+            */
 
-    return view(
-        'backend.payments.create',
-        compact(
-            'projects',
-            'projectData'
-        )
-    );
-}
+            if ($contractAmount === null) {
 
+                $paymentStatus = 'No Budget';
 
-  /**
- * =========================================================
- * STORE
- * =========================================================
- *
- * Store a new payment.
- *
- * Rules:
- * - Cancelled project cannot receive payment.
- * - Project must have a budget.
- * - Full payment cannot be exceeded.
- * - Payment cannot be greater than remaining amount.
- */
-public function store(Request $request)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
+            } elseif ($remaining > 0) {
 
-    $validated = $request->validate([
+                $paymentStatus = 'Payment Due';
 
-        'project_id' => [
-            'required',
-            'exists:projects,id',
-        ],
+            } else {
 
-        'amount' => [
-            'required',
-            'numeric',
-            'min:0.01',
-        ],
+                $paymentStatus = 'Fully Paid';
+            }
 
-        'payment_date' => [
-            'required',
-            'date',
-        ],
 
-        'payment_method' => [
-            'required',
-            'string',
-            'max:100',
-        ],
+            $projectData[$project->id] = [
 
-        'note' => [
-            'nullable',
-            'string',
-        ],
+                'name' =>
+                    $project->project_name,
 
-    ], [
+                'status' =>
+                    $project->status,
 
-        'project_id.required' =>
-            'Please select a project.',
+                'budget' =>
+                    $contractAmount,
 
-        'project_id.exists' =>
-            'The selected project does not exist.',
+                'contract_amount' =>
+                    $contractAmount,
 
-        'amount.required' =>
-            'Please enter the payment amount.',
+                'total_paid' =>
+                    $totalPaid,
 
-        'amount.numeric' =>
-            'Payment amount must be a valid number.',
+                'remaining' =>
+                    $remaining,
 
-        'amount.min' =>
-            'Payment amount must be greater than zero.',
+                'payment_status' =>
+                    $paymentStatus,
 
-        'payment_date.required' =>
-            'Please select the payment date.',
+            ];
+        }
 
-        'payment_date.date' =>
-            'Please enter a valid payment date.',
 
-        'payment_method.required' =>
-            'Please select a payment method.',
-
-        'payment_method.max' =>
-            'Payment method cannot exceed 100 characters.',
-
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GET PROJECT
-    |--------------------------------------------------------------------------
-    */
-
-    $project = Project::with([
-        'budget',
-        'payments',
-    ])->findOrFail(
-        $validated['project_id']
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CANCELLED PROJECT CHECK
-    |--------------------------------------------------------------------------
-    */
-
-    if ($project->status === 'cancelled') {
-
-        return back()
-            ->withErrors([
-                'project_id' =>
-                    'Payment cannot be added to a cancelled project.',
-            ])
-            ->withInput();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT MUST HAVE A BUDGET
-    |--------------------------------------------------------------------------
-    */
-
-    if (!$project->budget) {
-
-        return back()
-            ->withErrors([
-                'project_id' =>
-                    'This project does not have a budget yet. Please create a budget first.',
-            ])
-            ->withInput();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT BUDGET
-    |--------------------------------------------------------------------------
-    */
-
-    $budgetAmount =
-        (float) $project->budget->estimated_cost;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | TOTAL PAYMENT ALREADY RECEIVED
-    |--------------------------------------------------------------------------
-    */
-
-    $totalPaid =
-        (float) $project->payments->sum('amount');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | REMAINING AMOUNT
-    |--------------------------------------------------------------------------
-    */
-
-    $remainingAmount =
-        $budgetAmount - $totalPaid;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FULL PAYMENT CHECK
-    |--------------------------------------------------------------------------
-    */
-
-    if ($remainingAmount <= 0) {
-
-        return back()
-            ->withErrors([
-                'amount' =>
-                    'This project has already received the full budget amount. No further payment is allowed.',
-            ])
-            ->withInput();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | NEW PAYMENT AMOUNT
-    |--------------------------------------------------------------------------
-    */
-
-    $paymentAmount =
-        (float) $validated['amount'];
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PAYMENT CANNOT EXCEED REMAINING
-    |--------------------------------------------------------------------------
-    */
-
-    if ($paymentAmount > $remainingAmount) {
-
-        return back()
-            ->withErrors([
-                'amount' =>
-                    'Payment amount cannot be greater than the remaining amount of ৳'
-                    . number_format(
-                        $remainingAmount,
-                        2
-                    )
-                    . '.',
-            ])
-            ->withInput();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE PAYMENT
-    |--------------------------------------------------------------------------
-    */
-
-    Payment::create([
-
-        'project_id' =>
-            $project->id,
-
-        'amount' =>
-            $paymentAmount,
-
-        'payment_date' =>
-            $validated['payment_date'],
-
-        'payment_method' =>
-            $validated['payment_method'],
-
-        'note' =>
-            $validated['note'] ?? null,
-
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
-
-    return redirect()
-        ->route('admin.payments.index')
-        ->with(
-            'success',
-            'Payment added successfully.'
+        return view(
+            'backend.payments.create',
+            compact(
+                'projects',
+                'projectData'
+            )
         );
-}
+    }
+
+
+    /**
+     * =========================================================
+     * STORE
+     * =========================================================
+     *
+     * Store a new payment.
+     *
+     * Rules:
+     * - Cancelled project cannot receive payment.
+     * - Project must have a budget.
+     * - Payment cannot exceed contract amount.
+     * - Payment cannot exceed remaining amount.
+     */
+    public function store(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+
+            'project_id' => [
+                'required',
+                'exists:projects,id',
+            ],
+
+            'amount' => [
+                'required',
+                'numeric',
+                'min:0.01',
+            ],
+
+            'payment_date' => [
+                'required',
+                'date',
+            ],
+
+            'payment_method' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'note' => [
+                'nullable',
+                'string',
+            ],
+
+        ], [
+
+            'project_id.required' =>
+                'Please select a project.',
+
+            'project_id.exists' =>
+                'The selected project does not exist.',
+
+            'amount.required' =>
+                'Please enter the payment amount.',
+
+            'amount.numeric' =>
+                'Payment amount must be a valid number.',
+
+            'amount.min' =>
+                'Payment amount must be greater than zero.',
+
+            'payment_date.required' =>
+                'Please select the payment date.',
+
+            'payment_date.date' =>
+                'Please enter a valid payment date.',
+
+            'payment_method.required' =>
+                'Please select a payment method.',
+
+            'payment_method.max' =>
+                'Payment method cannot exceed 100 characters.',
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET PROJECT
+        |--------------------------------------------------------------------------
+        */
+
+        $project = Project::with([
+            'budget',
+            'payments',
+        ])->findOrFail(
+            $validated['project_id']
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CANCELLED PROJECT CHECK
+        |--------------------------------------------------------------------------
+        */
+
+        if ($project->status === 'cancelled') {
+
+            return back()
+                ->withErrors([
+                    'project_id' =>
+                        'Payment cannot be added to a cancelled project.',
+                ])
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT MUST HAVE BUDGET
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$project->budget) {
+
+            return back()
+                ->withErrors([
+                    'project_id' =>
+                        'This project does not have a budget yet. Please create a budget first.',
+                ])
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTRACT AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $contractAmount =
+            (float) $project->budget->contract_amount;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL PAYMENT ALREADY RECEIVED
+        |--------------------------------------------------------------------------
+        */
+
+        $totalPaid =
+            (float) $project->payments->sum('amount');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMAINING AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $remainingAmount =
+            $contractAmount - $totalPaid;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FULL PAYMENT CHECK
+        |--------------------------------------------------------------------------
+        */
+
+        if ($remainingAmount <= 0) {
+
+            return back()
+                ->withErrors([
+                    'amount' =>
+                        'This project has already received the full contract amount. No further payment is allowed.',
+                ])
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NEW PAYMENT AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $paymentAmount =
+            (float) $validated['amount'];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT CANNOT EXCEED REMAINING
+        |--------------------------------------------------------------------------
+        */
+
+        if ($paymentAmount > $remainingAmount) {
+
+            return back()
+                ->withErrors([
+                    'amount' =>
+                        'Payment amount cannot be greater than the remaining amount of ৳'
+                        . number_format(
+                            $remainingAmount,
+                            2
+                        )
+                        . '.',
+                ])
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE PAYMENT
+        |--------------------------------------------------------------------------
+        */
+
+        Payment::create([
+
+            'project_id' =>
+                $project->id,
+
+            'amount' =>
+                $paymentAmount,
+
+            'payment_date' =>
+                $validated['payment_date'],
+
+            'payment_method' =>
+                $validated['payment_method'],
+
+            'note' =>
+                $validated['note'] ?? null,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('admin.payments.index')
+            ->with(
+                'success',
+                'Payment added successfully.'
+            );
+    }
 
 
     /**
@@ -420,7 +477,7 @@ public function store(Request $request)
     {
         /*
         |--------------------------------------------------------------------------
-        | LOAD PROJECT RELATIONSHIPS
+        | LOAD RELATIONSHIPS
         |--------------------------------------------------------------------------
         */
 
@@ -443,26 +500,23 @@ public function store(Request $request)
 
         /*
         |--------------------------------------------------------------------------
-        | TOTAL PAYMENT RECEIVED
+        | TOTAL PAID
         |--------------------------------------------------------------------------
         */
 
         $totalPaid =
-            $project->payments->sum(
-                'amount'
-            );
+            (float) $project->payments->sum('amount');
 
 
         /*
         |--------------------------------------------------------------------------
-        | ESTIMATED COST
+        | CONTRACT AMOUNT
         |--------------------------------------------------------------------------
         */
 
-        $estimatedCost =
-            $project->budget
-                ? (float) $project->budget->estimated_cost
-                : 0;
+        $contractAmount = $project->budget
+            ? (float) $project->budget->contract_amount
+            : 0;
 
 
         /*
@@ -472,23 +526,46 @@ public function store(Request $request)
         */
 
         $remainingAmount =
-            $estimatedCost - $totalPaid;
+            $contractAmount - $totalPaid;
 
 
         /*
         |--------------------------------------------------------------------------
-        | ATTACH CALCULATED VALUES
+        | PAYMENT STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$project->budget) {
+
+            $paymentStatus = 'No Budget';
+
+        } elseif ($remainingAmount > 0) {
+
+            $paymentStatus = 'Partially Paid';
+
+        } else {
+
+            $paymentStatus = 'Fully Paid';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ATTACH VALUES
         |--------------------------------------------------------------------------
         */
 
         $payment->total_paid =
             $totalPaid;
 
-        $payment->estimated_cost =
-            $estimatedCost;
+        $payment->contract_amount =
+            $contractAmount;
 
         $payment->remaining_amount =
-            $remainingAmount;
+            max($remainingAmount, 0);
+
+        $payment->payment_status =
+            $paymentStatus;
 
 
         return view(
@@ -497,8 +574,9 @@ public function store(Request $request)
                 'payment',
                 'project',
                 'totalPaid',
-                'estimatedCost',
-                'remainingAmount'
+                'contractAmount',
+                'remainingAmount',
+                'paymentStatus'
             )
         );
     }
@@ -519,7 +597,10 @@ public function store(Request $request)
         |--------------------------------------------------------------------------
         */
 
-        $payment->load('project');
+        $payment->load([
+            'project.budget',
+            'project.payments',
+        ]);
 
 
         /*
@@ -545,9 +626,58 @@ public function store(Request $request)
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CONTRACT AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $contractAmount = $payment->project->budget
+            ? (float) $payment->project->budget->contract_amount
+            : null;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL OTHER PAYMENTS
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        | Current payment is excluded.
+        |
+        */
+
+        $otherPayments = $payment->project->payments
+            ->where('id', '!=', $payment->id)
+            ->sum('amount');
+
+
+        $otherPayments =
+            (float) $otherPayments;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MAXIMUM ALLOWED PAYMENT
+        |--------------------------------------------------------------------------
+        */
+
+        $remainingForEdit =
+            $contractAmount !== null
+                ? max(
+                    $contractAmount - $otherPayments,
+                    0
+                )
+                : null;
+
+
         return view(
             'backend.payments.edit',
-            compact('payment')
+            compact(
+                'payment',
+                'contractAmount',
+                'remainingForEdit'
+            )
         );
     }
 
@@ -569,7 +699,10 @@ public function store(Request $request)
         |--------------------------------------------------------------------------
         */
 
-        $payment->load('project');
+        $payment->load([
+            'project.budget',
+            'project.payments',
+        ]);
 
 
         /*
@@ -591,6 +724,26 @@ public function store(Request $request)
                 ->with(
                     'error',
                     'Payment of a cancelled project cannot be edited.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT MUST HAVE BUDGET
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$payment->project->budget) {
+
+            return redirect()
+                ->route(
+                    'admin.payments.show',
+                    $payment
+                )
+                ->with(
+                    'error',
+                    'This project does not have a budget.'
                 );
         }
 
@@ -649,6 +802,76 @@ public function store(Request $request)
 
         /*
         |--------------------------------------------------------------------------
+        | CONTRACT AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $contractAmount =
+            (float) $payment->project->budget->contract_amount;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OTHER PAYMENTS
+        |--------------------------------------------------------------------------
+        |
+        | Exclude current payment.
+        |
+        */
+
+        $otherPayments = $payment->project->payments
+            ->where('id', '!=', $payment->id)
+            ->sum('amount');
+
+
+        $otherPayments =
+            (float) $otherPayments;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MAXIMUM ALLOWED AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $maximumAllowed =
+            $contractAmount - $otherPayments;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NEW PAYMENT AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $paymentAmount =
+            (float) $validated['amount'];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT CANNOT EXCEED CONTRACT LIMIT
+        |--------------------------------------------------------------------------
+        */
+
+        if ($paymentAmount > $maximumAllowed) {
+
+            return back()
+                ->withErrors([
+                    'amount' =>
+                        'Payment amount cannot be greater than ৳'
+                        . number_format(
+                            max($maximumAllowed, 0),
+                            2
+                        )
+                        . '.',
+                ])
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | UPDATE PAYMENT
         |--------------------------------------------------------------------------
         */
@@ -656,7 +879,7 @@ public function store(Request $request)
         $payment->update([
 
             'amount' =>
-                $validated['amount'],
+                $paymentAmount,
 
             'payment_date' =>
                 $validated['payment_date'],
@@ -666,7 +889,6 @@ public function store(Request $request)
 
             'note' =>
                 $validated['note'] ?? null,
-
         ]);
 
 
@@ -699,20 +921,7 @@ public function store(Request $request)
      */
     public function destroy(Payment $payment)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE PAYMENT
-        |--------------------------------------------------------------------------
-        */
-
         $payment->delete();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('admin.payments.index')

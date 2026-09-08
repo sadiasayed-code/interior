@@ -30,7 +30,7 @@
 
 
 {{-- =====================================================
-    SUMMARY CARDS
+    PROJECT SUMMARY CARDS
 ====================================================== --}}
 
 <div class="dashboard-cards">
@@ -132,11 +132,175 @@
 
 
 {{-- =====================================================
-    PROJECT STATUS
+    FINANCIAL SUMMARY
+====================================================== --}}
+
+<div class="panel">
+
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Financial Summary
+            </h2>
+
+            <p>
+                Overall financial overview of all projects.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-cards">
+
+
+        {{-- =================================================
+            TOTAL COST
+        ================================================== --}}
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+
+                <span class="summary-label">
+                    Total Cost
+                </span>
+
+                <strong class="summary-number">
+                    ৳ {{ number_format($totalCost, 2) }}
+                </strong>
+
+            </div>
+
+            <div class="summary-icon">
+                C
+            </div>
+
+        </div>
+
+
+
+        {{-- =================================================
+            TOTAL PROFIT
+        ================================================== --}}
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+
+                <span class="summary-label">
+                    Total Profit
+                </span>
+
+                <strong class="summary-number">
+                    ৳ {{ number_format($totalProfit, 2) }}
+                </strong>
+
+            </div>
+
+            <div class="summary-icon">
+                P
+            </div>
+
+        </div>
+
+
+
+        {{-- =================================================
+            TOTAL LOSS
+        ================================================== --}}
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+
+                <span class="summary-label">
+                    Total Loss
+                </span>
+
+                <strong class="summary-number">
+                    ৳ {{ number_format($totalLoss, 2) }}
+                </strong>
+
+            </div>
+
+            <div class="summary-icon">
+                L
+            </div>
+
+        </div>
+
+
+
+        {{-- =================================================
+            TOTAL PAYMENT
+        ================================================== --}}
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+
+                <span class="summary-label">
+                    Total Payment
+                </span>
+
+                <strong class="summary-number">
+                    ৳ {{ number_format($totalPayment, 2) }}
+                </strong>
+
+            </div>
+
+            <div class="summary-icon">
+                $
+            </div>
+
+        </div>
+
+
+
+        {{-- =================================================
+            TOTAL DUE
+        ================================================== --}}
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+
+                <span class="summary-label">
+                    Total Due
+                </span>
+
+                <strong class="summary-number">
+                    ৳ {{ number_format($totalDue, 2) }}
+                </strong>
+
+            </div>
+
+            <div class="summary-icon">
+                D
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+{{-- =====================================================
+    PROJECT STATUS + QUICK ACTIONS
 ====================================================== --}}
 
 <div class="dashboard-grid">
 
+
+    {{-- Project Status --}}
 
     <div class="panel">
 

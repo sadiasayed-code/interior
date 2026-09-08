@@ -176,14 +176,14 @@ nav button {
     <li>Contact</li>
   </ul>
   
-  <a href="{{ route('login') }}">signup</a>
+  <a href="{{ route('customer.register') }}" style="padding: 10px; background-color:#286318; color:#fff">Request Project</a>
 </nav>
 <div class="main">
   <div class="txt">
     <h2>We're a creative design agency.</h2>
     <p>A brilliant, modular agency template for startup's build yours today. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo quia esse nihil.</p>
     <div class="buttons">
-      <button class="button" id="btn1">signUp</button>
+      <a href="{{ route('customer.register') }}" style="padding: 20px; background-color:#286318; color:#fff">Request Project</a>
       <button class="button" id="btn2">
         <div class="circle"><img src="https://static.vecteezy.com/system/resources/previews/017/196/544/non_2x/play-button-icon-transparent-background-free-png.png" alt="play"></div>Watch Video
       </button>

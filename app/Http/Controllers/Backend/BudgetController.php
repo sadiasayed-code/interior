@@ -6,17 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class BudgetController extends Controller
 {
     /**
      * =========================================================
-     * Show all project budgets.
+     * INDEX
      * =========================================================
      *
-     * 
+     * Show all project budgets.
      */
     public function index()
     {
@@ -26,20 +25,27 @@ class BudgetController extends Controller
         ->latest()
         ->get();
 
-
         /*
         |--------------------------------------------------------------------------
-        | Calculate variance in Controller
+        | Calculate Variance + Profit/Loss
         |--------------------------------------------------------------------------
         */
 
         foreach ($budgets as $budget) {
 
-            $estimatedCost =
-                (float) $budget->estimated_cost;
+            $estimatedCost = (float) $budget->estimated_cost;
 
-            $actualCost =
-                (float) ($budget->actual_cost ?? 0);
+            $contractAmount = (float) $budget->contract_amount;
+
+            $actualCost = (float) ($budget->actual_cost ?? 0);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Variance
+            |--------------------------------------------------------------------------
+            | Estimated Cost - Actual Cost
+            */
 
             $budget->variance =
                 $estimatedCost - $actualCost;
@@ -59,7 +65,34 @@ class BudgetController extends Controller
 
                 $budget->variance_status =
                     'On Budget';
+            }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Profit / Loss
+            |--------------------------------------------------------------------------
+            | Contract Amount - Actual Cost
+            */
+
+            $budget->profit_loss =
+                $contractAmount - $actualCost;
+
+
+            if ($budget->profit_loss > 0) {
+
+                $budget->financial_status =
+                    'Profit';
+
+            } elseif ($budget->profit_loss < 0) {
+
+                $budget->financial_status =
+                    'Loss';
+
+            } else {
+
+                $budget->financial_status =
+                    'Break-even';
             }
         }
 
@@ -73,10 +106,10 @@ class BudgetController extends Controller
 
     /**
      * =========================================================
-     * Show create budget form.
+     * CREATE
      * =========================================================
      *
-     * 
+     * Show create budget form.
      */
     public function create()
     {
@@ -84,9 +117,6 @@ class BudgetController extends Controller
         |--------------------------------------------------------------------------
         | Only projects without a budget
         |--------------------------------------------------------------------------
-        |
-        | One project = one budget.
-        |
         */
 
         $projects = Project::whereDoesntHave('budget')
@@ -130,6 +160,12 @@ class BudgetController extends Controller
                 'min:0',
             ],
 
+            'contract_amount' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
             'actual_cost' => [
                 'nullable',
                 'numeric',
@@ -155,6 +191,15 @@ class BudgetController extends Controller
 
             'estimated_cost.min' =>
                 'Estimated cost cannot be negative.',
+
+            'contract_amount.required' =>
+                'Please enter the contract amount.',
+
+            'contract_amount.numeric' =>
+                'Contract amount must be a valid number.',
+
+            'contract_amount.min' =>
+                'Contract amount cannot be negative.',
 
             'actual_cost.numeric' =>
                 'Actual cost must be a valid number.',
@@ -189,7 +234,6 @@ class BudgetController extends Controller
                         'A budget cannot be added to a cancelled project.'
                 ])
                 ->withInput();
-
         }
 
 
@@ -207,8 +251,11 @@ class BudgetController extends Controller
             'estimated_cost' =>
                 $validated['estimated_cost'],
 
+            'contract_amount' =>
+                $validated['contract_amount'],
+
             'actual_cost' =>
-                $validated['actual_cost'] ?? null,
+                $validated['actual_cost'] ?? 0,
 
         ]);
 
@@ -250,16 +297,25 @@ class BudgetController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CALCULATE VARIANCE
+        | CALCULATE VALUES
         |--------------------------------------------------------------------------
         */
 
         $estimatedCost =
             (float) $budget->estimated_cost;
 
+        $contractAmount =
+            (float) $budget->contract_amount;
+
         $actualCost =
             (float) ($budget->actual_cost ?? 0);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VARIANCE
+        |--------------------------------------------------------------------------
+        */
 
         $variance =
             $estimatedCost - $actualCost;
@@ -285,7 +341,39 @@ class BudgetController extends Controller
 
             $varianceStatus =
                 'On Budget';
+        }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROFIT / LOSS
+        |--------------------------------------------------------------------------
+        */
+
+        $profitLoss =
+            $contractAmount - $actualCost;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FINANCIAL STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if ($profitLoss > 0) {
+
+            $financialStatus =
+                'Profit';
+
+        } elseif ($profitLoss < 0) {
+
+            $financialStatus =
+                'Loss';
+
+        } else {
+
+            $financialStatus =
+                'Break-even';
         }
 
 
@@ -294,7 +382,9 @@ class BudgetController extends Controller
             compact(
                 'budget',
                 'variance',
-                'varianceStatus'
+                'varianceStatus',
+                'profitLoss',
+                'financialStatus'
             )
         );
     }
@@ -338,7 +428,6 @@ class BudgetController extends Controller
                     'error',
                     'Budget of a cancelled project cannot be edited.'
                 );
-
         }
 
 
@@ -389,7 +478,6 @@ class BudgetController extends Controller
                     'error',
                     'Budget of a cancelled project cannot be edited.'
                 );
-
         }
 
 
@@ -402,6 +490,12 @@ class BudgetController extends Controller
         $validated = $request->validate([
 
             'estimated_cost' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'contract_amount' => [
                 'required',
                 'numeric',
                 'min:0',
@@ -424,6 +518,15 @@ class BudgetController extends Controller
             'estimated_cost.min' =>
                 'Estimated cost cannot be negative.',
 
+            'contract_amount.required' =>
+                'Please enter the contract amount.',
+
+            'contract_amount.numeric' =>
+                'Contract amount must be a valid number.',
+
+            'contract_amount.min' =>
+                'Contract amount cannot be negative.',
+
             'actual_cost.numeric' =>
                 'Actual cost must be a valid number.',
 
@@ -443,8 +546,11 @@ class BudgetController extends Controller
             'estimated_cost' =>
                 $validated['estimated_cost'],
 
+            'contract_amount' =>
+                $validated['contract_amount'],
+
             'actual_cost' =>
-                $validated['actual_cost'] ?? null,
+                $validated['actual_cost'] ?? 0,
 
         ]);
 
@@ -470,24 +576,14 @@ class BudgetController extends Controller
     /**
      * =========================================================
      * DESTROY
-     * ========================================================
+     * =========================================================
+     *
+     * Delete budget.
      */
     public function destroy(Budget $budget)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE
-        |--------------------------------------------------------------------------
-        */
-
         $budget->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('admin.budgets.index')

@@ -43,11 +43,6 @@
 
 <div class="panel">
 
-
-    {{-- =================================================
-        PANEL HEADER
-    ================================================== --}}
-
     <div class="panel-header">
 
         <div>
@@ -57,7 +52,7 @@
             </h2>
 
             <p>
-                Track total payments received and remaining amounts.
+                Track contract amount, payments received and remaining amounts.
             </p>
 
         </div>
@@ -87,49 +82,33 @@
 
                 <tr>
 
-                    {{-- Serial --}}
-
                     <th>
                         #
                     </th>
-
-
-                    {{-- Project --}}
 
                     <th>
                         PROJECT
                     </th>
 
-
-                    {{-- Budget --}}
-
                     <th>
-                        BUDGET
+                        CONTRACT AMOUNT
                     </th>
-
-
-                    {{-- Total Paid --}}
 
                     <th>
                         TOTAL PAID
                     </th>
 
-
-                    {{-- Remaining --}}
-
                     <th>
                         REMAINING
                     </th>
 
-
-                    {{-- Status --}}
-
                     <th>
-                        STATUS
+                        PAYMENT STATUS
                     </th>
 
-
-                    {{-- Actions --}}
+                    <th>
+                        PROJECT STATUS
+                    </th>
 
                     <th>
                         ACTIONS
@@ -143,9 +122,7 @@
 
             <tbody>
 
-
                 @forelse($projects as $project)
-
 
                     @php
 
@@ -155,16 +132,87 @@
                         |--------------------------------------------------------------------------
                         */
 
-                        $budget =
-                            (float) $project->estimated_cost;
-
+                        $contractAmount =
+                            (float) ($project->contract_amount ?? 0);
 
                         $totalPaid =
-                            (float) $project->total_paid;
-
+                            (float) ($project->total_paid ?? 0);
 
                         $remaining =
-                            (float) $project->remaining_amount;
+                            (float) ($project->remaining_amount ?? 0);
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PAYMENT STATUS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (!$project->budget) {
+
+                            $paymentStatus =
+                                'No Budget';
+
+                        } elseif ($remaining > 0) {
+
+                            $paymentStatus =
+                                'Payment Due';
+
+                        } else {
+
+                            $paymentStatus =
+                                'Fully Paid';
+
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PAYMENT STATUS CLASS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $paymentStatusClass = match(
+                            $paymentStatus
+                        ) {
+
+                            'Payment Due' =>
+                                'status-warning',
+
+                            'Fully Paid' =>
+                                'status-success',
+
+                            'No Budget' =>
+                                'status-secondary',
+
+                            default =>
+                                'status-secondary',
+
+                        };
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | REMAINING AMOUNT CLASS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if ($remaining > 0) {
+
+                            $remainingClass =
+                                'text-danger';
+
+                        } elseif ($remaining == 0) {
+
+                            $remainingClass =
+                                'text-success';
+
+                        } else {
+
+                            $remainingClass =
+                                'text-danger';
+
+                        }
 
 
                         /*
@@ -196,30 +244,6 @@
                                 'status-secondary',
 
                         };
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | REMAINING AMOUNT CLASS
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if ($remaining > 0) {
-
-                            $remainingClass =
-                                'text-danger';
-
-                        } elseif ($remaining < 0) {
-
-                            $remainingClass =
-                                'text-success';
-
-                        } else {
-
-                            $remainingClass =
-                                'text-muted';
-
-                        }
 
                     @endphp
 
@@ -274,7 +298,7 @@
 
 
                         {{-- =================================================
-                            BUDGET
+                            CONTRACT AMOUNT
                         ================================================== --}}
 
                         <td>
@@ -284,7 +308,7 @@
                                 <strong>
 
                                     ৳{{ number_format(
-                                        $budget,
+                                        $contractAmount,
                                         2
                                     ) }}
 
@@ -368,6 +392,24 @@
 
 
                         {{-- =================================================
+                            PAYMENT STATUS
+                        ================================================== --}}
+
+                        <td>
+
+                            <span
+                                class="status-badge {{ $paymentStatusClass }}"
+                            >
+
+                                {{ $paymentStatus }}
+
+                            </span>
+
+                        </td>
+
+
+
+                        {{-- =================================================
                             PROJECT STATUS
                         ================================================== --}}
 
@@ -434,6 +476,10 @@
 
                                 @if(
                                     $project->status !== 'cancelled'
+                                    &&
+                                    $project->budget
+                                    &&
+                                    $remaining > 0
                                 )
 
                                     <a
@@ -445,12 +491,28 @@
                                         + Payment
                                     </a>
 
-                                @else
+                                @elseif($project->status === 'cancelled')
 
                                     <span
                                         class="small-action disabled-action"
                                     >
                                         Cancelled
+                                    </span>
+
+                                @elseif($project->budget && $remaining <= 0)
+
+                                    <span
+                                        class="small-action disabled-action"
+                                    >
+                                        Fully Paid
+                                    </span>
+
+                                @else
+
+                                    <span
+                                        class="small-action disabled-action"
+                                    >
+                                        No Budget
                                     </span>
 
                                 @endif
@@ -474,7 +536,7 @@
                     <tr>
 
                         <td
-                            colspan="7"
+                            colspan="8"
                             class="empty-state"
                         >
 
