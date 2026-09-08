@@ -20,7 +20,7 @@
         </h1>
 
         <p>
-            Complete payment history and financial position for this project.
+            Complete payment milestone details and project payment summary.
         </p>
 
     </div>
@@ -42,7 +42,10 @@
         )
 
             <a
-                href="{{ route('admin.payments.edit', $payment) }}"
+                href="{{ route(
+                    'admin.payments.edit',
+                    $payment
+                ) }}"
                 class="primary-btn"
             >
                 Edit Payment
@@ -60,6 +63,76 @@
     PROJECT INFORMATION
 ====================================================== --}}
 
+@php
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROJECT STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    $projectStatus =
+        $project->status ?? 'pending';
+
+
+    $projectStatusClass = match($projectStatus) {
+
+        'pending' =>
+            'status-warning',
+
+        'ongoing' =>
+            'status-info',
+
+        'on-hold' =>
+            'status-danger',
+
+        'completed' =>
+            'status-success',
+
+        'cancelled' =>
+            'status-danger',
+
+        default =>
+            'status-secondary',
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INDIVIDUAL PAYMENT STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    $selectedPaymentStatus =
+        $payment->status ?? 'pending';
+
+
+    $selectedPaymentStatusClass = match(
+        $selectedPaymentStatus
+    ) {
+
+        'paid' =>
+            'status-success',
+
+        'pending' =>
+            'status-warning',
+
+        'upcoming' =>
+            'status-info',
+
+        'overdue' =>
+            'status-danger',
+
+        default =>
+            'status-secondary',
+
+    };
+
+@endphp
+
+
+
 <div class="panel">
 
     <div class="panel-header">
@@ -71,56 +144,27 @@
             </h2>
 
             <p>
-                Basic information about this payment's project.
+                Basic information about this project's payment.
             </p>
 
         </div>
 
 
-        @php
+        <span
+            class="
+                status-badge
+                {{ $projectStatusClass }}
+            "
+        >
 
-            $projectStatus =
-                $project->status ?? null;
-
-
-            $projectStatusClass = match(
-                $projectStatus
-            ) {
-
-                'pending' =>
-                    'status-warning',
-
-                'ongoing' =>
-                    'status-info',
-
-                'on-hold' =>
-                    'status-danger',
-
-                'completed' =>
-                    'status-success',
-
-                'cancelled' =>
-                    'status-danger',
-
-                default =>
-                    'status-secondary',
-
-            };
-
-        @endphp
-
-
-        <span class="status-badge {{ $projectStatusClass }}">
-
-            {{ $projectStatus
-                ? ucfirst(
+            {{
+                ucfirst(
                     str_replace(
                         '-',
                         ' ',
                         $projectStatus
                     )
                 )
-                : 'N/A'
             }}
 
         </span>
@@ -142,7 +186,11 @@
 
             <strong class="detail-value">
 
-                {{ $project->project_name ?? 'N/A' }}
+                {{
+                    $project->project_name
+                    ??
+                    'N/A'
+                }}
 
             </strong>
 
@@ -160,7 +208,11 @@
 
             <strong class="detail-value">
 
-                {{ $project->client->name ?? 'N/A' }}
+                {{
+                    $project->client?->name
+                    ??
+                    'N/A'
+                }}
 
             </strong>
 
@@ -178,7 +230,11 @@
 
             <strong class="detail-value">
 
-                {{ $project->client->phone ?? 'N/A' }}
+                {{
+                    $project->client?->phone
+                    ??
+                    'N/A'
+                }}
 
             </strong>
 
@@ -186,12 +242,12 @@
 
 
 
-        {{-- PAYMENT ID --}}
+        {{-- SELECTED PAYMENT --}}
 
         <div class="detail-item">
 
             <span class="detail-label">
-                Selected Payment
+                Selected Payment ID
             </span>
 
             <strong class="detail-value">
@@ -201,6 +257,7 @@
             </strong>
 
         </div>
+
 
     </div>
 
@@ -216,85 +273,103 @@
 
     /*
     |--------------------------------------------------------------------------
-    | FINANCIAL VALUES
+    | CONTRACT AMOUNT
     |--------------------------------------------------------------------------
     */
 
-    $contractAmount =
-        (float) $contractAmount;
-
-    $totalPaid =
-        (float) $totalPaid;
-
-    $remaining =
-        (float) $remainingAmount;
+    $displayContractAmount =
+        (float) ($contractAmount ?? 0);
 
 
     /*
     |--------------------------------------------------------------------------
-    | PAYMENT STATUS
+    | TOTAL PAID
+    |--------------------------------------------------------------------------
+    |
+    | ONLY status = paid
+    |
+    */
+
+    $displayTotalPaid =
+        (float) ($totalPaid ?? 0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL DUE
+    |--------------------------------------------------------------------------
+    */
+
+    $displayRemaining =
+        (float) ($remainingAmount ?? 0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROJECT PAYMENT STATUS
     |--------------------------------------------------------------------------
     */
 
     if (!$project->budget) {
 
-        $paymentStatus =
+        $projectPaymentStatus =
             'No Budget';
 
-    } elseif ($remaining > 0) {
+        $projectPaymentStatusClass =
+            'status-secondary';
 
-        $paymentStatus =
+    }
+    elseif ($displayContractAmount <= 0) {
+
+        $projectPaymentStatus =
+            'No Contract';
+
+        $projectPaymentStatusClass =
+            'status-secondary';
+
+    }
+    elseif ($displayRemaining <= 0) {
+
+        $projectPaymentStatus =
+            'Fully Paid';
+
+        $projectPaymentStatusClass =
+            'status-success';
+
+    }
+    elseif ($displayTotalPaid > 0) {
+
+        $projectPaymentStatus =
+            'Partially Paid';
+
+        $projectPaymentStatusClass =
+            'status-info';
+
+    }
+    else {
+
+        $projectPaymentStatus =
             'Payment Due';
 
-    } else {
-
-        $paymentStatus =
-            'Fully Paid';
+        $projectPaymentStatusClass =
+            'status-warning';
 
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | PAYMENT STATUS CLASS
-    |--------------------------------------------------------------------------
-    */
-
-    $paymentStatusClass = match(
-        $paymentStatus
-    ) {
-
-        'Payment Due' =>
-            'status-warning',
-
-        'Fully Paid' =>
-            'status-success',
-
-        'No Budget' =>
-            'status-secondary',
-
-        default =>
-            'status-secondary',
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | REMAINING CLASS
+    | REMAINING AMOUNT CLASS
     |--------------------------------------------------------------------------
     */
 
     $remainingClass =
-        $remaining > 0
+        $displayRemaining > 0
             ? 'text-danger'
-            : (
-                $remaining == 0
-                    ? 'text-success'
-                    : 'text-danger'
-            );
+            : 'text-success';
 
 @endphp
+
 
 
 <div class="panel">
@@ -308,7 +383,7 @@
             </h2>
 
             <p>
-                Current project payment position.
+                Current financial position of this project.
             </p>
 
         </div>
@@ -316,12 +391,11 @@
     </div>
 
 
+
     <div class="payment-detail-grid">
 
 
-        {{-- =================================================
-            CONTRACT AMOUNT
-        ================================================== --}}
+        {{-- CONTRACT AMOUNT --}}
 
         <div class="payment-detail-card">
 
@@ -334,13 +408,13 @@
                 @if($project->budget)
 
                     ৳{{ number_format(
-                        $contractAmount,
+                        $displayContractAmount,
                         2
                     ) }}
 
                 @else
 
-                    No Budget
+                    N/A
 
                 @endif
 
@@ -350,9 +424,7 @@
 
 
 
-        {{-- =================================================
-            TOTAL PAID
-        ================================================== --}}
+        {{-- TOTAL PAID --}}
 
         <div class="payment-detail-card">
 
@@ -363,7 +435,7 @@
             <strong>
 
                 ৳{{ number_format(
-                    $totalPaid,
+                    $displayTotalPaid,
                     2
                 ) }}
 
@@ -373,32 +445,28 @@
 
 
 
-        {{-- =================================================
-            REMAINING
-        ================================================== --}}
+        {{-- TOTAL DUE --}}
 
         <div class="payment-detail-card">
 
             <span>
-                Remaining
+                Total Due
             </span>
 
-            <strong class="{{ $remainingClass }}">
+            <strong
+                class="{{ $remainingClass }}"
+            >
 
                 @if(!$project->budget)
 
                     N/A
 
-                @elseif($remaining > 0)
-
-                    ৳{{ number_format(
-                        $remaining,
-                        2
-                    ) }}
-
                 @else
 
-                    ৳0.00
+                    ৳{{ number_format(
+                        $displayRemaining,
+                        2
+                    ) }}
 
                 @endif
 
@@ -408,32 +476,7 @@
 
 
 
-        {{-- =================================================
-            CURRENT PAYMENT
-        ================================================== --}}
-
-        <div class="payment-detail-card">
-
-            <span>
-                Current Payment
-            </span>
-
-            <strong>
-
-                ৳{{ number_format(
-                    (float) $payment->amount,
-                    2
-                ) }}
-
-            </strong>
-
-        </div>
-
-
-
-        {{-- =================================================
-            PAYMENT STATUS
-        ================================================== --}}
+        {{-- PAYMENT STATUS --}}
 
         <div class="payment-detail-card">
 
@@ -444,10 +487,13 @@
             <strong>
 
                 <span
-                    class="status-badge {{ $paymentStatusClass }}"
+                    class="
+                        status-badge
+                        {{ $projectPaymentStatusClass }}
+                    "
                 >
 
-                    {{ $paymentStatus }}
+                    {{ $projectPaymentStatus }}
 
                 </span>
 
@@ -456,30 +502,6 @@
         </div>
 
 
-
-        {{-- =================================================
-            PAYMENT DATE
-        ================================================== --}}
-
-        <div class="payment-detail-card">
-
-            <span>
-                Payment Date
-            </span>
-
-            <strong>
-
-                {{ $payment->payment_date
-                    ? \Carbon\Carbon::parse(
-                        $payment->payment_date
-                    )->format('d M Y')
-                    : 'N/A'
-                }}
-
-            </strong>
-
-        </div>
-
     </div>
 
 </div>
@@ -487,7 +509,7 @@
 
 
 {{-- =====================================================
-    PAYMENT INFORMATION
+    SELECTED PAYMENT INFORMATION
 ====================================================== --}}
 
 <div class="panel">
@@ -497,27 +519,66 @@
         <div>
 
             <h2>
-                Payment Information
+                Selected Payment Information
             </h2>
 
             <p>
-                Details of the selected payment record.
+                Complete details of the selected payment milestone.
             </p>
 
         </div>
 
+
+        <span
+            class="
+                status-badge
+                {{ $selectedPaymentStatusClass }}
+            "
+        >
+
+            {{
+                ucfirst(
+                    $selectedPaymentStatus
+                )
+            }}
+
+        </span>
+
     </div>
+
 
 
     <div class="detail-grid">
 
 
-        {{-- PAYMENT AMOUNT --}}
+        {{-- MILESTONE --}}
 
         <div class="detail-item">
 
             <span class="detail-label">
-                Payment Amount
+                Milestone
+            </span>
+
+            <strong class="detail-value">
+
+                {{
+                    $payment->milestone
+                    ??
+                    'N/A'
+                }}
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- AMOUNT --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Amount
             </span>
 
             <strong class="detail-value">
@@ -526,6 +587,35 @@
                     (float) $payment->amount,
                     2
                 ) }}
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- DUE DATE --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Due Date
+            </span>
+
+            <strong class="detail-value">
+
+                @if($payment->due_date)
+
+                    {{
+                        $payment->due_date
+                        ->format('d M Y')
+                    }}
+
+                @else
+
+                    N/A
+
+                @endif
 
             </strong>
 
@@ -543,12 +633,49 @@
 
             <strong class="detail-value">
 
-                {{ $payment->payment_date
-                    ? \Carbon\Carbon::parse(
+                @if($payment->payment_date)
+
+                    {{
                         $payment->payment_date
-                    )->format('d M Y')
-                    : 'N/A'
-                }}
+                        ->format('d M Y')
+                    }}
+
+                @else
+
+                    N/A
+
+                @endif
+
+            </strong>
+
+        </div>
+
+
+
+        {{-- STATUS --}}
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Status
+            </span>
+
+            <strong class="detail-value">
+
+                <span
+                    class="
+                        status-badge
+                        {{ $selectedPaymentStatusClass }}
+                    "
+                >
+
+                    {{
+                        ucfirst(
+                            $selectedPaymentStatus
+                        )
+                    }}
+
+                </span>
 
             </strong>
 
@@ -566,7 +693,11 @@
 
             <strong class="detail-value">
 
-                {{ $payment->payment_method ?? 'N/A' }}
+                {{
+                    $payment->payment_method
+                    ??
+                    'N/A'
+                }}
 
             </strong>
 
@@ -584,11 +715,16 @@
 
             <strong class="detail-value">
 
-                {{ $payment->note ?? 'No note provided.' }}
+                {{
+                    $payment->note
+                    ??
+                    'No note provided.'
+                }}
 
             </strong>
 
         </div>
+
 
     </div>
 
@@ -597,7 +733,7 @@
 
 
 {{-- =====================================================
-    PAYMENT HISTORY
+    PAYMENT MILESTONE HISTORY
 ====================================================== --}}
 
 <div class="panel">
@@ -607,11 +743,11 @@
         <div>
 
             <h2>
-                Payment History
+                Payment Milestones
             </h2>
 
             <p>
-                All payments received for this project.
+                All payment milestones created for this project.
             </p>
 
         </div>
@@ -621,9 +757,10 @@
 
             {{ $project->payments->count() }}
 
-            {{ $project->payments->count() === 1
-                ? 'Payment'
-                : 'Payments'
+            {{
+                $project->payments->count() === 1
+                    ? 'Milestone'
+                    : 'Milestones'
             }}
 
         </span>
@@ -644,21 +781,41 @@
                         #
                     </th>
 
-                    <th>
-                        DATE
-                    </th>
 
                     <th>
-                        PAYMENT METHOD
+                        MILESTONE
                     </th>
+
 
                     <th>
                         AMOUNT
                     </th>
 
+
+                    <th>
+                        DUE DATE
+                    </th>
+
+
+                    <th>
+                        PAYMENT DATE
+                    </th>
+
+
+                    <th>
+                        STATUS
+                    </th>
+
+
+                    <th>
+                        PAYMENT METHOD
+                    </th>
+
+
                     <th>
                         NOTE
                     </th>
+
 
                     <th>
                         ACTIONS
@@ -672,12 +829,47 @@
 
             <tbody>
 
+
                 @forelse(
-                    $project->payments->sortByDesc('payment_date')
+                    $project->payments->sortBy('due_date')
                     as $historyPayment
                 )
 
+
+                    @php
+
+                        $historyStatus =
+                            $historyPayment->status
+                            ??
+                            'pending';
+
+
+                        $historyStatusClass =
+                            match($historyStatus) {
+
+                                'paid' =>
+                                    'status-success',
+
+                                'pending' =>
+                                    'status-warning',
+
+                                'upcoming' =>
+                                    'status-info',
+
+                                'overdue' =>
+                                    'status-danger',
+
+                                default =>
+                                    'status-secondary',
+
+                            };
+
+                    @endphp
+
+
+
                     <tr>
+
 
                         {{-- SERIAL --}}
 
@@ -689,27 +881,19 @@
 
 
 
-                        {{-- DATE --}}
+                        {{-- MILESTONE --}}
 
                         <td>
 
-                            {{ \Carbon\Carbon::parse(
-                                $historyPayment->payment_date
-                            )->format('d M Y') }}
+                            <strong>
 
-                        </td>
+                                {{
+                                    $historyPayment->milestone
+                                    ??
+                                    'N/A'
+                                }}
 
-
-
-                        {{-- PAYMENT METHOD --}}
-
-                        <td>
-
-                            <span class="payment-method-badge">
-
-                                {{ $historyPayment->payment_method }}
-
-                            </span>
+                            </strong>
 
                         </td>
 
@@ -719,14 +903,89 @@
 
                         <td>
 
-                            <strong>
+                            ৳{{ number_format(
+                                (float) $historyPayment->amount,
+                                2
+                            ) }}
 
-                                ৳{{ number_format(
-                                    (float) $historyPayment->amount,
-                                    2
-                                ) }}
+                        </td>
 
-                            </strong>
+
+
+                        {{-- DUE DATE --}}
+
+                        <td>
+
+                            @if($historyPayment->due_date)
+
+                                {{
+                                    $historyPayment->due_date
+                                    ->format('d M Y')
+                                }}
+
+                            @else
+
+                                N/A
+
+                            @endif
+
+                        </td>
+
+
+
+                        {{-- PAYMENT DATE --}}
+
+                        <td>
+
+                            @if($historyPayment->payment_date)
+
+                                {{
+                                    $historyPayment->payment_date
+                                    ->format('d M Y')
+                                }}
+
+                            @else
+
+                                —
+
+                            @endif
+
+                        </td>
+
+
+
+                        {{-- STATUS --}}
+
+                        <td>
+
+                            <span
+                                class="
+                                    status-badge
+                                    {{ $historyStatusClass }}
+                                "
+                            >
+
+                                {{
+                                    ucfirst(
+                                        $historyStatus
+                                    )
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+
+                        {{-- PAYMENT METHOD --}}
+
+                        <td>
+
+                            {{
+                                $historyPayment->payment_method
+                                ??
+                                '—'
+                            }}
 
                         </td>
 
@@ -738,17 +997,13 @@
 
                             @if($historyPayment->note)
 
-                                <span class="payment-note">
-
-                                    {{ $historyPayment->note }}
-
-                                </span>
+                                {{
+                                    $historyPayment->note
+                                }}
 
                             @else
 
-                                <span class="text-muted">
-                                    —
-                                </span>
+                                —
 
                             @endif
 
@@ -760,14 +1015,15 @@
 
                         <td>
 
-                            <div class="table-actions">
+
+                            @if(
+                                $projectStatus !== 'cancelled'
+                            )
+
+                                <div class="table-actions">
 
 
-                                {{-- EDIT --}}
-
-                                @if(
-                                    $projectStatus !== 'cancelled'
-                                )
+                                    {{-- EDIT --}}
 
                                     <a
                                         href="{{ route(
@@ -776,90 +1032,105 @@
                                         ) }}"
                                         class="small-action edit"
                                     >
+
                                         Edit
+
                                     </a>
 
-                                @endif
 
 
+                                    {{-- DELETE --}}
 
-                                {{-- DELETE --}}
-
-                                <form
-                                    action="{{ route(
-                                        'admin.payments.destroy',
-                                        $historyPayment
-                                    ) }}"
-                                    method="POST"
-                                    style="display:inline;"
-                                    onsubmit="
-                                        return confirm(
-                                            'Are you sure you want to delete this payment?'
-                                        );
-                                    "
-                                >
-
-                                    @csrf
-
-                                    <button
-                                        type="submit"
-                                        class="small-action delete"
+                                    <form
+                                        action="{{ route(
+                                            'admin.payments.destroy',
+                                            $historyPayment
+                                        ) }}"
+                                        method="POST"
+                                        style="display:inline;"
+                                        onsubmit="
+                                            return confirm(
+                                                'Are you sure you want to delete this payment milestone?'
+                                            );
+                                        "
                                     >
-                                        Delete
-                                    </button>
 
-                                </form>
+                                        @csrf
 
-                            </div>
+
+                                        <button
+                                            type="submit"
+                                            class="small-action delete"
+                                        >
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+
+                                </div>
+
+                            @else
+
+                                —
+
+                            @endif
+
 
                         </td>
 
+
                     </tr>
 
+
                 @empty
+
 
                     <tr>
 
                         <td
-                            colspan="6"
+                            colspan="9"
                             class="empty-state"
                         >
 
-                            <div>
+                            <strong>
+                                No Payment Milestones Found
+                            </strong>
 
-                                <strong>
-                                    No payment history found.
-                                </strong>
-
-                                <p>
-                                    No payment records are available
-                                    for this project.
-                                </p>
-
-                            </div>
+                            <p>
+                                No payment milestone has been created
+                                for this project yet.
+                            </p>
 
                         </td>
 
                     </tr>
 
+
                 @endforelse
+
 
             </tbody>
 
 
 
-            {{-- =================================================
-                TOTAL
-            ================================================== --}}
+            {{-- =============================================
+                FOOTER SUMMARY
+            ============================================== --}}
 
-            @if($project->payments->count() > 0)
+            @if(
+                $project->payments->count() > 0
+            )
 
                 <tfoot>
 
                     <tr>
 
+
                         <th
-                            colspan="3"
+                            colspan="2"
                             style="text-align:right;"
                         >
 
@@ -867,22 +1138,26 @@
 
                         </th>
 
+
                         <th>
 
                             ৳{{ number_format(
-                                $totalPaid,
+                                $displayTotalPaid,
                                 2
                             ) }}
 
                         </th>
 
-                        <th colspan="2"></th>
+
+                        <th colspan="6"></th>
+
 
                     </tr>
 
                 </tfoot>
 
             @endif
+
 
         </table>
 
@@ -907,7 +1182,7 @@
             </h2>
 
             <p>
-                Current payment position of this project.
+                Current payment position based on the contract amount.
             </p>
 
         </div>
@@ -915,10 +1190,12 @@
     </div>
 
 
+
     <div class="budget-analysis">
 
 
         @if(!$project->budget)
+
 
             <div class="alert alert-error">
 
@@ -929,7 +1206,8 @@
                     </strong>
 
                     <p>
-                        This project does not have a budget yet.
+                        A contract amount has not been set
+                        for this project yet.
                     </p>
 
                 </div>
@@ -937,7 +1215,8 @@
             </div>
 
 
-        @elseif($remaining > 0)
+        @elseif($displayRemaining > 0)
+
 
             <div class="alert alert-success">
 
@@ -950,11 +1229,11 @@
                     <p>
 
                         ৳{{ number_format(
-                            $remaining,
+                            $displayRemaining,
                             2
                         ) }}
 
-                        is still remaining from the contract amount.
+                        is still due from the client.
 
                     </p>
 
@@ -965,6 +1244,7 @@
 
         @else
 
+
             <div class="alert alert-success">
 
                 <div>
@@ -974,15 +1254,16 @@
                     </strong>
 
                     <p>
-                        The full contract amount has been received
-                        for this project.
+                        The full contract amount has been received.
                     </p>
 
                 </div>
 
             </div>
 
+
         @endif
+
 
     </div>
 
@@ -991,17 +1272,21 @@
 
 
 {{-- =====================================================
-    ACTIONS
+    PAGE ACTIONS
 ====================================================== --}}
 
 <div class="form-actions">
+
 
     <a
         href="{{ route('admin.payments.index') }}"
         class="secondary-btn"
     >
+
         ← Back to Payments
+
     </a>
+
 
 
     @if(
@@ -1009,17 +1294,20 @@
         &&
         $project->budget
         &&
-        $remaining > 0
+        $displayRemaining > 0
     )
 
         <a
             href="{{ route('admin.payments.create') }}"
             class="primary-btn"
         >
+
             + Add New Payment
+
         </a>
 
     @endif
+
 
 </div>
 

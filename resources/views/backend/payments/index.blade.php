@@ -30,7 +30,9 @@
         href="{{ route('admin.payments.create') }}"
         class="primary-btn"
     >
+
         + Add Payment
+
     </a>
 
 </div>
@@ -43,6 +45,11 @@
 
 <div class="panel">
 
+
+    {{-- =================================================
+        PANEL HEADER
+    ================================================== --}}
+
     <div class="panel-header">
 
         <div>
@@ -52,7 +59,8 @@
             </h2>
 
             <p>
-                Track contract amount, payments received and remaining amounts.
+                Track contract amount, payments received and
+                remaining amounts.
             </p>
 
         </div>
@@ -74,508 +82,528 @@
         TABLE
     ================================================== --}}
 
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        #
-                    </th>
-
-                    <th>
-                        PROJECT
-                    </th>
-
-                    <th>
-                        CONTRACT AMOUNT
-                    </th>
-
-                    <th>
-                        TOTAL PAID
-                    </th>
-
-                    <th>
-                        REMAINING
-                    </th>
-
-                    <th>
-                        PAYMENT STATUS
-                    </th>
-
-                    <th>
-                        PROJECT STATUS
-                    </th>
-
-                    <th>
-                        ACTIONS
-                    </th>
-
-                </tr>
-
-            </thead>
+    @if($projects->count() > 0)
 
 
+        <div class="table-wrapper">
 
-            <tbody>
+            <table>
 
-                @forelse($projects as $project)
-
-                    @php
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | VALUES FROM CONTROLLER
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $contractAmount =
-                            (float) ($project->contract_amount ?? 0);
-
-                        $totalPaid =
-                            (float) ($project->total_paid ?? 0);
-
-                        $remaining =
-                            (float) ($project->remaining_amount ?? 0);
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | PAYMENT STATUS
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if (!$project->budget) {
-
-                            $paymentStatus =
-                                'No Budget';
-
-                        } elseif ($remaining > 0) {
-
-                            $paymentStatus =
-                                'Payment Due';
-
-                        } else {
-
-                            $paymentStatus =
-                                'Fully Paid';
-
-                        }
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | PAYMENT STATUS CLASS
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $paymentStatusClass = match(
-                            $paymentStatus
-                        ) {
-
-                            'Payment Due' =>
-                                'status-warning',
-
-                            'Fully Paid' =>
-                                'status-success',
-
-                            'No Budget' =>
-                                'status-secondary',
-
-                            default =>
-                                'status-secondary',
-
-                        };
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | REMAINING AMOUNT CLASS
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if ($remaining > 0) {
-
-                            $remainingClass =
-                                'text-danger';
-
-                        } elseif ($remaining == 0) {
-
-                            $remainingClass =
-                                'text-success';
-
-                        } else {
-
-                            $remainingClass =
-                                'text-danger';
-
-                        }
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | PROJECT STATUS CLASS
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $statusClass = match(
-                            $project->status
-                        ) {
-
-                            'pending' =>
-                                'status-warning',
-
-                            'ongoing' =>
-                                'status-info',
-
-                            'on-hold' =>
-                                'status-danger',
-
-                            'completed' =>
-                                'status-success',
-
-                            'cancelled' =>
-                                'status-danger',
-
-                            default =>
-                                'status-secondary',
-
-                        };
-
-                    @endphp
-
-
+                <thead>
 
                     <tr>
 
-
-                        {{-- =================================================
-                            SERIAL
-                        ================================================== --}}
-
-                        <td>
-
-                            {{ $loop->iteration }}
-
-                        </td>
+                        <th>
+                            #
+                        </th>
 
 
-
-                        {{-- =================================================
+                        <th>
                             PROJECT
-                        ================================================== --}}
-
-                        <td>
-
-                            <strong>
-
-                                {{ $project->project_name }}
-
-                            </strong>
+                        </th>
 
 
-                            @if($project->client)
-
-                                <small
-                                    style="
-                                        display:block;
-                                        margin-top:4px;
-                                        color:#6b7280;
-                                    "
-                                >
-
-                                    {{ $project->client->name }}
-
-                                </small>
-
-                            @endif
-
-                        </td>
-
-
-
-                        {{-- =================================================
+                        <th>
                             CONTRACT AMOUNT
-                        ================================================== --}}
+                        </th>
 
-                        <td>
 
-                            @if($project->budget)
+                        <th>
+                            TOTAL PAID
+                        </th>
 
-                                <strong>
 
-                                    ৳{{ number_format(
-                                        $contractAmount,
+                        <th>
+                            TOTAL DUE
+                        </th>
+
+
+                        <th>
+                            PAYMENT STATUS
+                        </th>
+
+
+                        <th>
+                            PROJECT STATUS
+                        </th>
+
+
+                        <th>
+                            ACTION
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                    @foreach($projects as $project)
+
+
+                        {{-- =========================================
+                            PROJECT PAYMENT CALCULATIONS
+                        ========================================== --}}
+
+                        @php
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | CONTRACT AMOUNT
+                            |--------------------------------------------------------------------------
+                            |
+                            | Contract Amount always comes
+                            | from the project's budget.
+                            |
+                            */
+
+                            $contractAmount = $project->budget
+                                ? (float) $project->budget->contract_amount
+                                : 0;
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | TOTAL PAID
+                            |--------------------------------------------------------------------------
+                            |
+                            | ONLY payments with status = paid
+                            | are counted as received money.
+                            |
+                            */
+
+                            $totalPaid = (float) $project
+                                ->payments
+                                ->where('status', 'paid')
+                                ->sum('amount');
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | TOTAL DUE
+                            |--------------------------------------------------------------------------
+                            |
+                            | Contract Amount - Total Paid
+                            |
+                            */
+
+                            $totalDue = max(
+
+                                $contractAmount
+                                -
+                                $totalPaid,
+
+                                0
+
+                            );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | PAYMENT STATUS
+                            |--------------------------------------------------------------------------
+                            */
+
+                            if (!$project->budget) {
+
+                                $paymentStatus =
+                                    'No Budget';
+
+                                $paymentStatusClass =
+                                    'status-secondary';
+
+                            }
+                            elseif ($contractAmount <= 0) {
+
+                                $paymentStatus =
+                                    'No Contract';
+
+                                $paymentStatusClass =
+                                    'status-secondary';
+
+                            }
+                            elseif ($totalDue <= 0) {
+
+                                $paymentStatus =
+                                    'Fully Paid';
+
+                                $paymentStatusClass =
+                                    'status-success';
+
+                            }
+                            elseif ($totalPaid > 0) {
+
+                                $paymentStatus =
+                                    'Partially Paid';
+
+                                $paymentStatusClass =
+                                    'status-info';
+
+                            }
+                            else {
+
+                                $paymentStatus =
+                                    'Payment Due';
+
+                                $paymentStatusClass =
+                                    'status-warning';
+
+                            }
+
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | PROJECT STATUS
+                            |--------------------------------------------------------------------------
+                            */
+
+                            $projectStatus =
+                                $project->status
+                                ??
+                                'pending';
+
+
+                            $projectStatusClass =
+                                match($projectStatus) {
+
+                                    'pending' =>
+                                        'status-warning',
+
+                                    'ongoing' =>
+                                        'status-info',
+
+                                    'on-hold' =>
+                                        'status-danger',
+
+                                    'completed' =>
+                                        'status-success',
+
+                                    'cancelled' =>
+                                        'status-danger',
+
+                                    default =>
+                                        'status-secondary',
+
+                                };
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | FIRST PAYMENT
+                            |--------------------------------------------------------------------------
+                            |
+                            | Existing show route requires Payment ID.
+                            |
+                            */
+
+                            $firstPayment =
+                                $project
+                                    ->payments
+                                    ->first();
+
+                        @endphp
+
+
+
+                        <tr>
+
+
+                            {{-- =====================================
+                                SERIAL
+                            ====================================== --}}
+
+                            <td>
+
+                                {{ $loop->iteration }}
+
+                            </td>
+
+
+
+                            {{-- =====================================
+                                PROJECT / CLIENT
+                            ====================================== --}}
+
+                            <td>
+
+                                <span class="project-name">
+
+                                    {{
+                                        $project->project_name
+                                        ??
+                                        'Untitled Project'
+                                    }}
+
+                                </span>
+
+
+                                <span class="client-name">
+
+                                    {{
+                                        $project->client?->name
+                                        ??
+                                        'No Client'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+
+                            {{-- =====================================
+                                CONTRACT AMOUNT
+                            ====================================== --}}
+
+                            <td>
+
+
+                                @if($project->budget)
+
+
+                                    <span class="amount">
+
+                                        ৳ {{ number_format(
+                                            $contractAmount,
+                                            2
+                                        ) }}
+
+                                    </span>
+
+
+                                @else
+
+
+                                    <span
+                                        class="
+                                            status-badge
+                                            status-secondary
+                                        "
+                                    >
+
+                                        No Budget
+
+                                    </span>
+
+
+                                @endif
+
+
+                            </td>
+
+
+
+                            {{-- =====================================
+                                TOTAL PAID
+                            ====================================== --}}
+
+                            <td>
+
+                                <span class="amount-paid">
+
+                                    ৳ {{ number_format(
+                                        $totalPaid,
                                         2
                                     ) }}
 
-                                </strong>
-
-                            @else
-
-                                <span class="text-muted">
-                                    No Budget
                                 </span>
 
-                            @endif
-
-                        </td>
+                            </td>
 
 
 
-                        {{-- =================================================
-                            TOTAL PAID
-                        ================================================== --}}
+                            {{-- =====================================
+                                TOTAL DUE
+                            ====================================== --}}
 
-                        <td>
-
-                            <strong>
-
-                                ৳{{ number_format(
-                                    $totalPaid,
-                                    2
-                                ) }}
-
-                            </strong>
-
-                        </td>
+                            <td>
 
 
+                                @if($project->budget)
 
-                        {{-- =================================================
-                            REMAINING
-                        ================================================== --}}
 
-                        <td>
+                                    @if($totalDue > 0)
 
-                            @if($project->budget)
 
-                                <strong
-                                    class="{{ $remainingClass }}"
-                                >
+                                        <span class="amount-due">
 
-                                    @if($remaining > 0)
+                                            ৳ {{ number_format(
+                                                $totalDue,
+                                                2
+                                            ) }}
 
-                                        ৳{{ number_format(
-                                            $remaining,
-                                            2
-                                        ) }}
+                                        </span>
 
-                                    @elseif($remaining < 0)
-
-                                        -৳{{ number_format(
-                                            abs($remaining),
-                                            2
-                                        ) }}
 
                                     @else
 
-                                        ৳0.00
+
+                                        <span class="fully-paid">
+
+                                            Fully Paid
+
+                                        </span>
+
 
                                     @endif
 
-                                </strong>
 
-                            @else
+                                @else
 
-                                <span class="text-muted">
-                                    N/A
+
+                                    <span
+                                        class="
+                                            status-badge
+                                            status-secondary
+                                        "
+                                    >
+
+                                        N/A
+
+                                    </span>
+
+
+                                @endif
+
+
+                            </td>
+
+
+
+                            {{-- =====================================
+                                PAYMENT STATUS
+                            ====================================== --}}
+
+                            <td>
+
+                                <span
+                                    class="
+                                        status-badge
+                                        {{ $paymentStatusClass }}
+                                    "
+                                >
+
+                                    {{ $paymentStatus }}
+
                                 </span>
 
-                            @endif
-
-                        </td>
+                            </td>
 
 
 
-                        {{-- =================================================
-                            PAYMENT STATUS
-                        ================================================== --}}
+                            {{-- =====================================
+                                PROJECT STATUS
+                            ====================================== --}}
 
-                        <td>
+                            <td>
 
-                            <span
-                                class="status-badge {{ $paymentStatusClass }}"
-                            >
+                                <span
+                                    class="
+                                        status-badge
+                                        {{ $projectStatusClass }}
+                                    "
+                                >
 
-                                {{ $paymentStatus }}
+                                    {{
+                                        ucfirst(
+                                            str_replace(
+                                                '-',
+                                                ' ',
+                                                $projectStatus
+                                            )
+                                        )
+                                    }}
 
-                            </span>
+                                </span>
 
-                        </td>
-
-
-
-                        {{-- =================================================
-                            PROJECT STATUS
-                        ================================================== --}}
-
-                        <td>
-
-                            <span
-                                class="status-badge {{ $statusClass }}"
-                            >
-
-                                {{ ucfirst(
-                                    str_replace(
-                                        '-',
-                                        ' ',
-                                        $project->status
-                                    )
-                                ) }}
-
-                            </span>
-
-                        </td>
+                            </td>
 
 
 
-                        {{-- =================================================
-                            ACTIONS
-                        ================================================== --}}
+                            {{-- =====================================
+                                ACTION
+                            ====================================== --}}
 
-                        <td>
-
-                            <div class="table-actions">
-
-
-                                {{-- =================================================
-                                    VIEW
-                                ================================================== --}}
-
-                                @php
-
-                                    $firstPayment =
-                                        $project->payments->first();
-
-                                @endphp
+                            <td>
 
 
                                 @if($firstPayment)
 
+
                                     <a
                                         href="{{ route(
                                             'admin.payments.show',
-                                            $firstPayment
+                                            $firstPayment->id
                                         ) }}"
-                                        class="small-action view"
+                                        class="btn-view"
                                     >
+
                                         View
+
                                     </a>
 
-                                @endif
-
-
-
-                                {{-- =================================================
-                                    ADD PAYMENT
-                                ================================================== --}}
-
-                                @if(
-                                    $project->status !== 'cancelled'
-                                    &&
-                                    $project->budget
-                                    &&
-                                    $remaining > 0
-                                )
-
-                                    <a
-                                        href="{{ route(
-                                            'admin.payments.create'
-                                        ) }}"
-                                        class="small-action edit"
-                                    >
-                                        + Payment
-                                    </a>
-
-                                @elseif($project->status === 'cancelled')
-
-                                    <span
-                                        class="small-action disabled-action"
-                                    >
-                                        Cancelled
-                                    </span>
-
-                                @elseif($project->budget && $remaining <= 0)
-
-                                    <span
-                                        class="small-action disabled-action"
-                                    >
-                                        Fully Paid
-                                    </span>
 
                                 @else
 
+
                                     <span
-                                        class="small-action disabled-action"
+                                        class="
+                                            status-badge
+                                            status-secondary
+                                        "
                                     >
-                                        No Budget
+
+                                        No Payment Yet
+
                                     </span>
+
 
                                 @endif
 
 
-                            </div>
-
-                        </td>
+                            </td>
 
 
-                    </tr>
+                        </tr>
 
 
-                @empty
+                    @endforeach
 
 
-                    {{-- =================================================
-                        EMPTY STATE
-                    ================================================== --}}
+                </tbody>
 
-                    <tr>
+            </table>
 
-                        <td
-                            colspan="8"
-                            class="empty-state"
-                        >
-
-                            <div>
-
-                                <strong>
-                                    No payments found.
-                                </strong>
-
-                                <p>
-                                    Add a payment to a project
-                                    to see it here.
-                                </p>
+        </div>
 
 
-                                <a
-                                    href="{{ route(
-                                        'admin.payments.create'
-                                    ) }}"
-                                    class="primary-btn"
-                                >
-                                    + Add Payment
-                                </a>
 
-                            </div>
-
-                        </td>
-
-                    </tr>
+    @else
 
 
-                @endforelse
+        {{-- =============================================
+            EMPTY STATE
+        ============================================== --}}
+
+        <div class="empty-state">
+
+            <h3>
+                No Projects Found
+            </h3>
+
+            <p>
+                No project payment data is available yet.
+            </p>
+
+        </div>
 
 
-            </tbody>
+    @endif
 
-        </table>
-
-    </div>
 
 </div>
 

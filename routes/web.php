@@ -49,9 +49,8 @@ Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])
 Route::post('/customer/login', [CustomerAuthController::class, 'login'])
     ->name('customer.login.submit');
 
-Route::get('/customer/logout', [CustomerAuthController::class, 'logout'])
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])
     ->name('customer.logout');
-
 
 // =========================
 // Customer Dashboard
@@ -62,21 +61,111 @@ Route::middleware('customer')
     ->name('customer.')
     ->group(function () {
 
-        Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
         // =========================
-        // Customer Project Request
+        // CUSTOMER DASHBOARD
         // =========================
 
-        Route::get('/project-request', [ProjectRequestController::class, 'create'])
-            ->name('project-request.create');
+        Route::get(
+            '/dashboard',
+            [CustomerDashboardController::class, 'index']
+        )->name(
+            'dashboard'
+        );
 
-        Route::post('/project-request', [ProjectRequestController::class, 'store'])
-            ->name('project-request.store');
 
-        // Project Details
-        Route::get('/project/{project}', [CustomerProjectController::class, 'show'])
-            ->name('project.show');
+        // =========================
+        // CUSTOMER PROJECT REQUEST
+        // =========================
+
+        Route::get(
+            '/project-request',
+            [ProjectRequestController::class, 'create']
+        )->name(
+            'project-request.create'
+        );
+
+
+        Route::post(
+            '/project-request',
+            [ProjectRequestController::class, 'store']
+        )->name(
+            'project-request.store'
+        );
+
+
+        // =========================
+        // CUSTOMER PROJECT DETAILS
+        // =========================
+
+        Route::get(
+            '/project/{project}',
+            [CustomerProjectController::class, 'show']
+        )->name(
+            'project.show'
+        );
+
+
+        // =========================
+        // CUSTOMER PROJECT EDIT
+        // =========================
+
+        Route::get(
+            '/project/{project}/edit',
+            [CustomerProjectController::class, 'edit']
+        )->name(
+            'project.edit'
+        );
+
+
+        // =========================
+        // CUSTOMER PROJECT UPDATE
+        // =========================
+
+        Route::post(
+            '/project/{project}/update',
+            [CustomerProjectController::class, 'update']
+        )->name(
+            'project.update'
+        );
+
+
+        // =========================
+        // PAUSE PROJECT
+        // =========================
+
+        Route::post(
+            '/project/{project}/pause',
+            [CustomerProjectController::class, 'pause']
+        )->name(
+            'projects.pause'
+        );
+
+
+        // =========================
+        // RESUME / START PROJECT
+        // =========================
+
+        Route::post(
+            '/project/{project}/resume',
+            [CustomerProjectController::class, 'resume']
+        )->name(
+            'projects.resume'
+        );
+
+
+        // =========================
+        // CANCEL PROJECT
+        // =========================
+
+        Route::post(
+            '/project/{project}/cancel',
+            [CustomerProjectController::class, 'cancel']
+        )->name(
+            'projects.cancel'
+        );
+
+
     });
 
 // =========================================================

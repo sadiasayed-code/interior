@@ -133,28 +133,80 @@
                 </a>
 
 
+{{-- =================================================
+    Project Requests
+================================================= --}}
 
-                {{-- =================================================
-                    Project Requests
-                ================================================== --}}
+@php
 
-                <a
-                    href="{{ route('admin.project-requests.index') }}"
-                    class="menu-item
-                    {{ request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
-                    style="padding-left: 48px; font-size: 13px;"
-                >
+    $pendingProjectRequests =
+        $pendingProjectRequests ?? 0;
 
-                    <span class="icon">
-                        ↳
-                    </span>
+@endphp
 
-                    <span>
-                        Project Requests
-                    </span>
 
-                </a>
+<a
+    href="{{ route('admin.project-requests.index') }}"
+    class="menu-item
+    {{ request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
+    style="
+        padding-left: 48px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+    "
+>
 
+    <span class="icon">
+        ↳
+    </span>
+
+
+    <span
+        style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 1;
+            min-width: 0;
+        "
+    >
+
+        <span>
+            Project Requests
+        </span>
+
+
+        {{-- Show badge only when pending requests exist --}}
+
+        @if($pendingProjectRequests > 0)
+
+            <span
+                style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 22px;
+                    height: 22px;
+                    padding: 0 7px;
+                    margin-left: 10px;
+                    border-radius: 50px;
+                    background: #dc2626;
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    line-height: 1;
+                    flex-shrink: 0;
+                "
+            >
+                {{ $pendingProjectRequests }}
+            </span>
+
+        @endif
+
+    </span>
+
+</a>
 
 
                 {{-- =================================================

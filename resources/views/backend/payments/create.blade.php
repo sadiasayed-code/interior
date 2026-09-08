@@ -20,7 +20,7 @@
         </h1>
 
         <p>
-            Record a payment received for a project.
+            Add a payment milestone for a project.
         </p>
 
     </div>
@@ -43,6 +43,7 @@
 
 <div class="panel">
 
+
     <div class="panel-header">
 
         <div>
@@ -52,7 +53,7 @@
             </h2>
 
             <p>
-                Enter the payment details below.
+                Create and manage project payment milestones.
             </p>
 
         </div>
@@ -62,6 +63,7 @@
 
 
     <div class="form-container">
+
 
         <form
             action="{{ route('admin.payments.store') }}"
@@ -105,7 +107,6 @@
 
                         <option
                             value="{{ $project->id }}"
-                            data-status="{{ $project->status }}"
                             {{ old('project_id') == $project->id
                                 ? 'selected'
                                 : ''
@@ -133,7 +134,9 @@
                 @error('project_id')
 
                     <small class="field-error">
+
                         {{ $message }}
+
                     </small>
 
                 @enderror
@@ -157,6 +160,7 @@
                 id="paymentSummary"
             >
 
+
                 <div class="payment-summary-header">
 
                     <div>
@@ -174,12 +178,11 @@
                 </div>
 
 
+
                 <div class="payment-summary-grid">
 
 
-                    {{-- =================================================
-                        CONTRACT AMOUNT
-                    ================================================== --}}
+                    {{-- CONTRACT AMOUNT --}}
 
                     <div class="payment-summary-card">
 
@@ -187,7 +190,9 @@
                             Contract Amount
                         </span>
 
-                        <strong id="projectBudget">
+                        <strong
+                            id="projectBudget"
+                        >
                             Not Available
                         </strong>
 
@@ -195,9 +200,7 @@
 
 
 
-                    {{-- =================================================
-                        TOTAL PAID
-                    ================================================== --}}
+                    {{-- TOTAL PAID --}}
 
                     <div class="payment-summary-card">
 
@@ -205,7 +208,9 @@
                             Total Paid
                         </span>
 
-                        <strong id="totalPaid">
+                        <strong
+                            id="totalPaid"
+                        >
                             ৳0.00
                         </strong>
 
@@ -213,14 +218,12 @@
 
 
 
-                    {{-- =================================================
-                        CURRENT REMAINING
-                    ================================================== --}}
+                    {{-- CURRENT DUE --}}
 
                     <div class="payment-summary-card">
 
                         <span>
-                            Current Remaining
+                            Current Due
                         </span>
 
                         <strong
@@ -234,18 +237,16 @@
 
 
 
-                    {{-- =================================================
-                        AFTER THIS PAYMENT
-                    ================================================== --}}
+                    {{-- MILESTONE CAPACITY --}}
 
                     <div class="payment-summary-card">
 
                         <span>
-                            Remaining After Payment
+                            Available Milestone Amount
                         </span>
 
                         <strong
-                            id="remainingAfterPayment"
+                            id="availableMilestoneAmount"
                             class="text-muted"
                         >
                             Not Available
@@ -253,7 +254,49 @@
 
                     </div>
 
+
                 </div>
+
+            </div>
+
+
+
+            {{-- =================================================
+                MILESTONE
+            ================================================== --}}
+
+            <div class="form-group">
+
+                <label for="milestone">
+
+                    Payment Milestone
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="text"
+                    name="milestone"
+                    id="milestone"
+                    value="{{ old('milestone') }}"
+                    placeholder="Example: Advance Payment"
+                    required
+                >
+
+
+                @error('milestone')
+
+                    <small class="field-error">
+
+                        {{ $message }}
+
+                    </small>
+
+                @enderror
 
             </div>
 
@@ -266,15 +309,13 @@
             <div class="form-grid">
 
 
-                {{-- =================================================
-                    AMOUNT
-                ================================================== --}}
+                {{-- AMOUNT --}}
 
                 <div class="form-group">
 
                     <label for="amount">
 
-                        Payment Amount
+                        Amount
 
                         <span class="required">
                             *
@@ -290,7 +331,7 @@
                         value="{{ old('amount') }}"
                         min="0.01"
                         step="0.01"
-                        placeholder="Enter payment amount"
+                        placeholder="Enter milestone amount"
                         required
                     >
 
@@ -304,7 +345,9 @@
                     @error('amount')
 
                         <small class="field-error">
+
                             {{ $message }}
+
                         </small>
 
                     @enderror
@@ -313,18 +356,16 @@
 
 
 
-                {{-- =================================================
-                    PAYMENT DATE
-                ================================================== --}}
+                {{-- DUE DATE --}}
 
                 <div class="form-group">
 
-                    <label for="payment_date">
+                    <label for="due_date">
 
-                        Payment Date
+                        Due Date
 
-                        <span class="required">
-                            *
+                        <span class="optional">
+                            Optional
                         </span>
 
                     </label>
@@ -332,39 +373,38 @@
 
                     <input
                         type="date"
-                        name="payment_date"
-                        id="payment_date"
-                        value="{{ old(
-                            'payment_date',
-                            now()->format('Y-m-d')
-                        ) }}"
-                        required
+                        name="due_date"
+                        id="due_date"
+                        value="{{ old('due_date') }}"
                     >
 
 
-                    @error('payment_date')
+                    @error('due_date')
 
                         <small class="field-error">
+
                             {{ $message }}
+
                         </small>
 
                     @enderror
 
                 </div>
 
+
             </div>
 
 
 
             {{-- =================================================
-                PAYMENT METHOD
+                PAYMENT STATUS
             ================================================== --}}
 
             <div class="form-group">
 
-                <label for="payment_method">
+                <label for="status">
 
-                    Payment Method
+                    Payment Status
 
                     <span class="required">
                         *
@@ -374,75 +414,219 @@
 
 
                 <select
-                    name="payment_method"
-                    id="payment_method"
+                    name="status"
+                    id="status"
                     required
                 >
 
-                    <option value="">
-                        -- Select Payment Method --
-                    </option>
-
-                    <option
-                        value="Cash"
-                        {{ old('payment_method') === 'Cash'
+                    <option value="pending"
+                        {{ old('status', 'pending') === 'pending'
                             ? 'selected'
                             : ''
                         }}
                     >
-                        Cash
+                        Pending
                     </option>
 
-                    <option
-                        value="Bank Transfer"
-                        {{ old('payment_method') === 'Bank Transfer'
+
+                    <option value="upcoming"
+                        {{ old('status') === 'upcoming'
                             ? 'selected'
                             : ''
                         }}
                     >
-                        Bank Transfer
+                        Upcoming
                     </option>
 
-                    <option
-                        value="Cheque"
-                        {{ old('payment_method') === 'Cheque'
+
+                    <option value="paid"
+                        {{ old('status') === 'paid'
                             ? 'selected'
                             : ''
                         }}
                     >
-                        Cheque
+                        Paid
                     </option>
 
-                    <option
-                        value="Mobile Banking"
-                        {{ old('payment_method') === 'Mobile Banking'
+
+                    <option value="overdue"
+                        {{ old('status') === 'overdue'
                             ? 'selected'
                             : ''
                         }}
                     >
-                        Mobile Banking
-                    </option>
-
-                    <option
-                        value="Other"
-                        {{ old('payment_method') === 'Other'
-                            ? 'selected'
-                            : ''
-                        }}
-                    >
-                        Other
+                        Overdue
                     </option>
 
                 </select>
 
 
-                @error('payment_method')
+                @error('status')
 
                     <small class="field-error">
+
                         {{ $message }}
+
                     </small>
 
                 @enderror
+
+            </div>
+
+
+
+            {{-- =================================================
+                PAID DETAILS
+            ================================================== --}}
+
+            <div
+                id="paidDetails"
+                style="display:none;"
+            >
+
+
+                <div class="form-grid">
+
+
+                    {{-- PAYMENT DATE --}}
+
+                    <div class="form-group">
+
+                        <label for="payment_date">
+
+                            Payment Date
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <input
+                            type="date"
+                            name="payment_date"
+                            id="payment_date"
+                            value="{{ old(
+                                'payment_date',
+                                now()->format('Y-m-d')
+                            ) }}"
+                        >
+
+
+                        @error('payment_date')
+
+                            <small class="field-error">
+
+                                {{ $message }}
+
+                            </small>
+
+                        @enderror
+
+                    </div>
+
+
+
+                    {{-- PAYMENT METHOD --}}
+
+                    <div class="form-group">
+
+                        <label for="payment_method">
+
+                            Payment Method
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <select
+                            name="payment_method"
+                            id="payment_method"
+                        >
+
+                            <option value="">
+
+                                -- Select Payment Method --
+
+                            </option>
+
+
+                            <option
+                                value="Cash"
+                                {{ old('payment_method') === 'Cash'
+                                    ? 'selected'
+                                    : ''
+                                }}
+                            >
+                                Cash
+                            </option>
+
+
+                            <option
+                                value="Bank Transfer"
+                                {{ old('payment_method') === 'Bank Transfer'
+                                    ? 'selected'
+                                    : ''
+                                }}
+                            >
+                                Bank Transfer
+                            </option>
+
+
+                            <option
+                                value="Cheque"
+                                {{ old('payment_method') === 'Cheque'
+                                    ? 'selected'
+                                    : ''
+                                }}
+                            >
+                                Cheque
+                            </option>
+
+
+                            <option
+                                value="Mobile Banking"
+                                {{ old('payment_method') === 'Mobile Banking'
+                                    ? 'selected'
+                                    : ''
+                                }}
+                            >
+                                Mobile Banking
+                            </option>
+
+
+                            <option
+                                value="Other"
+                                {{ old('payment_method') === 'Other'
+                                    ? 'selected'
+                                    : ''
+                                }}
+                            >
+                                Other
+                            </option>
+
+                        </select>
+
+
+                        @error('payment_method')
+
+                            <small class="field-error">
+
+                                {{ $message }}
+
+                            </small>
+
+                        @enderror
+
+                    </div>
+
+
+                </div>
+
 
             </div>
 
@@ -469,14 +653,16 @@
                     name="note"
                     id="note"
                     rows="4"
-                    placeholder="Enter any additional payment note..."
+                    placeholder="Enter additional notes..."
                 >{{ old('note') }}</textarea>
 
 
                 @error('note')
 
                     <small class="field-error">
+
                         {{ $message }}
+
                     </small>
 
                 @enderror
@@ -491,12 +677,14 @@
 
             <div class="form-actions">
 
+
                 <a
                     href="{{ route('admin.payments.index') }}"
                     class="secondary-btn"
                 >
                     Cancel
                 </a>
+
 
 
                 <button
@@ -507,12 +695,15 @@
                     Save Payment
                 </button>
 
+
             </div>
 
 
         </form>
 
+
     </div>
+
 
 </div>
 
@@ -524,637 +715,203 @@
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT DATA FROM CONTROLLER
-    |--------------------------------------------------------------------------
-    */
-
-    const projectData = @json($projectData);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DOM ELEMENTS
-    |--------------------------------------------------------------------------
-    */
-
-    const projectSelect =
-        document.getElementById('project_id');
-
-    const amountInput =
-        document.getElementById('amount');
-
-    const projectBudget =
-        document.getElementById('projectBudget');
-
-    const totalPaid =
-        document.getElementById('totalPaid');
-
-    const currentRemaining =
-        document.getElementById('currentRemaining');
-
-    const remainingAfterPayment =
-        document.getElementById('remainingAfterPayment');
-
-    const projectStatusMessage =
-        document.getElementById(
-            'projectStatusMessage'
-        );
-
-    const amountMessage =
-        document.getElementById(
-            'amountMessage'
-        );
-
-    const saveButton =
-        document.getElementById(
-            'savePaymentButton'
-        );
-
-    const paymentForm =
-        document.getElementById(
-            'paymentForm'
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORMAT MONEY
-    |--------------------------------------------------------------------------
-    */
-
-    function formatMoney(value) {
-
-        return Number(value).toLocaleString(
-            'en-US',
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESET SUMMARY
-    |--------------------------------------------------------------------------
-    */
-
-    function resetSummary() {
-
-        projectBudget.textContent =
-            'Not Available';
-
-        totalPaid.textContent =
-            '৳0.00';
-
-        currentRemaining.textContent =
-            'Not Available';
-
-        remainingAfterPayment.textContent =
-            'Not Available';
-
-
-        currentRemaining.className =
-            'text-muted';
-
-        remainingAfterPayment.className =
-            'text-muted';
-
-
-        projectStatusMessage.textContent =
-            '';
-
-
-        amountMessage.textContent =
-            '';
-
-        amountMessage.className =
-            'form-help';
-
-
-        amountInput.removeAttribute(
-            'max'
-        );
-
-        amountInput.disabled =
-            false;
-
-        saveButton.disabled =
-            false;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW ERROR
-    |--------------------------------------------------------------------------
-    */
-
-    function showAmountError(message) {
-
-        amountMessage.textContent =
-            message;
-
-        amountMessage.className =
-            'field-error';
-
-        saveButton.disabled =
-            true;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW SUCCESS / INFO
-    |--------------------------------------------------------------------------
-    */
-
-    function showAmountSuccess(message) {
-
-        amountMessage.textContent =
-            message;
-
-        amountMessage.className =
-            'form-help';
-
-        saveButton.disabled =
-            false;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CALCULATE AFTER PAYMENT
-    |--------------------------------------------------------------------------
-    */
-
-    function calculateAfterPayment() {
-
-        const projectId =
-            projectSelect.value;
-
-
-        if (!projectId) {
-
-            return;
-
-        }
-
-
-        const project =
-            projectData[projectId];
-
-
-        if (!project) {
-
-            return;
-
-        }
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
 
         /*
         |--------------------------------------------------------------------------
-        | NO BUDGET
+        | PROJECT DATA
         |--------------------------------------------------------------------------
         */
 
-        if (project.contract_amount === null) {
+        const projectData =
+            @json($projectData);
 
-            remainingAfterPayment.textContent =
-                'No Budget';
 
-            remainingAfterPayment.className =
-                'text-muted';
 
-            showAmountError(
-                'This project does not have a budget.'
+        /*
+        |--------------------------------------------------------------------------
+        | DOM ELEMENTS
+        |--------------------------------------------------------------------------
+        */
+
+        const projectSelect =
+            document.getElementById(
+                'project_id'
             );
 
-            return;
+        const amountInput =
+            document.getElementById(
+                'amount'
+            );
+
+        const statusSelect =
+            document.getElementById(
+                'status'
+            );
+
+        const paidDetails =
+            document.getElementById(
+                'paidDetails'
+            );
+
+        const paymentDate =
+            document.getElementById(
+                'payment_date'
+            );
+
+        const paymentMethod =
+            document.getElementById(
+                'payment_method'
+            );
+
+        const projectBudget =
+            document.getElementById(
+                'projectBudget'
+            );
+
+        const totalPaid =
+            document.getElementById(
+                'totalPaid'
+            );
+
+        const currentRemaining =
+            document.getElementById(
+                'currentRemaining'
+            );
+
+        const availableMilestoneAmount =
+            document.getElementById(
+                'availableMilestoneAmount'
+            );
+
+        const projectStatusMessage =
+            document.getElementById(
+                'projectStatusMessage'
+            );
+
+        const amountMessage =
+            document.getElementById(
+                'amountMessage'
+            );
+
+        const saveButton =
+            document.getElementById(
+                'savePaymentButton'
+            );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT MONEY
+        |--------------------------------------------------------------------------
+        */
+
+        function formatMoney(value) {
+
+            return Number(value)
+                .toLocaleString(
+                    'en-US',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
 
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CURRENT REMAINING
-        |--------------------------------------------------------------------------
-        */
-
-        const remaining =
-            Number(project.remaining);
-
 
         /*
         |--------------------------------------------------------------------------
-        | FULLY PAID
+        | PAID DETAILS VISIBILITY
         |--------------------------------------------------------------------------
         */
 
-        if (remaining <= 0) {
+        function updatePaidDetails() {
 
-            remainingAfterPayment.textContent =
+            if (
+                statusSelect.value === 'paid'
+            ) {
+
+                paidDetails.style.display =
+                    'block';
+
+                paymentDate.required =
+                    true;
+
+                paymentMethod.required =
+                    true;
+
+            } else {
+
+                paidDetails.style.display =
+                    'none';
+
+                paymentDate.required =
+                    false;
+
+                paymentMethod.required =
+                    false;
+
+            }
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET SUMMARY
+        |--------------------------------------------------------------------------
+        */
+
+        function resetSummary() {
+
+            projectBudget.textContent =
+                'Not Available';
+
+            totalPaid.textContent =
                 '৳0.00';
 
-            remainingAfterPayment.className =
-                'text-success';
+            currentRemaining.textContent =
+                'Not Available';
 
-            amountInput.value =
-                '';
+            availableMilestoneAmount.textContent =
+                'Not Available';
 
-            amountInput.disabled =
-                true;
 
             amountInput.removeAttribute(
                 'max'
             );
 
-            showAmountError(
-                'Payment Complete — no further payment is allowed.'
-            );
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ENABLE PAYMENT INPUT
-        |--------------------------------------------------------------------------
-        */
-
-        amountInput.disabled =
-            false;
-
-        amountInput.max =
-            remaining;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT AMOUNT
-        |--------------------------------------------------------------------------
-        */
-
-        const paymentAmount =
-            parseFloat(
-                amountInput.value
-            ) || 0;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NO PAYMENT AMOUNT
-        |--------------------------------------------------------------------------
-        */
-
-        if (paymentAmount <= 0) {
-
-            remainingAfterPayment.textContent =
-                `৳${formatMoney(
-                    remaining
-                )}`;
-
-            remainingAfterPayment.className =
-                'text-danger';
-
-            amountMessage.textContent =
-                `Maximum payment allowed: ৳${formatMoney(
-                    remaining
-                )}`;
-
-            amountMessage.className =
-                'form-help';
+            amountInput.disabled =
+                false;
 
             saveButton.disabled =
                 false;
 
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT EXCEEDS REMAINING
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            paymentAmount >
-            remaining
-        ) {
-
-            const excess =
-                paymentAmount - remaining;
-
-
-            remainingAfterPayment.textContent =
-                `-৳${formatMoney(
-                    excess
-                )}`;
-
-            remainingAfterPayment.className =
-                'text-danger';
-
-
-            showAmountError(
-                `Payment cannot exceed the remaining amount of ৳${formatMoney(
-                    remaining
-                )}.`
-            );
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALID PAYMENT
-        |--------------------------------------------------------------------------
-        */
-
-        const afterPayment =
-            remaining - paymentAmount;
-
-
-        if (afterPayment > 0) {
-
-            remainingAfterPayment.textContent =
-                `৳${formatMoney(
-                    afterPayment
-                )}`;
-
-            remainingAfterPayment.className =
-                'text-danger';
-
-
-            showAmountSuccess(
-                `Maximum payment allowed: ৳${formatMoney(
-                    remaining
-                )}.`
-            );
-
-        } else {
-
-            remainingAfterPayment.textContent =
-                '৳0.00';
-
-            remainingAfterPayment.className =
-                'text-success';
-
-
-            showAmountSuccess(
-                'This payment will complete the project payment.'
-            );
-
-        }
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE PROJECT SUMMARY
-    |--------------------------------------------------------------------------
-    */
-
-    function updatePaymentSummary() {
-
-        const projectId =
-            projectSelect.value;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NO PROJECT
-        |--------------------------------------------------------------------------
-        */
-
-        if (!projectId) {
-
-            resetSummary();
-
-            return;
-
-        }
-
-
-        const project =
-            projectData[projectId];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | INVALID PROJECT
-        |--------------------------------------------------------------------------
-        */
-
-        if (!project) {
-
-            resetSummary();
-
-            showAmountError(
-                'Invalid project selected.'
-            );
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PROJECT STATUS
-        |--------------------------------------------------------------------------
-        */
-
-        const formattedStatus =
-            project.status
-                .replace('-', ' ')
-                .replace(/\b\w/g, function (letter) {
-                    return letter.toUpperCase();
-                });
-
-
-        projectStatusMessage.textContent =
-            `Project status: ${formattedStatus}`;
-
-        projectStatusMessage.style.color =
-            '#6b7280';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CANCELLED PROJECT
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            project.status === 'cancelled'
-        ) {
 
             projectStatusMessage.textContent =
-                'Payment cannot be added to a cancelled project.';
-
-            projectStatusMessage.style.color =
-                '#dc2626';
-
-            amountInput.disabled =
-                true;
-
-            saveButton.disabled =
-                true;
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CONTRACT AMOUNT
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            project.contract_amount !== null
-        ) {
-
-            projectBudget.textContent =
-                `৳${formatMoney(
-                    project.contract_amount
-                )}`;
-
-        } else {
-
-            projectBudget.textContent =
-                'No Budget';
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL PAID
-        |--------------------------------------------------------------------------
-        */
-
-        totalPaid.textContent =
-            `৳${formatMoney(
-                project.total_paid
-            )}`;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CURRENT REMAINING
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            project.remaining !== null
-        ) {
-
-            if (
-                project.remaining > 0
-            ) {
-
-                currentRemaining.textContent =
-                    `৳${formatMoney(
-                        project.remaining
-                    )}`;
-
-                currentRemaining.className =
-                    'text-danger';
-
-            } else {
-
-                currentRemaining.textContent =
-                    '৳0.00';
-
-                currentRemaining.className =
-                    'text-success';
-
-            }
-
-        } else {
-
-            currentRemaining.textContent =
-                'No Budget';
-
-            currentRemaining.className =
-                'text-muted';
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE
-        |--------------------------------------------------------------------------
-        */
-
-        calculateAfterPayment();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    projectSelect.addEventListener(
-        'change',
-        function () {
-
-            amountInput.value =
                 '';
 
-            updatePaymentSummary();
+            amountMessage.textContent =
+                '';
 
         }
-    );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | AMOUNT CHANGE
-    |--------------------------------------------------------------------------
-    */
 
-    amountInput.addEventListener(
-        'input',
-        function () {
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE PROJECT SUMMARY
+        |--------------------------------------------------------------------------
+        */
 
-            calculateAfterPayment();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORM SUBMIT PROTECTION
-    |--------------------------------------------------------------------------
-    */
-
-    paymentForm.addEventListener(
-        'submit',
-        function (event) {
+        function updateProjectSummary() {
 
             const projectId =
                 projectSelect.value;
@@ -1162,11 +919,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!projectId) {
 
-                event.preventDefault();
-
-                alert(
-                    'Please select a project.'
-                );
+                resetSummary();
 
                 return;
 
@@ -1179,11 +932,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!project) {
 
-                event.preventDefault();
-
-                alert(
-                    'Invalid project selected.'
-                );
+                resetSummary();
 
                 return;
 
@@ -1192,7 +941,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
-            | CANCELLED
+            | CANCELLED PROJECT
             |--------------------------------------------------------------------------
             */
 
@@ -1200,11 +949,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 project.status === 'cancelled'
             ) {
 
-                event.preventDefault();
+                projectStatusMessage.textContent =
+                    'Payment cannot be added to a cancelled project.';
 
-                alert(
-                    'Payment cannot be added to a cancelled project.'
-                );
+                projectStatusMessage.className =
+                    'field-error';
+
+                amountInput.disabled =
+                    true;
+
+                saveButton.disabled =
+                    true;
 
                 return;
 
@@ -1213,7 +968,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
-            | NO BUDGET
+            | CONTRACT AMOUNT
             |--------------------------------------------------------------------------
             */
 
@@ -1221,11 +976,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 project.contract_amount === null
             ) {
 
-                event.preventDefault();
+                projectBudget.textContent =
+                    'No Budget';
 
-                alert(
-                    'This project does not have a budget yet.'
-                );
+                totalPaid.textContent =
+                    `৳${formatMoney(
+                        project.total_paid
+                    )}`;
+
+                currentRemaining.textContent =
+                    'No Budget';
+
+                availableMilestoneAmount.textContent =
+                    'No Budget';
+
+
+                projectStatusMessage.textContent =
+                    'This project does not have a budget yet.';
+
+                projectStatusMessage.className =
+                    'field-error';
+
+                amountInput.disabled =
+                    true;
+
+                saveButton.disabled =
+                    true;
 
                 return;
 
@@ -1234,31 +1010,93 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
-            | REMAINING
+            | CONTRACT AMOUNT
             |--------------------------------------------------------------------------
             */
 
-            const remaining =
-                Number(
+            projectBudget.textContent =
+                `৳${formatMoney(
+                    project.contract_amount
+                )}`;
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TOTAL PAID
+            |--------------------------------------------------------------------------
+            */
+
+            totalPaid.textContent =
+                `৳${formatMoney(
+                    project.total_paid
+                )}`;
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CURRENT DUE
+            |--------------------------------------------------------------------------
+            */
+
+            currentRemaining.textContent =
+                `৳${formatMoney(
                     project.remaining
-                );
+                )}`;
+
 
 
             /*
             |--------------------------------------------------------------------------
-            | FULLY PAID
+            | AVAILABLE MILESTONE AMOUNT
+            |--------------------------------------------------------------------------
+            */
+
+            const availableAmount =
+                Number(
+                    project.contract_amount
+                )
+                -
+                Number(
+                    project.total_milestone_amount
+                    ?? 0
+                );
+
+
+            availableMilestoneAmount.textContent =
+                `৳${formatMoney(
+                    Math.max(
+                        availableAmount,
+                        0
+                    )
+                )}`;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FULL MILESTONE ALLOCATION
             |--------------------------------------------------------------------------
             */
 
             if (
-                remaining <= 0
+                availableAmount <= 0
             ) {
 
-                event.preventDefault();
+                amountMessage.textContent =
+                    'All contract amount has already been allocated to payment milestones.';
 
-                alert(
-                    'This project has already received the full contract amount.'
-                );
+                amountMessage.className =
+                    'field-error';
+
+                amountInput.value =
+                    '';
+
+                amountInput.disabled =
+                    true;
+
+                saveButton.disabled =
+                    true;
 
                 return;
 
@@ -1267,73 +1105,370 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
-            | PAYMENT AMOUNT
+            | ENABLE PAYMENT
             |--------------------------------------------------------------------------
             */
 
-            const paymentAmount =
-                parseFloat(
-                    amountInput.value
-                ) || 0;
+            amountInput.disabled =
+                false;
+
+            amountInput.max =
+                availableAmount;
+
+            saveButton.disabled =
+                false;
 
 
             /*
             |--------------------------------------------------------------------------
-            | INVALID AMOUNT
+            | STATUS
             |--------------------------------------------------------------------------
             */
 
-            if (
-                paymentAmount <= 0
-            ) {
+            projectStatusMessage.textContent =
+                `Project status: ${
+                    project.status
+                }`;
 
-                event.preventDefault();
-
-                alert(
-                    'Please enter a valid payment amount.'
-                );
-
-                return;
-
-            }
+            projectStatusMessage.className =
+                'form-help';
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | EXCEEDS REMAINING
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                paymentAmount >
-                remaining
-            ) {
-
-                event.preventDefault();
-
-                alert(
-                    `Payment cannot exceed the remaining amount of ৳${formatMoney(
-                        remaining
-                    )}.`
-                );
-
-                return;
-
-            }
+            validateAmount();
 
         }
-    );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL LOAD
-    |--------------------------------------------------------------------------
-    */
 
-    updatePaymentSummary();
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE MILESTONE AMOUNT
+        |--------------------------------------------------------------------------
+        */
 
-});
+        function validateAmount() {
+
+            const projectId =
+                projectSelect.value;
+
+
+            if (!projectId) {
+
+                return;
+
+            }
+
+
+            const project =
+                projectData[projectId];
+
+
+            if (
+                !project
+                ||
+                project.contract_amount === null
+            ) {
+
+                return;
+
+            }
+
+
+            const availableAmount =
+                Number(
+                    project.contract_amount
+                )
+                -
+                Number(
+                    project.total_milestone_amount
+                    ?? 0
+                );
+
+
+            const enteredAmount =
+                parseFloat(
+                    amountInput.value
+                )
+                ||
+                0;
+
+
+            if (
+                enteredAmount <= 0
+            ) {
+
+                amountMessage.textContent =
+                    `Maximum milestone amount available: ৳${formatMoney(
+                        availableAmount
+                    )}`;
+
+                amountMessage.className =
+                    'form-help';
+
+                saveButton.disabled =
+                    false;
+
+                return;
+
+            }
+
+
+            if (
+                enteredAmount >
+                availableAmount
+            ) {
+
+                amountMessage.textContent =
+                    `Milestone amount cannot exceed ৳${formatMoney(
+                        availableAmount
+                    )}.`;
+
+                amountMessage.className =
+                    'field-error';
+
+                saveButton.disabled =
+                    true;
+
+                return;
+
+            }
+
+
+            amountMessage.textContent =
+                `Available milestone amount: ৳${formatMoney(
+                    availableAmount
+                )}`;
+
+            amountMessage.className =
+                'form-help';
+
+            saveButton.disabled =
+                false;
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT CHANGE
+        |--------------------------------------------------------------------------
+        */
+
+        projectSelect.addEventListener(
+            'change',
+            function () {
+
+                amountInput.value =
+                    '';
+
+                updateProjectSummary();
+
+            }
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMOUNT INPUT
+        |--------------------------------------------------------------------------
+        */
+
+        amountInput.addEventListener(
+            'input',
+            validateAmount
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS CHANGE
+        |--------------------------------------------------------------------------
+        */
+
+        statusSelect.addEventListener(
+            'change',
+            updatePaidDetails
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORM SUBMIT PROTECTION
+        |--------------------------------------------------------------------------
+        */
+
+        document
+            .getElementById(
+                'paymentForm'
+            )
+            .addEventListener(
+                'submit',
+                function (event) {
+
+
+                    const projectId =
+                        projectSelect.value;
+
+
+                    const project =
+                        projectData[projectId];
+
+
+                    if (!project) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'Please select a valid project.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        project.status ===
+                        'cancelled'
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'Payment cannot be added to a cancelled project.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        project.contract_amount ===
+                        null
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'This project does not have a budget.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    const availableAmount =
+                        Number(
+                            project.contract_amount
+                        )
+                        -
+                        Number(
+                            project.total_milestone_amount
+                            ?? 0
+                        );
+
+
+                    const enteredAmount =
+                        parseFloat(
+                            amountInput.value
+                        )
+                        ||
+                        0;
+
+
+                    if (
+                        enteredAmount <= 0
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'Please enter a valid payment amount.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        enteredAmount >
+                        availableAmount
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            `Payment milestone cannot exceed ৳${formatMoney(
+                                availableAmount
+                            )}.`
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        statusSelect.value ===
+                        'paid'
+                    ) {
+
+                        if (
+                            !paymentDate.value
+                        ) {
+
+                            event.preventDefault();
+
+                            alert(
+                                'Payment date is required for a paid payment.'
+                            );
+
+                            return;
+
+                        }
+
+
+                        if (
+                            !paymentMethod.value
+                        ) {
+
+                            event.preventDefault();
+
+                            alert(
+                                'Payment method is required for a paid payment.'
+                            );
+
+                            return;
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INITIAL LOAD
+        |--------------------------------------------------------------------------
+        */
+
+        updatePaidDetails();
+
+        updateProjectSummary();
+
+
+    }
+);
 
 </script>
 

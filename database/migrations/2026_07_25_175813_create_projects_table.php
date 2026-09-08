@@ -40,6 +40,7 @@ return new class extends Migration
                 'on-hold',
                 'completed',
                 'cancelled',
+                'paused'
             ])->default('pending');
 
             $table->timestamps();
