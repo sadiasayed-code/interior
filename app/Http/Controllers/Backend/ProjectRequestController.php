@@ -4,90 +4,118 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-use Illuminate\Http\Request;
 
 class ProjectRequestController extends Controller
 {
     /**
      * =========================================================
-     * SHOW ALL ACTIVE PENDING PROJECT REQUESTS
+     * PROJECT REQUESTS INDEX
      * =========================================================
      *
-     * Cancelled projects will NOT appear here.
+     * Show customer requests waiting for admin action.
      *
-     * Only projects where:
+     * Included statuses:
      *
-     * approval_status = pending
-     * AND
-     * status != cancelled
-     *
-     * will be shown to Admin.
-     *
+     * request_pending
+     * admin_review
      */
     public function index()
     {
-        $projects = Project::with('client')
-            ->where('approval_status', 'pending')
-            ->where('status', '!=', 'cancelled')
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL REQUESTS
+        |--------------------------------------------------------------------------
+        |
+        | Total customer requests currently in the request queue.
+        |
+        */
+
+        $totalRequests = Project::whereIn('status', [
+            'request_pending',
+            'admin_review',
+        ])->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UNDER REVIEW
+        |--------------------------------------------------------------------------
+        */
+
+        $underReview = Project::where(
+            'status',
+            'admin_review'
+        )->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT REQUEST LIST
+        |--------------------------------------------------------------------------
+        |
+        | Load customer + service information.
+        |
+        */
+
+        $projects = Project::with([
+            'client.user',
+            'service',
+        ])
+            ->whereIn('status', [
+                'request_pending',
+                'admin_review',
+            ])
             ->latest()
             ->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+
         return view(
             'backend.project-requests.index',
-            compact('projects')
+            compact(
+                'projects',
+                'totalRequests',
+                'underReview'
+            )
         );
     }
 
 
     /**
      * =========================================================
-     * SHOW PROJECT REQUEST DETAILS
+     * SHOW PROJECT REQUEST
      * =========================================================
      *
-     * Cancelled projects cannot be opened as an active request.
-     *
+     * Show complete details of a project request.
      */
     public function show(Project $project)
     {
         /*
-        |----------------------------------------------------------
-        | SECURITY / LOGICAL VALIDATION
-        |----------------------------------------------------------
-        |
-        | Only active pending requests can be viewed.
-        |
+        |--------------------------------------------------------------------------
+        | LOAD REQUIRED RELATIONSHIPS
+        |--------------------------------------------------------------------------
         */
 
-        if (
-            $project->approval_status !== 'pending'
-            ||
-            $project->status === 'cancelled'
-        ) {
-
-            return redirect()
-                ->route('admin.project-requests.index')
-                ->withErrors([
-                    'project' =>
-                        'This project request is no longer available for processing.',
-                ]);
-        }
+        $project->load([
+            'client.user',
+            'service',
+            'budget',
+            'payments',
+            'projectSteps',
+            'progressReports',
+            'projectMaterials.material',
+        ]);
 
 
         /*
-        |----------------------------------------------------------
-        | LOAD CLIENT
-        |----------------------------------------------------------
-        */
-
-        $project->load(
-            'client'
-        );
-
-
-        /*
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
         | RETURN VIEW
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         return view(
@@ -99,184 +127,58 @@ class ProjectRequestController extends Controller
 
     /**
      * =========================================================
-     * APPROVE PROJECT REQUEST
+     * START ADMIN REVIEW
      * =========================================================
      *
-     * Only active pending projects can be approved.
+     * Change:
      *
-     * Cancelled projects can NEVER be approved.
+     * request_pending
+     *        ↓
+     * admin_review
      *
      */
-    public function approve(
-        Request $request,
-        Project $project
-    ) {
-
+    public function review(Project $project)
+    {
         /*
-        |----------------------------------------------------------
-        | VALIDATE PROJECT STATE
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | ONLY PENDING REQUEST CAN START REVIEW
+        |--------------------------------------------------------------------------
         */
 
-        if (
-            $project->approval_status !== 'pending'
-            ||
-            $project->status === 'cancelled'
-        ) {
+        if ($project->status !== 'request_pending') {
 
-            return redirect()
-                ->route('admin.project-requests.index')
-                ->withErrors([
-                    'project' =>
-                        'This project request cannot be approved because it has already been cancelled or processed.',
-                ]);
-        }
-
-
-        /*
-        |----------------------------------------------------------
-        | CURRENT ADMIN ID
-        |----------------------------------------------------------
-        */
-
-        $adminUserId = $request
-            ->session()
-            ->get(
-                'admin_user_id'
+            return back()->with(
+                'error',
+                'Only pending project requests can be moved to admin review.'
             );
-
-
-        /*
-        |----------------------------------------------------------
-        | ADMIN SESSION VALIDATION
-        |----------------------------------------------------------
-        */
-
-        if (!$adminUserId) {
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'admin' =>
-                        'Admin session not found. Please login again.',
-                ]);
         }
 
 
         /*
-        |----------------------------------------------------------
-        | APPROVE PROJECT
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | UPDATE PROJECT STATUS
+        |--------------------------------------------------------------------------
         */
 
         $project->update([
-
-            /*
-            | Admin responsible for this project
-            */
-
-            'user_id' =>
-                $adminUserId,
-
-
-            /*
-            | Request approved
-            */
-
-            'approval_status' =>
-                'approved',
-
-
-            /*
-            | Project starts as ongoing
-            */
-
-            'status' =>
-                'ongoing',
-
+            'status' => 'admin_review',
         ]);
 
 
         /*
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
         | REDIRECT
-        |----------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         return redirect()
             ->route(
-                'admin.project-requests.index'
+                'admin.project-requests.show',
+                $project
             )
             ->with(
                 'success',
-                'Project request approved successfully.'
-            );
-    }
-
-
-    /**
-     * =========================================================
-     * REJECT PROJECT REQUEST
-     * =========================================================
-     *
-     * Only active pending projects can be rejected.
-     *
-     * Cancelled projects cannot be processed again.
-     *
-     */
-    public function reject(
-        Request $request,
-        Project $project
-    ) {
-
-        /*
-        |----------------------------------------------------------
-        | VALIDATE PROJECT STATE
-        |----------------------------------------------------------
-        */
-
-        if (
-            $project->approval_status !== 'pending'
-            ||
-            $project->status === 'cancelled'
-        ) {
-
-            return redirect()
-                ->route('admin.project-requests.index')
-                ->withErrors([
-                    'project' =>
-                        'This project request has already been cancelled or processed.',
-                ]);
-        }
-
-
-        /*
-        |----------------------------------------------------------
-        | REJECT PROJECT REQUEST
-        |----------------------------------------------------------
-        */
-
-        $project->update([
-
-            'approval_status' =>
-                'rejected',
-
-        ]);
-
-
-        /*
-        |----------------------------------------------------------
-        | REDIRECT
-        |----------------------------------------------------------
-        */
-
-        return redirect()
-            ->route(
-                'admin.project-requests.index'
-            )
-            ->with(
-                'success',
-                'Project request rejected successfully.'
+                'Project request moved to admin review.'
             );
     }
 }

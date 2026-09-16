@@ -739,6 +739,37 @@
         }
 
 
+        .admin-review,
+        .proposal-sent {
+
+            background:
+                #e0e7ff;
+
+            color:
+                #3730a3;
+        }
+
+
+        .customer-approved {
+
+            background:
+                #dcfce7;
+
+            color:
+                #166534;
+        }
+
+
+        .customer-rejected {
+
+            background:
+                #fee2e2;
+
+            color:
+                #991b1b;
+        }
+
+
         .paused,
         .on-hold {
 
@@ -1029,12 +1060,11 @@
     <div class="navbar-actions">
 
         <a
-            href="{{ route('customer.project-request.create') }}"
-            class="new-project-btn"
-        >
-            + New Project Request
-        </a>
-
+    href="{{ route('customer.project-request.create') }}"
+    class="new-project-btn"
+>
+    + New Project Request
+</a>
 
         @if(Route::has('customer.logout'))
 
@@ -1423,7 +1453,7 @@
 
                                     <span class="project-name">
 
-                                        {{ $project->project_name }}
+                                        {{ optional($project->service)->name ?? $project->project_name }}
 
                                     </span>
 
@@ -1455,7 +1485,7 @@
                                         class="badge {{ $project->status }}"
                                     >
 
-                                        {{ ucfirst(
+                                        {{ ucwords(
                                             str_replace(
                                                 '-',
                                                 ' ',
@@ -1598,6 +1628,8 @@
                                             $project->status !== 'completed'
                                             &&
                                             $project->status !== 'cancelled'
+                                            &&
+                                            $project->status !== 'customer_rejected'
                                         )
 
                                             <form

@@ -12,8 +12,12 @@ use App\Http\Controllers\Backend\ProjectMaterialController;
 use App\Http\Controllers\Backend\BudgetController;
 use App\Http\Controllers\Backend\PaymentController;
 use App\Http\Controllers\Backend\ProgressReportController;
+use App\Http\Controllers\Backend\ProjectProposalController;
 use App\Http\Controllers\Backend\ReportController;
 use App\Http\Controllers\Backend\ProjectRequestController as  AdminProjectRequestController;
+use App\Http\Controllers\Backend\ServiceController as BackendServiceController;
+
+use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\AuthController as CustomerAuthController;
 use App\Http\Controllers\Frontend\CustomerDashboardController;
@@ -52,6 +56,14 @@ Route::post('/customer/login', [CustomerAuthController::class, 'login'])
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])
     ->name('customer.logout');
 
+
+// Frontend Services
+Route::get('/services', [FrontendServiceController::class, 'index'])
+    ->name('services.index');
+
+Route::get('/services/{service:slug}', [FrontendServiceController::class, 'show'])
+    ->name('services.show');
+
 // =========================
 // Customer Dashboard
 // =========================
@@ -72,8 +84,6 @@ Route::middleware('customer')
         )->name(
             'dashboard'
         );
-
-
         // =========================
         // CUSTOMER PROJECT REQUEST
         // =========================
@@ -85,13 +95,14 @@ Route::middleware('customer')
             'project-request.create'
         );
 
-
         Route::post(
             '/project-request',
             [ProjectRequestController::class, 'store']
         )->name(
             'project-request.store'
         );
+
+
 
 
         // =========================
@@ -165,7 +176,30 @@ Route::middleware('customer')
             'projects.cancel'
         );
 
+        // =========================
+        // CUSTOMER PROPOSAL APPROVAL
+        // =========================
 
+        Route::post(
+            '/project/{project}/approve'
+        )->uses(
+            [CustomerProjectController::class, 'approve']
+        )->name(
+            'project.approve'
+        );
+
+
+        // =========================
+        // CUSTOMER REJECT PROPOSAL
+        // =========================
+
+        Route::post(
+            '/project/{project}/reject'
+        )->uses(
+            [CustomerProjectController::class, 'reject']
+        )->name(
+            'project.reject'
+        );
     });
 
 // =========================================================
@@ -612,21 +646,85 @@ Route::prefix('admin')
         )->name('progress-reports.destroy');
 
 
-        // =========================
-        // Project Requests
-        // =========================
 
-        Route::get('/project-requests', [AdminProjectRequestController::class, 'index'])
-            ->name('project-requests.index');
 
-        Route::get('/project-requests/{project}', [AdminProjectRequestController::class, 'show'])
-            ->name('project-requests.show');
 
-        Route::post('/project-requests/{project}/approve', [AdminProjectRequestController::class, 'approve'])
-            ->name('project-requests.approve');
 
-        Route::post('/project-requests/{project}/reject', [AdminProjectRequestController::class, 'reject'])
-            ->name('project-requests.reject');
+        Route::get(
+    '/project-requests',
+    [AdminProjectRequestController::class, 'index']
+)->name('project-requests.index');
+
+Route::get(
+    '/project-requests/{project}',
+    [AdminProjectRequestController::class, 'show']
+)->name('project-requests.show');
+
+Route::post(
+    '/project-requests/{project}/review',
+    [AdminProjectRequestController::class, 'review']
+)->name('project-requests.review');
+
+
+
+
+
+        /*
+
+
+        
+|--------------------------------------------------------------------------
+| PROJECT PROPOSAL SETUP
+|--------------------------------------------------------------------------
+*/
+
+        Route::get(
+            '/project/{project}/proposal',
+            [ProjectProposalController::class, 'edit']
+        )->name(
+            'project-proposals.edit'
+        );
+
+
+        Route::post(
+            '/project/{project}/proposal',
+            [ProjectProposalController::class, 'update']
+        )->name(
+            'project-proposals.update'
+        );
+
+
+        Route::post(
+            '/project/{project}/proposal/send',
+            [ProjectProposalController::class, 'sendToCustomer']
+        )->name(
+            'project-proposals.send'
+        );
+
+        // Service Management
+        Route::get('/services', [BackendServiceController::class, 'index'])
+            ->name('services.index');
+
+        Route::get('/services/create', [BackendServiceController::class, 'create'])
+            ->name('services.create');
+
+        Route::post('/services', [BackendServiceController::class, 'store'])
+            ->name('services.store');
+
+        Route::get('/services/{service}', [BackendServiceController::class, 'show'])
+            ->name('services.show');
+
+        Route::get('/services/{service}/edit', [BackendServiceController::class, 'edit'])
+            ->name('services.edit');
+
+        Route::post('/services/{service}/update', [BackendServiceController::class, 'update'])
+            ->name('services.update');
+
+        Route::post('/services/{service}/toggle-status', [BackendServiceController::class, 'toggleStatus'])
+            ->name('services.toggle-status');
+
+        Route::delete('/services/{service}', [BackendServiceController::class, 'destroy'])
+            ->name('services.destroy');
 
         /*
         |--------------------------------------------------------------------------

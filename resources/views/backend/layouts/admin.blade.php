@@ -7,7 +7,8 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>
         @yield('title', 'Admin Panel') - Interior PMS
@@ -56,7 +57,6 @@
             </div>
 
 
-
             {{-- =================================================
                 MAIN MENU
             ================================================== --}}
@@ -89,6 +89,26 @@
                 </a>
 
 
+                {{-- =================================================
+                    Services
+                ================================================== --}}
+
+                <a
+                    href="{{ route('admin.services.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.services.*') ? 'active' : '' }}"
+                >
+
+                    <span class="icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Services
+                    </span>
+
+                </a>
+
 
                 {{-- =================================================
                     Clients
@@ -109,7 +129,6 @@
                     </span>
 
                 </a>
-
 
 
                 {{-- =================================================
@@ -133,80 +152,80 @@
                 </a>
 
 
-{{-- =================================================
-    Project Requests
-================================================= --}}
+                {{-- =================================================
+                    Project Requests
+                ================================================== --}}
 
-@php
+                @php
 
-    $pendingProjectRequests =
-        $pendingProjectRequests ?? 0;
+                    $pendingProjectRequests =
+                        $pendingProjectRequests ?? 0;
 
-@endphp
-
-
-<a
-    href="{{ route('admin.project-requests.index') }}"
-    class="menu-item
-    {{ request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
-    style="
-        padding-left: 48px;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-    "
->
-
-    <span class="icon">
-        ↳
-    </span>
+                @endphp
 
 
-    <span
-        style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex: 1;
-            min-width: 0;
-        "
-    >
+                <a
+                    href="{{ route('admin.project-requests.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.project-requests.*') ? 'active' : '' }}"
+                    style="
+                        padding-left: 48px;
+                        font-size: 13px;
+                        display: flex;
+                        align-items: center;
+                    "
+                >
 
-        <span>
-            Project Requests
-        </span>
+                    <span class="icon">
+                        ↳
+                    </span>
 
 
-        {{-- Show badge only when pending requests exist --}}
+                    <span
+                        style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            flex: 1;
+                            min-width: 0;
+                        "
+                    >
 
-        @if($pendingProjectRequests > 0)
+                        <span>
+                            Project Requests
+                        </span>
 
-            <span
-                style="
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    min-width: 22px;
-                    height: 22px;
-                    padding: 0 7px;
-                    margin-left: 10px;
-                    border-radius: 50px;
-                    background: #dc2626;
-                    color: #ffffff;
-                    font-size: 11px;
-                    font-weight: 700;
-                    line-height: 1;
-                    flex-shrink: 0;
-                "
-            >
-                {{ $pendingProjectRequests }}
-            </span>
 
-        @endif
+                        {{-- Show badge only when pending requests exist --}}
 
-    </span>
+                        @if($pendingProjectRequests > 0)
 
-</a>
+                            <span
+                                style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    min-width: 22px;
+                                    height: 22px;
+                                    padding: 0 7px;
+                                    margin-left: 10px;
+                                    border-radius: 50px;
+                                    background: #dc2626;
+                                    color: #ffffff;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    line-height: 1;
+                                    flex-shrink: 0;
+                                "
+                            >
+                                {{ $pendingProjectRequests }}
+                            </span>
+
+                        @endif
+
+                    </span>
+
+                </a>
 
 
                 {{-- =================================================
@@ -230,7 +249,6 @@
                 </a>
 
 
-
                 {{-- =================================================
                     Suppliers
                 ================================================== --}}
@@ -250,7 +268,6 @@
                     </span>
 
                 </a>
-
 
 
                 {{-- =================================================
@@ -275,7 +292,6 @@
 
 
             </div>
-
 
 
             {{-- =====================================================
@@ -310,7 +326,6 @@
                 </a>
 
 
-
                 {{-- =================================================
                     Payments
                 ================================================== --}}
@@ -330,7 +345,6 @@
                     </span>
 
                 </a>
-
 
 
                 {{-- =================================================
@@ -354,7 +368,6 @@
                 </a>
 
 
-
                 {{-- =================================================
                     Reports
                 ================================================== --}}
@@ -375,8 +388,8 @@
 
                 </a>
 
-            </div>
 
+            </div>
 
 
             {{-- =====================================================
@@ -404,7 +417,6 @@
 
 
         </aside>
-
 
 
         {{-- =====================================================
@@ -446,7 +458,6 @@
                     </div>
 
                 </div>
-
 
 
                 <div class="topbar-right">
@@ -502,7 +513,6 @@
             </header>
 
 
-
             {{-- =================================================
                 PAGE CONTENT
             ================================================== --}}
@@ -534,7 +544,6 @@
                     </div>
 
                 @endif
-
 
 
                 {{-- Validation Errors --}}
@@ -580,7 +589,6 @@
                 @endif
 
 
-
                 {{-- Child page content will appear here --}}
 
                 @yield('content')
@@ -589,6 +597,7 @@
             </section>
 
         </main>
+
 
     </div>
 

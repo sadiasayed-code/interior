@@ -163,7 +163,273 @@ nav button {
   max-width: 150px;
   width: 100px;
 }
+/* =========================
+   SERVICES SECTION
+========================= */
 
+.services-section {
+  width: 100%;
+  padding: 100px 6%;
+  box-sizing: border-box;
+  background: #f7faf6;
+  font-family: "Poppins", sans-serif;
+}
+
+.services-heading {
+  max-width: 700px;
+  margin: 0 auto 55px;
+  text-align: center;
+}
+
+.services-heading span {
+  color: #286318;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.services-heading h2 {
+  margin: 10px 0 15px;
+  color: #153d3d;
+  font-size: 48px;
+}
+
+.services-heading p {
+  margin: 0;
+  color: #687878;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+
+/* SERVICE GRID */
+
+.services-grid {
+  max-width: 1250px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+
+/* CARD */
+
+.service-card {
+  background: #fff;
+  border-radius: 25px;
+  overflow: hidden;
+
+  box-shadow: 0 15px 40px rgba(21, 61, 61, 0.08);
+
+  transition: all 0.35s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 55px rgba(21, 61, 61, 0.15);
+}
+
+
+/* IMAGE */
+
+.service-image {
+  width: 100%;
+  height: 230px;
+  overflow: hidden;
+  background: #e2eddf;
+}
+
+.service-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  transition: transform 0.5s ease;
+}
+
+.service-card:hover .service-image img {
+  transform: scale(1.07);
+}
+
+.no-service-image {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #286318;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+/* CARD CONTENT */
+
+.service-content {
+  padding: 25px;
+}
+
+.service-content h3 {
+  margin: 0 0 10px;
+
+  color: #153d3d;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.service-content > p {
+  margin: 0 0 20px;
+
+  color: #718080;
+  font-size: 14px;
+  line-height: 1.7;
+
+  min-height: 48px;
+}
+
+
+/* PRICE + DURATION */
+
+.service-info {
+  display: flex;
+  gap: 35px;
+
+  padding: 15px 0;
+
+  border-top: 1px solid #edf1ed;
+  border-bottom: 1px solid #edf1ed;
+
+  margin-bottom: 20px;
+}
+
+.service-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.service-info small {
+  color: #8a9696;
+  font-size: 11px;
+}
+
+.service-info strong {
+  color: #286318;
+  font-size: 14px;
+}
+
+
+/* VIEW DETAILS */
+
+.service-details-btn {
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 13px 18px;
+
+  border-radius: 12px;
+
+  background: #153d3d;
+  color: #fff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+.service-details-btn:hover {
+  background: #286318;
+}
+
+.service-details-btn span {
+  font-size: 20px;
+}
+
+
+/* NO SERVICE */
+
+.no-services {
+  grid-column: 1 / -1;
+
+  text-align: center;
+
+  padding: 70px 20px;
+
+  background: #fff;
+  border-radius: 20px;
+}
+
+.no-services h3 {
+  color: #153d3d;
+  margin-bottom: 8px;
+}
+
+.no-services p {
+  color: #777;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .services-heading h2 {
+    font-size: 40px;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .services-section {
+    padding: 70px 20px;
+  }
+
+  .services-heading {
+    margin-bottom: 40px;
+  }
+
+  .services-heading h2 {
+    font-size: 34px;
+  }
+
+  .services-heading p {
+    font-size: 14px;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .service-image {
+    height: 220px;
+  }
+
+  .service-content {
+    padding: 22px;
+  }
+
+}
     </style>
 </head>
 <body>
@@ -202,6 +468,141 @@ nav button {
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Heroku_logo.svg/960px-Heroku_logo.svg.png?_=20210504043420" alt="heroku">
   </div> -->
 </div>
-    
+
+
+
+<!-- =========================
+     OUR SERVICES SECTION
+========================= -->
+
+<section class="services-section">
+
+    <div class="services-heading">
+        <span>WHAT WE DO</span>
+
+        <h2>Our Services</h2>
+
+        <p>
+            We provide professional interior design solutions
+            to transform your space into a beautiful, modern,
+            and comfortable environment.
+        </p>
+    </div>
+
+    <div class="services-grid">
+
+        @forelse($services as $service)
+
+            <div class="service-card">
+
+                <!-- Service Image -->
+                <div class="service-image">
+
+                    @if($service->image)
+
+                        <img
+                            src="{{ asset('storage/' . $service->image) }}"
+                            alt="{{ $service->name }}"
+                        >
+
+                    @else
+
+                        <div class="no-service-image">
+                            Interior Design
+                        </div>
+
+                    @endif
+
+                </div>
+
+
+                <!-- Service Content -->
+                <div class="service-content">
+
+                    <h3>
+                        {{ $service->name }}
+                    </h3>
+
+
+                    @if($service->short_description)
+
+                        <p>
+                            {{ Str::limit($service->short_description, 100) }}
+                        </p>
+
+                    @else
+
+                        <p>
+                            Professional interior design solutions
+                            tailored to your needs.
+                        </p>
+
+                    @endif
+
+
+                    <!-- Service Information -->
+                    <div class="service-info">
+
+                        @if($service->starting_budget !== null)
+
+                            <div>
+                                <small>Starting From</small>
+
+                                <strong>
+                                    ৳ {{ number_format((float) $service->starting_budget) }}
+                                </strong>
+                            </div>
+
+                        @endif
+
+
+                        @if($service->estimated_duration_days)
+
+                            <div>
+                                <small>Estimated Time</small>
+
+                                <strong>
+                                    {{ $service->estimated_duration_days }} Days
+                                </strong>
+                            </div>
+
+                        @endif
+
+                    </div>
+
+
+                    <!-- View Details -->
+                    <a
+                        href="{{ route('services.show', $service->slug) }}"
+                        class="service-details-btn"
+                    >
+                        <span>View Details</span>
+
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+        @empty
+
+            <div class="no-services">
+
+                <h3>No Services Available</h3>
+
+                <p>
+                    We are currently preparing our services.
+                    Please check back soon.
+                </p>
+
+            </div>
+
+        @endforelse
+
+    </div>
+
+</section>
 </body>
 </html>

@@ -98,41 +98,42 @@
                 </label>
 
 
-                <select
-                    name="project_id"
-                    id="project_id"
-                    required
-                >
+              <select
+    name="project_id"
+    id="project_id"
+    required
+>
 
-                    <option value="">
-                        -- Select Project --
-                    </option>
+    <option value="">
+        -- Select Project --
+    </option>
 
+    @foreach($projects as $project)
 
-                    @foreach($projects as $project)
+        <option
+            value="{{ $project->id }}"
+            data-status="{{ $project->status }}"
+            {{ old('project_id') == $project->id ? 'selected' : '' }}
+        >
 
-                        <option
-                            value="{{ $project->id }}"
-                            data-status="{{ $project->status }}"
-                            {{ old('project_id') == $project->id ? 'selected' : '' }}
-                        >
+            {{ $project->service?->name ?? 'Service Not Found' }}
 
-                            {{ $project->project_name }}
+            — Project #{{ $project->id }}
 
-                            —
-                            {{ ucfirst(
-                                str_replace(
-                                    '-',
-                                    ' ',
-                                    $project->status
-                                )
-                            ) }}
+            —
+            {{ ucfirst(
+                str_replace(
+                    '_',
+                    ' ',
+                    $project->status
+                )
+            ) }}
 
-                        </option>
+        </option>
 
-                    @endforeach
+    @endforeach
 
-                </select>
+</select>
 
 
                 @error('project_id')

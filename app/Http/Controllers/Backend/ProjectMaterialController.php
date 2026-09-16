@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Material;
 use App\Models\Supplier;
 use App\Models\ProjectMaterial;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,6 +24,7 @@ class ProjectMaterialController extends Controller
     {
         $projects = Project::with([
             'client',
+            'service',
             'projectMaterials',
         ])
         ->whereHas('projectMaterials')
@@ -45,14 +47,52 @@ class ProjectMaterialController extends Controller
      */
     public function create()
     {
-        $projects = Project::orderBy('project_name')
+        /*
+        |--------------------------------------------------------------------------
+        | GET PROJECTS
+        |--------------------------------------------------------------------------
+        |
+        | projects table-এ project_name নেই।
+        | Project-এর service_id থেকে Service Name নেওয়া হচ্ছে।
+        |
+        */
+
+        $projects = Project::with('service')
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
             ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET MATERIALS
+        |--------------------------------------------------------------------------
+        */
 
         $materials = Material::orderBy('material_name')
             ->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET SUPPLIERS
+        |--------------------------------------------------------------------------
+        */
+
         $suppliers = Supplier::orderBy('supplier_name')
             ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VIEW
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'backend.project-materials.create',
@@ -125,7 +165,6 @@ class ProjectMaterialController extends Controller
         |--------------------------------------------------------------------------
         | CANCELLED PROJECT CHECK
         |--------------------------------------------------------------------------
-        |
         */
 
         if ($project->status === 'cancelled') {
@@ -160,7 +199,6 @@ class ProjectMaterialController extends Controller
                 |--------------------------------------------------------------------------
                 | GET MATERIAL FROM DATABASE
                 |--------------------------------------------------------------------------
-                |
                 */
 
                 $material = Material::findOrFail(
@@ -268,6 +306,7 @@ class ProjectMaterialController extends Controller
 
         $project = Project::with([
             'client',
+            'service',
             'projectMaterials.material',
             'projectMaterials.supplier',
         ])
@@ -322,6 +361,7 @@ class ProjectMaterialController extends Controller
         */
 
         $project = Project::with([
+            'service',
             'projectMaterials.material',
             'projectMaterials.supplier',
         ])

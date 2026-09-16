@@ -213,7 +213,7 @@
                         <td>
 
                             <strong>
-                                {{ $project->project_name }}
+                                {{ $project->service?->name ?? 'Service Not Found' }}
                             </strong>
 
                         </td>

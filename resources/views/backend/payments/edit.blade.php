@@ -77,7 +77,7 @@
 
             <strong class="detail-value">
 
-                {{ $payment->project->project_name ?? 'N/A' }}
+                {{ $payment->project->service?->name ?? 'N/A' }}
 
             </strong>
 
@@ -100,13 +100,22 @@
 
                 $statusClass = match($projectStatus) {
 
-                    'pending' =>
+                    'request_pending' =>
                         'status-warning',
+
+                    'admin_review' =>
+                        'status-info',
+
+                    'proposal_sent' =>
+                        'status-info',
+
+                    'customer_approved' =>
+                        'status-info',
 
                     'ongoing' =>
                         'status-info',
 
-                    'on-hold' =>
+                    'paused' =>
                         'status-danger',
 
                     'completed' =>
@@ -501,9 +510,9 @@
                     id="payment_date"
                     value="{{ old(
                         'payment_date',
-                        $payment->payment_date
+                        optional($payment->payment_date)->format('Y-m-d')
                     ) }}"
-                    required
+                    id="payment_date"
                 >
 
 
@@ -517,6 +526,79 @@
 
             </div>
 
+
+
+
+            {{-- =================================================
+                PAYMENT STATUS
+            ================================================== --}}
+
+            <div class="form-group">
+
+                <label for="status">
+
+                    Payment Status
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
+                <select
+                    name="status"
+                    id="status"
+                    required
+                >
+
+                    <option value="">
+                        -- Select Payment Status --
+                    </option>
+
+                    <option
+                        value="pending"
+                        {{ old('status', $payment->status) === 'pending' ? 'selected' : '' }}
+                    >
+                        Pending
+                    </option>
+
+                    <option
+                        value="upcoming"
+                        {{ old('status', $payment->status) === 'upcoming' ? 'selected' : '' }}
+                    >
+                        Upcoming
+                    </option>
+
+                    <option
+                        value="paid"
+                        {{ old('status', $payment->status) === 'paid' ? 'selected' : '' }}
+                    >
+                        Paid
+                    </option>
+
+                    <option
+                        value="overdue"
+                        {{ old('status', $payment->status) === 'overdue' ? 'selected' : '' }}
+                    >
+                        Overdue
+                    </option>
+
+                    <option
+                        value="cancelled"
+                        {{ old('status', $payment->status) === 'cancelled' ? 'selected' : '' }}
+                    >
+                        Cancelled
+                    </option>
+
+                </select>
+
+                @error('status')
+                    <small class="field-error">
+                        {{ $message }}
+                    </small>
+                @enderror
+
+            </div>
 
 
             {{-- =================================================
@@ -548,11 +630,11 @@
 
 
                     <option
-                        value="Cash"
+                        value="cash"
                         {{ old(
                             'payment_method',
                             $payment->payment_method
-                        ) === 'Cash'
+                        ) === 'cash'
                             ? 'selected'
                             : ''
                         }}
@@ -562,11 +644,11 @@
 
 
                     <option
-                        value="Bank Transfer"
+                        value="bank"
                         {{ old(
                             'payment_method',
                             $payment->payment_method
-                        ) === 'Bank Transfer'
+                        ) === 'bank'
                             ? 'selected'
                             : ''
                         }}
@@ -576,11 +658,11 @@
 
 
                     <option
-                        value="Cheque"
+                        value="other"
                         {{ old(
                             'payment_method',
                             $payment->payment_method
-                        ) === 'Cheque'
+                        ) === 'other'
                             ? 'selected'
                             : ''
                         }}
@@ -590,11 +672,11 @@
 
 
                     <option
-                        value="Mobile Banking"
+                        value="mobile_banking"
                         {{ old(
                             'payment_method',
                             $payment->payment_method
-                        ) === 'Mobile Banking'
+                        ) === 'mobile_banking'
                             ? 'selected'
                             : ''
                         }}
@@ -604,11 +686,11 @@
 
 
                     <option
-                        value="Other"
+                        value="other"
                         {{ old(
                             'payment_method',
                             $payment->payment_method
-                        ) === 'Other'
+                        ) === 'other'
                             ? 'selected'
                             : ''
                         }}
@@ -814,6 +896,32 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById(
             'paymentEditForm'
         );
+
+    const statusSelect =
+        document.getElementById('status');
+
+    const paymentDate =
+        document.getElementById('payment_date');
+
+    const paymentMethod =
+        document.getElementById('payment_method');
+
+    function updatePaymentFields() {
+
+        const isPaid =
+            statusSelect.value === 'paid';
+
+        paymentDate.required = isPaid;
+        paymentMethod.required = isPaid;
+    }
+
+    statusSelect.addEventListener(
+        'change',
+        updatePaymentFields
+    );
+
+    updatePaymentFields();
+
 
 
     /*

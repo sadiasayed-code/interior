@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\ProgressReport;
 use App\Models\Project;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,8 +20,17 @@ class ProgressReportController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('progressReports')
-            ->orderBy('project_name')
+        $projects = Project::with([
+            'progressReports',
+            'service',
+        ])
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
             ->get();
 
         return view(
@@ -39,8 +49,17 @@ class ProgressReportController extends Controller
      */
     public function create()
     {
-        $projects = Project::with('progressReports')
-            ->orderBy('project_name')
+        $projects = Project::with([
+            'progressReports',
+            'service',
+        ])
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
             ->get();
 
         return view(
@@ -50,16 +69,22 @@ class ProgressReportController extends Controller
     }
 
 
+    /**
+     * =========================================================
+     * STORE
+     * =========================================================
+     *
+     * Add new progress or update existing work type progress.
+     */
     public function store(Request $request)
     {
         /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
         $validated = $request->validate([
-
             'project_id' => [
                 'required',
                 'exists:projects,id',
@@ -89,50 +114,47 @@ class ProgressReportController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
-
         ], [
-
             'project_id.required' =>
-            'Please select a project.',
+                'Please select a project.',
 
             'project_id.exists' =>
-            'The selected project does not exist.',
+                'The selected project does not exist.',
 
             'work_type.required' =>
-            'Please enter the work type.',
+                'Please enter the work type.',
 
             'work_type.max' =>
-            'Work type cannot exceed 255 characters.',
+                'Work type cannot exceed 255 characters.',
 
             'progress_percent.required' =>
-            'Please enter the progress percentage.',
+                'Please enter the progress percentage.',
 
             'progress_percent.integer' =>
-            'Progress percentage must be a whole number.',
+                'Progress percentage must be a whole number.',
 
             'progress_percent.min' =>
-            'Progress percentage cannot be less than 0%.',
+                'Progress percentage cannot be less than 0%.',
 
             'progress_percent.max' =>
-            'Progress percentage cannot be greater than 100%.',
+                'Progress percentage cannot be greater than 100%.',
 
             'image.image' =>
-            'The uploaded file must be a valid image.',
+                'The uploaded file must be a valid image.',
 
             'image.mimes' =>
-            'Image must be JPG, JPEG, PNG or WEBP format.',
+                'Image must be JPG, JPEG, PNG or WEBP format.',
 
             'image.max' =>
-            'Image size cannot exceed 2 MB.',
-
+                'Image size cannot exceed 2 MB.',
         ]);
 
 
         /*
-    |--------------------------------------------------------------------------
-    | FIND PROJECT
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | FIND PROJECT
+        |--------------------------------------------------------------------------
+        */
 
         $project = Project::with('progressReports')
             ->findOrFail(
@@ -141,17 +163,17 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | PROJECT STATUS CHECK
-    |--------------------------------------------------------------------------
-    |
-    | Progress can only be added to:
-    | pending / ongoing
-    |
-    */
+        |--------------------------------------------------------------------------
+        | PROJECT STATUS CHECK
+        |--------------------------------------------------------------------------
+        |
+        | Progress cannot be added when project is paused,
+        | completed or cancelled.
+        |
+        */
 
         if (in_array($project->status, [
-            'on-hold',
+            'paused',
             'completed',
             'cancelled',
         ])) {
@@ -159,7 +181,7 @@ class ProgressReportController extends Controller
             return back()
                 ->withErrors([
                     'project_id' =>
-                    'Progress cannot be added because this project is '
+                        'Progress cannot be added because this project is '
                         . str_replace(
                             '-',
                             ' ',
@@ -172,14 +194,14 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | FIND EXISTING WORK
-    |--------------------------------------------------------------------------
-    |
-    | Same project + same work type
-    | means update existing record.
-    |
-    */
+        |--------------------------------------------------------------------------
+        | FIND EXISTING WORK
+        |--------------------------------------------------------------------------
+        |
+        | Same project + same work type
+        | means update existing record.
+        |
+        */
 
         $progressReport = ProgressReport::where(
             'project_id',
@@ -193,10 +215,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | CURRENT TOTAL PROGRESS
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | CURRENT TOTAL PROGRESS
+        |--------------------------------------------------------------------------
+        */
 
         $currentTotal = $project
             ->progressReports
@@ -204,13 +226,14 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | IF WORK ALREADY EXISTS
-    |--------------------------------------------------------------------------
-    |
-    | Remove the existing work's old progress first.
-    |
-    */
+        |--------------------------------------------------------------------------
+        | REMOVE OLD PROGRESS
+        |--------------------------------------------------------------------------
+        |
+        | If same work already exists, remove its old percentage
+        | before calculating the new total.
+        |
+        */
 
         if ($progressReport) {
 
@@ -220,10 +243,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | NEW TOTAL PROGRESS
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | NEW TOTAL
+        |--------------------------------------------------------------------------
+        */
 
         $newTotal =
             $currentTotal
@@ -231,10 +254,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | TOTAL CANNOT EXCEED 100%
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | TOTAL CANNOT EXCEED 100%
+        |--------------------------------------------------------------------------
+        */
 
         if ($newTotal > 100) {
 
@@ -244,7 +267,7 @@ class ProgressReportController extends Controller
             return back()
                 ->withErrors([
                     'progress_percent' =>
-                    'This progress would make the project total '
+                        'This progress would make the project total '
                         . $newTotal
                         . '%. Maximum available progress is '
                         . $remainingAvailable
@@ -255,24 +278,24 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | IMAGE UPLOAD
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | IMAGE UPLOAD
+        |--------------------------------------------------------------------------
+        */
 
         if ($request->hasFile('image')) {
 
             /*
-        |--------------------------------------------------------------------------
-        | DELETE OLD IMAGE
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | DELETE OLD IMAGE
+            |--------------------------------------------------------------------------
+            */
 
             if (
                 $progressReport &&
                 $progressReport->image &&
                 Storage::disk('public')
-                ->exists($progressReport->image)
+                    ->exists($progressReport->image)
             ) {
 
                 Storage::disk('public')
@@ -283,25 +306,25 @@ class ProgressReportController extends Controller
 
 
             /*
-        |--------------------------------------------------------------------------
-        | STORE NEW IMAGE
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | STORE NEW IMAGE
+            |--------------------------------------------------------------------------
+            */
 
             $validated['image'] =
                 $request->file('image')
-                ->store(
-                    'progress-reports',
-                    'public'
-                );
+                    ->store(
+                        'progress-reports',
+                        'public'
+                    );
         }
 
 
         /*
-    |--------------------------------------------------------------------------
-    | UPDATE EXISTING WORK
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | UPDATE EXISTING WORK
+        |--------------------------------------------------------------------------
+        */
 
         if ($progressReport) {
 
@@ -321,10 +344,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | CREATE NEW WORK
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | CREATE NEW WORK
+        |--------------------------------------------------------------------------
+        */
 
         ProgressReport::create(
             $validated
@@ -332,10 +355,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -357,13 +380,13 @@ class ProgressReportController extends Controller
      */
     public function show(ProgressReport $progressReport)
     {
-        $project = Project::with(
-            'progressReports'
-        )->findOrFail(
-            $progressReport->project_id
-        );
-
-
+        $project = Project::with([
+            'progressReports',
+            'service',
+        ])
+            ->findOrFail(
+                $progressReport->project_id
+            );
 
 
         /*
@@ -374,7 +397,7 @@ class ProgressReportController extends Controller
 
         $overallProgress =
             $project->progressReports
-            ->sum('progress_percent');
+                ->sum('progress_percent');
 
 
         return view(
@@ -398,9 +421,15 @@ class ProgressReportController extends Controller
         ProgressReport $progressReport
     ) {
 
-        $projects = Project::orderBy(
-            'project_name'
-        )->get();
+        $projects = Project::with('service')
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
+            ->get();
 
 
         return view(
@@ -412,19 +441,26 @@ class ProgressReportController extends Controller
         );
     }
 
+
+    /**
+     * =========================================================
+     * UPDATE
+     * =========================================================
+     *
+     * Update existing progress report.
+     */
     public function update(
         Request $request,
         ProgressReport $progressReport
     ) {
 
         /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
         $validated = $request->validate([
-
             'project_id' => [
                 'required',
                 'exists:projects,id',
@@ -454,50 +490,47 @@ class ProgressReportController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
-
         ], [
-
             'project_id.required' =>
-            'Please select a project.',
+                'Please select a project.',
 
             'project_id.exists' =>
-            'The selected project does not exist.',
+                'The selected project does not exist.',
 
             'work_type.required' =>
-            'Please enter the work type.',
+                'Please enter the work type.',
 
             'work_type.max' =>
-            'Work type cannot exceed 255 characters.',
+                'Work type cannot exceed 255 characters.',
 
             'progress_percent.required' =>
-            'Please enter the progress percentage.',
+                'Please enter the progress percentage.',
 
             'progress_percent.integer' =>
-            'Progress percentage must be a whole number.',
+                'Progress percentage must be a whole number.',
 
             'progress_percent.min' =>
-            'Progress percentage cannot be less than 0%.',
+                'Progress percentage cannot be less than 0%.',
 
             'progress_percent.max' =>
-            'Progress percentage cannot be greater than 100%.',
+                'Progress percentage cannot be greater than 100%.',
 
             'image.image' =>
-            'The uploaded file must be a valid image.',
+                'The uploaded file must be a valid image.',
 
             'image.mimes' =>
-            'Image must be JPG, JPEG, PNG or WEBP format.',
+                'Image must be JPG, JPEG, PNG or WEBP format.',
 
             'image.max' =>
-            'Image size cannot exceed 2 MB.',
-
+                'Image size cannot exceed 2 MB.',
         ]);
 
 
         /*
-    |--------------------------------------------------------------------------
-    | FIND PROJECT
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | FIND PROJECT
+        |--------------------------------------------------------------------------
+        */
 
         $project = Project::with('progressReports')
             ->findOrFail(
@@ -506,13 +539,13 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | PROJECT STATUS CHECK
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | PROJECT STATUS CHECK
+        |--------------------------------------------------------------------------
+        */
 
         if (in_array($project->status, [
-            'on-hold',
+            'paused',
             'completed',
             'cancelled',
         ])) {
@@ -520,7 +553,7 @@ class ProgressReportController extends Controller
             return back()
                 ->withErrors([
                     'project_id' =>
-                    'Progress cannot be updated because this project is '
+                        'Progress cannot be updated because this project is '
                         . str_replace(
                             '-',
                             ' ',
@@ -533,15 +566,14 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | DUPLICATE WORK TYPE CHECK
-    |--------------------------------------------------------------------------
-    |
-    | If the user changes the work type,
-    | make sure another record does not already
-    | use the same project + work type.
-    |
-    */
+        |--------------------------------------------------------------------------
+        | DUPLICATE WORK TYPE CHECK
+        |--------------------------------------------------------------------------
+        |
+        | If work type is changed, another record must not already
+        | use the same project + work type.
+        |
+        */
 
         $duplicate = ProgressReport::where(
             'project_id',
@@ -564,25 +596,24 @@ class ProgressReportController extends Controller
             return back()
                 ->withErrors([
                     'work_type' =>
-                    'This work type already exists for this project.',
+                        'This work type already exists for this project.',
                 ])
                 ->withInput();
         }
 
 
         /*
-    |--------------------------------------------------------------------------
-    | CURRENT TOTAL
-    |--------------------------------------------------------------------------
-    |
-    | Remove the current record's old percentage
-    | before calculating the new total.
-    |
-    */
+        |--------------------------------------------------------------------------
+        | CURRENT TOTAL
+        |--------------------------------------------------------------------------
+        |
+        | Remove current record's old percentage.
+        |
+        */
 
         $currentTotal =
             $project->progressReports
-            ->sum('progress_percent');
+                ->sum('progress_percent');
 
 
         $currentTotal -=
@@ -590,10 +621,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | NEW TOTAL
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | NEW TOTAL
+        |--------------------------------------------------------------------------
+        */
 
         $newTotal =
             $currentTotal
@@ -601,10 +632,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | TOTAL CANNOT EXCEED 100%
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | TOTAL CANNOT EXCEED 100%
+        |--------------------------------------------------------------------------
+        */
 
         if ($newTotal > 100) {
 
@@ -614,7 +645,7 @@ class ProgressReportController extends Controller
             return back()
                 ->withErrors([
                     'progress_percent' =>
-                    'This update would make the project total '
+                        'This update would make the project total '
                         . $newTotal
                         . '%. Maximum available progress is '
                         . $remainingAvailable
@@ -625,25 +656,23 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | IMAGE UPDATE
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | IMAGE UPDATE
+        |--------------------------------------------------------------------------
+        */
 
         if ($request->hasFile('image')) {
 
             /*
-        |--------------------------------------------------------------------------
-        | DELETE OLD IMAGE
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | DELETE OLD IMAGE
+            |--------------------------------------------------------------------------
+            */
 
             if (
                 $progressReport->image &&
                 Storage::disk('public')
-                ->exists(
-                    $progressReport->image
-                )
+                    ->exists($progressReport->image)
             ) {
 
                 Storage::disk('public')
@@ -654,25 +683,25 @@ class ProgressReportController extends Controller
 
 
             /*
-        |--------------------------------------------------------------------------
-        | STORE NEW IMAGE
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | STORE NEW IMAGE
+            |--------------------------------------------------------------------------
+            */
 
             $validated['image'] =
                 $request->file('image')
-                ->store(
-                    'progress-reports',
-                    'public'
-                );
+                    ->store(
+                        'progress-reports',
+                        'public'
+                    );
         }
 
 
         /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
 
         $progressReport->update(
             $validated
@@ -680,10 +709,10 @@ class ProgressReportController extends Controller
 
 
         /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -694,6 +723,7 @@ class ProgressReportController extends Controller
                 'Progress updated successfully.'
             );
     }
+
 
     /**
      * =========================================================
@@ -715,9 +745,7 @@ class ProgressReportController extends Controller
         if (
             $progressReport->image &&
             Storage::disk('public')
-            ->exists(
-                $progressReport->image
-            )
+                ->exists($progressReport->image)
         ) {
 
             Storage::disk('public')

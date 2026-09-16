@@ -28,8 +28,7 @@
 
     <a
         href="{{ route('admin.progress-reports.index') }}"
-        class="secondary-btn"
-    >
+        class="secondary-btn">
         ← Back
     </a>
 
@@ -67,8 +66,7 @@
             action="{{ route('admin.progress-reports.store') }}"
             method="POST"
             enctype="multipart/form-data"
-            id="progressReportForm"
-        >
+            id="progressReportForm">
 
             @csrf
 
@@ -94,8 +92,7 @@
                 <select
                     name="project_id"
                     id="project_id"
-                    required
-                >
+                    required>
 
                     <option value="">
                         -- Select Project --
@@ -104,18 +101,17 @@
 
                     @foreach($projects as $project)
 
-                        <option
-                            value="{{ $project->id }}"
-                            data-status="{{ $project->status }}"
-                            {{ old('project_id') == $project->id
-                                ? 'selected'
-                                : ''
-                            }}
-                        >
+                    <option
+                        value="{{ $project->id }}"
+                        data-status="{{ $project->status }}"
+                        {{ old('project_id') == $project->id
+            ? 'selected'
+            : ''
+        }}>
 
-                            {{ $project->project_name }}
+                        {{ $project->service?->name ?? 'Service Not Found' }}
 
-                        </option>
+                    </option>
 
                     @endforeach
 
@@ -124,9 +120,9 @@
 
                 @error('project_id')
 
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
+                <small class="field-error">
+                    {{ $message }}
+                </small>
 
                 @enderror
 
@@ -136,8 +132,7 @@
                 <small
                     id="projectStatusMessage"
                     class="form-help"
-                    style="display:none;"
-                ></small>
+                    style="display:none;"></small>
 
             </div>
 
@@ -167,15 +162,14 @@
                     value="{{ old('work_type') }}"
                     placeholder="Example: Electrical, Carpeting, Painting"
                     maxlength="255"
-                    required
-                >
+                    required>
 
 
                 @error('work_type')
 
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
+                <small class="field-error">
+                    {{ $message }}
+                </small>
 
                 @enderror
 
@@ -213,8 +207,7 @@
                         min="0"
                         max="100"
                         step="1"
-                        required
-                    >
+                        required>
 
 
                     <span class="percentage-symbol">
@@ -226,17 +219,16 @@
 
                 @error('progress_percent')
 
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
+                <small class="field-error">
+                    {{ $message }}
+                </small>
 
                 @enderror
 
 
                 <small
                     id="progressMessage"
-                    class="form-help"
-                >
+                    class="form-help">
                     Enter progress between 0% and 100%.
                 </small>
 
@@ -277,8 +269,7 @@
                     <div
                         class="progress-preview-fill"
                         id="progressBar"
-                        style="width: 0%;"
-                    ></div>
+                        style="width: 0%;"></div>
 
                 </div>
 
@@ -307,15 +298,14 @@
                     name="description"
                     id="description"
                     rows="5"
-                    placeholder="Describe the current work progress..."
-                >{{ old('description') }}</textarea>
+                    placeholder="Describe the current work progress...">{{ old('description') }}</textarea>
 
 
                 @error('description')
 
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
+                <small class="field-error">
+                    {{ $message }}
+                </small>
 
                 @enderror
 
@@ -344,8 +334,7 @@
                     type="file"
                     name="image"
                     id="image"
-                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                >
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
 
 
                 <small class="form-help">
@@ -358,9 +347,9 @@
 
                 @error('image')
 
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
+                <small class="field-error">
+                    {{ $message }}
+                </small>
 
                 @enderror
 
@@ -375,8 +364,7 @@
             <div
                 class="progress-image-preview"
                 id="imagePreviewContainer"
-                style="display:none;"
-            >
+                style="display:none;">
 
                 <div class="progress-image-preview-header">
 
@@ -388,8 +376,7 @@
                     <button
                         type="button"
                         id="removeImage"
-                        class="small-action delete"
-                    >
+                        class="small-action delete">
                         Remove
                     </button>
 
@@ -399,8 +386,7 @@
                 <img
                     src=""
                     alt="Progress image preview"
-                    id="imagePreview"
-                >
+                    id="imagePreview">
 
             </div>
 
@@ -416,8 +402,7 @@
                     href="{{ route(
                         'admin.progress-reports.index'
                     ) }}"
-                    class="secondary-btn"
-                >
+                    class="secondary-btn">
                     Cancel
                 </a>
 
@@ -425,8 +410,7 @@
                 <button
                     type="submit"
                     class="primary-btn"
-                    id="submitButton"
-                >
+                    id="submitButton">
                     Save Progress
                 </button>
 
@@ -446,468 +430,464 @@
 ====================================================== --}}
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ELEMENTS
-    |--------------------------------------------------------------------------
-    */
-
-    const projectSelect =
-        document.getElementById('project_id');
-
-    const workTypeInput =
-        document.getElementById('work_type');
-
-    const progressInput =
-        document.getElementById('progress_percent');
-
-    const descriptionInput =
-        document.getElementById('description');
-
-    const imageInput =
-        document.getElementById('image');
-
-    const progressValue =
-        document.getElementById('progressValue');
-
-    const progressBar =
-        document.getElementById('progressBar');
-
-    const progressMessage =
-        document.getElementById('progressMessage');
-
-    const projectStatusMessage =
-        document.getElementById(
-            'projectStatusMessage'
-        );
-
-    const submitButton =
-        document.getElementById('submitButton');
-
-    const imagePreview =
-        document.getElementById('imagePreview');
-
-    const imagePreviewContainer =
-        document.getElementById(
-            'imagePreviewContainer'
-        );
-
-    const removeImage =
-        document.getElementById('removeImage');
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DISABLED PROJECT STATUSES
-    |--------------------------------------------------------------------------
-    */
-
-    const blockedStatuses = [
-        'on-hold',
-        'completed',
-        'cancelled'
-    ];
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT STATUS CHECK
-    |--------------------------------------------------------------------------
-    */
-
-    function checkProjectStatus() {
-
-        const selectedOption =
-            projectSelect.options[
-                projectSelect.selectedIndex
-            ];
+    document.addEventListener('DOMContentLoaded', function() {
 
 
         /*
         |--------------------------------------------------------------------------
-        | NO PROJECT SELECTED
+        | ELEMENTS
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !selectedOption ||
-            !selectedOption.value
-        ) {
+        const projectSelect =
+            document.getElementById('project_id');
 
-            enableFormFields();
+        const workTypeInput =
+            document.getElementById('work_type');
 
-            projectStatusMessage.style.display =
-                'none';
+        const progressInput =
+            document.getElementById('progress_percent');
 
-            return;
+        const descriptionInput =
+            document.getElementById('description');
 
-        }
+        const imageInput =
+            document.getElementById('image');
 
+        const progressValue =
+            document.getElementById('progressValue');
 
-        const status =
-            selectedOption.dataset.status;
+        const progressBar =
+            document.getElementById('progressBar');
+
+        const progressMessage =
+            document.getElementById('progressMessage');
+
+        const projectStatusMessage =
+            document.getElementById(
+                'projectStatusMessage'
+            );
+
+        const submitButton =
+            document.getElementById('submitButton');
+
+        const imagePreview =
+            document.getElementById('imagePreview');
+
+        const imagePreviewContainer =
+            document.getElementById(
+                'imagePreviewContainer'
+            );
+
+        const removeImage =
+            document.getElementById('removeImage');
+
 
 
         /*
         |--------------------------------------------------------------------------
-        | BLOCKED PROJECT
+        | DISABLED PROJECT STATUSES
         |--------------------------------------------------------------------------
         */
 
-        if (
-            blockedStatuses.includes(status)
-        ) {
+        const blockedStatuses = [
+            'on-hold',
+            'completed',
+            'cancelled'
+        ];
 
-            disableFormFields();
 
-            const readableStatus =
-                status
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT STATUS CHECK
+        |--------------------------------------------------------------------------
+        */
+
+        function checkProjectStatus() {
+
+            const selectedOption =
+                projectSelect.options[
+                    projectSelect.selectedIndex
+                ];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | NO PROJECT SELECTED
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                !selectedOption ||
+                !selectedOption.value
+            ) {
+
+                enableFormFields();
+
+                projectStatusMessage.style.display =
+                    'none';
+
+                return;
+
+            }
+
+
+            const status =
+                selectedOption.dataset.status;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BLOCKED PROJECT
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                blockedStatuses.includes(status)
+            ) {
+
+                disableFormFields();
+
+                const readableStatus =
+                    status
                     .replace('-', ' ')
-                    .replace(/\b\w/g, function (letter) {
+                    .replace(/\b\w/g, function(letter) {
                         return letter.toUpperCase();
                     });
 
 
+                projectStatusMessage.textContent =
+                    `Progress cannot be added because this project is ${readableStatus}.`;
+
+                projectStatusMessage.style.display =
+                    'block';
+
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTIVE PROJECT
+            |--------------------------------------------------------------------------
+            */
+
+            enableFormFields();
+
             projectStatusMessage.textContent =
-                `Progress cannot be added because this project is ${readableStatus}.`;
+                `This project is ${status}. Progress can be added or updated.`;
 
             projectStatusMessage.style.display =
                 'block';
 
-
-            return;
-
         }
+
 
 
         /*
         |--------------------------------------------------------------------------
-        | ACTIVE PROJECT
+        | DISABLE FORM FIELDS
         |--------------------------------------------------------------------------
         */
 
-        enableFormFields();
+        function disableFormFields() {
 
-        projectStatusMessage.textContent =
-            `This project is ${status}. Progress can be added or updated.`;
+            workTypeInput.disabled =
+                true;
 
-        projectStatusMessage.style.display =
-            'block';
+            progressInput.disabled =
+                true;
 
-    }
+            descriptionInput.disabled =
+                true;
 
+            imageInput.disabled =
+                true;
 
+            submitButton.disabled =
+                true;
 
-    /*
-    |--------------------------------------------------------------------------
-    | DISABLE FORM FIELDS
-    |--------------------------------------------------------------------------
-    */
-
-    function disableFormFields() {
-
-        workTypeInput.disabled =
-            true;
-
-        progressInput.disabled =
-            true;
-
-        descriptionInput.disabled =
-            true;
-
-        imageInput.disabled =
-            true;
-
-        submitButton.disabled =
-            true;
-
-        submitButton.textContent =
-            'Progress Locked';
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ENABLE FORM FIELDS
-    |--------------------------------------------------------------------------
-    */
-
-    function enableFormFields() {
-
-        workTypeInput.disabled =
-            false;
-
-        progressInput.disabled =
-            false;
-
-        descriptionInput.disabled =
-            false;
-
-        imageInput.disabled =
-            false;
-
-        submitButton.disabled =
-            false;
-
-        submitButton.textContent =
-            'Save Progress';
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROJECT CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    projectSelect.addEventListener(
-        'change',
-        function () {
-
-            checkProjectStatus();
-
-        }
-    );
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROGRESS PREVIEW
-    |--------------------------------------------------------------------------
-    */
-
-    function updateProgressPreview() {
-
-        let progress =
-            parseInt(
-                progressInput.value
-            ) || 0;
-
-
-        if (progress < 0) {
-
-            progress = 0;
+            submitButton.textContent =
+                'Progress Locked';
 
         }
 
 
-        if (progress > 100) {
 
-            progress = 100;
+        /*
+        |--------------------------------------------------------------------------
+        | ENABLE FORM FIELDS
+        |--------------------------------------------------------------------------
+        */
+
+        function enableFormFields() {
+
+            workTypeInput.disabled =
+                false;
+
+            progressInput.disabled =
+                false;
+
+            descriptionInput.disabled =
+                false;
+
+            imageInput.disabled =
+                false;
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                'Save Progress';
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROJECT CHANGE
+        |--------------------------------------------------------------------------
+        */
+
+        projectSelect.addEventListener(
+            'change',
+            function() {
+
+                checkProjectStatus();
+
+            }
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRESS PREVIEW
+        |--------------------------------------------------------------------------
+        */
+
+        function updateProgressPreview() {
+
+            let progress =
+                parseInt(
+                    progressInput.value
+                ) || 0;
+
+
+            if (progress < 0) {
+
+                progress = 0;
+
+            }
+
+
+            if (progress > 100) {
+
+                progress = 100;
+
+            }
+
+
+            progressValue.textContent =
+                `${progress}%`;
+
+
+            progressBar.style.width =
+                `${progress}%`;
+
+
+            if (progress === 100) {
+
+                progressMessage.textContent =
+                    'This work is completed.';
+
+            } else if (progress > 0) {
+
+                progressMessage.textContent =
+                    `Current work progress: ${progress}%.`;
+
+            } else {
+
+                progressMessage.textContent =
+                    'Enter progress between 0% and 100%.';
+
+            }
 
         }
 
 
-        progressValue.textContent =
-            `${progress}%`;
 
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRESS INPUT
+        |--------------------------------------------------------------------------
+        */
 
-        progressBar.style.width =
-            `${progress}%`;
-
-
-        if (progress === 100) {
-
-            progressMessage.textContent =
-                'This work is completed.';
-
-        }
-        else if (progress > 0) {
-
-            progressMessage.textContent =
-                `Current work progress: ${progress}%.`;
-
-        }
-        else {
-
-            progressMessage.textContent =
-                'Enter progress between 0% and 100%.';
-
-        }
-
-    }
+        progressInput.addEventListener(
+            'input',
+            updateProgressPreview
+        );
 
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | PROGRESS INPUT
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE PREVIEW
+        |--------------------------------------------------------------------------
+        */
 
-    progressInput.addEventListener(
-        'input',
-        updateProgressPreview
-    );
+        imageInput.addEventListener(
+            'change',
+            function(event) {
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | IMAGE PREVIEW
-    |--------------------------------------------------------------------------
-    */
-
-    imageInput.addEventListener(
-        'change',
-        function (event) {
-
-            const file =
-                event.target.files[0];
+                const file =
+                    event.target.files[0];
 
 
-            if (!file) {
+                if (!file) {
 
-                imagePreviewContainer.style.display =
-                    'none';
+                    imagePreviewContainer.style.display =
+                        'none';
+
+                    imagePreview.src =
+                        '';
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | FILE TYPE
+                |--------------------------------------------------------------------------
+                */
+
+                const allowedTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp'
+                ];
+
+
+                if (
+                    !allowedTypes.includes(
+                        file.type
+                    )
+                ) {
+
+                    alert(
+                        'Please select a JPG, JPEG, PNG or WEBP image.'
+                    );
+
+                    imageInput.value =
+                        '';
+
+                    imagePreviewContainer.style.display =
+                        'none';
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | FILE SIZE
+                |--------------------------------------------------------------------------
+                */
+
+                const maxSize =
+                    2 * 1024 * 1024;
+
+
+                if (
+                    file.size > maxSize
+                ) {
+
+                    alert(
+                        'Image size cannot exceed 2 MB.'
+                    );
+
+                    imageInput.value =
+                        '';
+
+                    imagePreviewContainer.style.display =
+                        'none';
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMAGE PREVIEW
+                |--------------------------------------------------------------------------
+                */
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function(e) {
+
+                        imagePreview.src =
+                            e.target.result;
+
+                        imagePreviewContainer.style.display =
+                            'block';
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE IMAGE
+        |--------------------------------------------------------------------------
+        */
+
+        removeImage.addEventListener(
+            'click',
+            function() {
+
+                imageInput.value =
+                    '';
 
                 imagePreview.src =
                     '';
 
-                return;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | FILE TYPE
-            |--------------------------------------------------------------------------
-            */
-
-            const allowedTypes = [
-                'image/jpeg',
-                'image/png',
-                'image/webp'
-            ];
-
-
-            if (
-                !allowedTypes.includes(
-                    file.type
-                )
-            ) {
-
-                alert(
-                    'Please select a JPG, JPEG, PNG or WEBP image.'
-                );
-
-                imageInput.value =
-                    '';
-
                 imagePreviewContainer.style.display =
                     'none';
 
-                return;
-
             }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | FILE SIZE
-            |--------------------------------------------------------------------------
-            */
-
-            const maxSize =
-                2 * 1024 * 1024;
-
-
-            if (
-                file.size > maxSize
-            ) {
-
-                alert(
-                    'Image size cannot exceed 2 MB.'
-                );
-
-                imageInput.value =
-                    '';
-
-                imagePreviewContainer.style.display =
-                    'none';
-
-                return;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | IMAGE PREVIEW
-            |--------------------------------------------------------------------------
-            */
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload =
-                function (e) {
-
-                    imagePreview.src =
-                        e.target.result;
-
-                    imagePreviewContainer.style.display =
-                        'block';
-
-                };
-
-
-            reader.readAsDataURL(file);
-
-        }
-    );
+        );
 
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | REMOVE IMAGE
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | INITIAL STATE
+        |--------------------------------------------------------------------------
+        */
 
-    removeImage.addEventListener(
-        'click',
-        function () {
+        updateProgressPreview();
 
-            imageInput.value =
-                '';
+        checkProjectStatus();
 
-            imagePreview.src =
-                '';
-
-            imagePreviewContainer.style.display =
-                'none';
-
-        }
-    );
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL STATE
-    |--------------------------------------------------------------------------
-    */
-
-    updateProgressPreview();
-
-    checkProjectStatus();
-
-});
-
+    });
 </script>
 
 

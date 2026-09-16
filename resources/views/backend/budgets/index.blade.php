@@ -28,8 +28,7 @@
 
     <a
         href="{{ route('admin.budgets.create') }}"
-        class="primary-btn"
-    >
+        class="primary-btn">
         + Add Budget
     </a>
 
@@ -168,99 +167,97 @@
                 @forelse($budgets as $budget)
 
 
-                    @php
+                @php
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | COST VALUES
-                        |--------------------------------------------------------------------------
-                        */
+                /*
+                |--------------------------------------------------------------------------
+                | COST VALUES
+                |--------------------------------------------------------------------------
+                */
 
-                        $estimatedCost =
-                            (float) $budget->estimated_cost;
+                $estimatedCost =
+                (float) $budget->estimated_cost;
 
-                        $contractAmount =
-                            (float) $budget->contract_amount;
+                $contractAmount =
+                (float) $budget->contract_amount;
 
-                        $actualCost =
-                            (float) ($budget->actual_cost ?? 0);
-
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | VARIANCE
-                        |--------------------------------------------------------------------------
-                        |
-                        | Estimated Cost - Actual Cost
-                        |
-                        */
-
-                        $variance =
-                            $estimatedCost - $actualCost;
+                $actualCost =
+                (float) ($budget->actual_cost ?? 0);
 
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | VARIANCE STATUS
-                        |--------------------------------------------------------------------------
-                        */
+                /*
+                |--------------------------------------------------------------------------
+                | VARIANCE
+                |--------------------------------------------------------------------------
+                |
+                | Estimated Cost - Actual Cost
+                |
+                */
 
-                        $varianceStatus =
-                            $budget->variance_status
-                            ?? (
-                                $variance > 0
-                                    ? 'Under Budget'
-                                    : (
-                                        $variance < 0
-                                            ? 'Over Budget'
-                                            : 'On Budget'
-                                    )
-                            );
+                $variance =
+                $estimatedCost - $actualCost;
 
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | VARIANCE STATUS CLASS
-                        |--------------------------------------------------------------------------
-                        */
+                /*
+                |--------------------------------------------------------------------------
+                | VARIANCE STATUS
+                |--------------------------------------------------------------------------
+                */
 
-                        $statusClass = match(
-                            $varianceStatus
-                        ) {
-
-                            'Under Budget' =>
-                                'status-success',
-
-                            'Over Budget' =>
-                                'status-danger',
-
-                            'On Budget' =>
-                                'status-info',
-
-                            default =>
-                                'status-secondary',
-
-                        };
+                $varianceStatus =
+                $budget->variance_status
+                ?? (
+                $variance > 0
+                ? 'Under Budget'
+                : (
+                $variance < 0
+                    ? 'Over Budget'
+                    : 'On Budget'
+                    )
+                    );
 
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | VARIANCE TEXT CLASS
-                        |--------------------------------------------------------------------------
-                        */
+                    /*
+                    |--------------------------------------------------------------------------
+                    | VARIANCE STATUS CLASS
+                    |--------------------------------------------------------------------------
+                    */
 
-                        $varianceClass =
-                            $variance > 0
-                                ? 'text-success'
-                                : (
-                                    $variance < 0
-                                        ? 'text-danger'
-                                        : 'text-muted'
-                                );
+                    $statusClass=match(
+                    $varianceStatus
+                    ) { 'Under Budget'=>
+                    'status-success',
+
+                    'Over Budget' =>
+                    'status-danger',
+
+                    'On Budget' =>
+                    'status-info',
+
+                    default =>
+                    'status-secondary',
+
+                    };
+
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | VARIANCE TEXT CLASS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $varianceClass =
+                    $variance > 0
+                    ? 'text-success'
+                    : (
+                    $variance < 0
+                        ? 'text-danger'
+                        : 'text-muted'
+                        );
 
 
 
@@ -273,8 +270,7 @@
                         |
                         */
 
-                        $profitLoss =
-                            $contractAmount - $actualCost;
+                        $profitLoss=$contractAmount - $actualCost;
 
 
 
@@ -284,394 +280,379 @@
                         |--------------------------------------------------------------------------
                         */
 
-                        $financialStatus =
-                            $budget->financial_status
-                            ?? (
-                                $profitLoss > 0
-                                    ? 'Profit'
-                                    : (
-                                        $profitLoss < 0
-                                            ? 'Loss'
-                                            : 'Break-even'
-                                    )
+                        $financialStatus=$budget->financial_status
+                        ?? (
+                        $profitLoss > 0
+                        ? 'Profit'
+                        : (
+                        $profitLoss < 0
+                            ? 'Loss'
+                            : 'Break-even'
+                            )
                             );
 
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | FINANCIAL STATUS CLASS
-                        |--------------------------------------------------------------------------
-                        */
+                            /*
+                            |--------------------------------------------------------------------------
+                            | FINANCIAL STATUS CLASS
+                            |--------------------------------------------------------------------------
+                            */
 
-                        $financialStatusClass = match(
+                            $financialStatusClass=match(
                             $financialStatus
-                        ) {
-
-                            'Profit' =>
-                                'status-success',
+                            ) { 'Profit'=>
+                            'status-success',
 
                             'Loss' =>
-                                'status-danger',
+                            'status-danger',
 
                             'Break-even' =>
-                                'status-info',
+                            'status-info',
 
                             default =>
-                                'status-secondary',
+                            'status-secondary',
 
-                        };
+                            };
 
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | PROFIT / LOSS TEXT CLASS
-                        |--------------------------------------------------------------------------
-                        */
+                            /*
+                            |--------------------------------------------------------------------------
+                            | PROFIT / LOSS TEXT CLASS
+                            |--------------------------------------------------------------------------
+                            */
 
-                        $profitLossClass =
+                            $profitLossClass =
                             $profitLoss > 0
-                                ? 'text-success'
-                                : (
-                                    $profitLoss < 0
-                                        ? 'text-danger'
-                                        : 'text-muted'
+                            ? 'text-success'
+                            : (
+                            $profitLoss < 0
+                                ? 'text-danger'
+                                : 'text-muted'
                                 );
 
-                    @endphp
+                                @endphp
 
 
 
-                    <tr>
+                                <tr>
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             SERIAL
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            {{ $loop->iteration }}
+                                    {{ $loop->iteration }}
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             PROJECT
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <strong>
+                                    <strong>
+                                        {{ $budget->project?->service?->name ?? 'Service Not Found' }}
+                                    </strong>
 
-                                {{ $budget->project->project_name
-                                    ?? 'N/A'
-                                }}
-
-                            </strong>
-
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             ESTIMATED COST
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <strong>
+                                    <strong>
 
-                                ৳{{ number_format(
+                                        ৳{{ number_format(
                                     $estimatedCost,
                                     2
                                 ) }}
 
-                            </strong>
+                                    </strong>
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             CONTRACT AMOUNT
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <strong>
+                                    <strong>
 
-                                ৳{{ number_format(
+                                        ৳{{ number_format(
                                     $contractAmount,
                                     2
                                 ) }}
 
-                            </strong>
+                                    </strong>
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             ACTUAL COST
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            @if($budget->actual_cost !== null)
+                                    @if($budget->actual_cost !== null)
 
-                                ৳{{ number_format(
+                                    ৳{{ number_format(
                                     $actualCost,
                                     2
                                 ) }}
 
-                            @else
+                                    @else
 
-                                <span class="text-muted">
-                                    Not Set
-                                </span>
+                                    <span class="text-muted">
+                                        Not Set
+                                    </span>
 
-                            @endif
+                                    @endif
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             VARIANCE
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <strong class="{{ $varianceClass }}">
+                                    <strong class="{{ $varianceClass }}">
 
-                                @if($variance > 0)
+                                        @if($variance > 0)
 
-                                    +৳{{ number_format(
+                                        +৳{{ number_format(
                                         abs($variance),
                                         2
                                     ) }}
 
-                                @elseif($variance < 0)
+                                        @elseif($variance < 0)
 
-                                    -৳{{ number_format(
+                                            -৳{{ number_format(
                                         abs($variance),
                                         2
                                     ) }}
 
-                                @else
+                                            @else
 
-                                    ৳0.00
+                                            ৳0.00
 
-                                @endif
+                                            @endif
 
-                            </strong>
+                                            </strong>
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             BUDGET STATUS
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <span
-                                class="status-badge {{ $statusClass }}"
-                            >
+                                    <span
+                                        class="status-badge {{ $statusClass }}">
 
-                                {{ $varianceStatus }}
+                                        {{ $varianceStatus }}
 
-                            </span>
+                                    </span>
 
-                        </td>
-
+                                </td>
 
 
-                        {{-- =================================================
+
+                                {{-- =================================================
                             PROFIT / LOSS
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <strong class="{{ $profitLossClass }}">
+                                    <strong class="{{ $profitLossClass }}">
 
-                                @if($profitLoss > 0)
+                                        @if($profitLoss > 0)
 
-                                    +৳{{ number_format(
+                                        +৳{{ number_format(
                                         abs($profitLoss),
                                         2
                                     ) }}
 
-                                @elseif($profitLoss < 0)
+                                        @elseif($profitLoss < 0)
 
-                                    -৳{{ number_format(
+                                            -৳{{ number_format(
                                         abs($profitLoss),
                                         2
                                     ) }}
 
-                                @else
+                                            @else
 
-                                    ৳0.00
+                                            ৳0.00
 
-                                @endif
+                                            @endif
 
-                            </strong>
+                                            </strong>
 
-                        </td>
+                                </td>
 
 
 
-                        {{-- =================================================
+                                {{-- =================================================
                             FINANCIAL STATUS
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <span
-                                class="status-badge {{ $financialStatusClass }}"
-                            >
+                                    <span
+                                        class="status-badge {{ $financialStatusClass }}">
 
-                                {{ $financialStatus }}
+                                        {{ $financialStatus }}
 
-                            </span>
+                                    </span>
 
-                        </td>
-
+                                </td>
 
 
-                        {{-- =================================================
+
+                                {{-- =================================================
                             ACTIONS
                         ================================================== --}}
 
-                        <td>
+                                <td>
 
-                            <div class="table-actions">
+                                    <div class="table-actions">
 
 
-                                {{-- =================================================
+                                        {{-- =================================================
                                     VIEW
                                 ================================================== --}}
 
-                                <a
-                                    href="{{ route(
+                                        <a
+                                            href="{{ route(
                                         'admin.budgets.show',
                                         $budget
                                     ) }}"
-                                    class="small-action view"
-                                >
-                                    View
-                                </a>
+                                            class="small-action view">
+                                            View
+                                        </a>
 
 
 
-                                {{-- =================================================
+                                        {{-- =================================================
                                     EDIT
                                 ================================================== --}}
 
-                                @if(
-                                    $budget->project &&
-                                    $budget->project->status !== 'cancelled'
-                                )
+                                        @if(
+                                        $budget->project &&
+                                        $budget->project->status !== 'cancelled'
+                                        )
 
-                                    <a
-                                        href="{{ route(
+                                        <a
+                                            href="{{ route(
                                             'admin.budgets.edit',
                                             $budget
                                         ) }}"
-                                        class="small-action edit"
-                                    >
-                                        Edit
-                                    </a>
+                                            class="small-action edit">
+                                            Edit
+                                        </a>
 
-                                @endif
-
+                                        @endif
 
 
-                                {{-- =================================================
+
+                                        {{-- =================================================
                                     DELETE
                                 ================================================== --}}
 
-                                <form
-                                    action="{{ route(
+                                        <form
+                                            action="{{ route(
                                         'admin.budgets.destroy',
                                         $budget
                                     ) }}"
-                                    method="POST"
-                                    style="display: inline;"
-                                    onsubmit="
+                                            method="POST"
+                                            style="display: inline;"
+                                            onsubmit="
                                         return confirm(
                                             'Are you sure you want to delete this budget?'
                                         );
-                                    "
-                                >
+                                    ">
 
-                                    @csrf
+                                            @csrf
 
-                                    <button
-                                        type="submit"
-                                        class="small-action delete"
-                                    >
-                                        Delete
-                                    </button>
+                                            <button
+                                                type="submit"
+                                                class="small-action delete">
+                                                Delete
+                                            </button>
 
-                                </form>
+                                        </form>
 
 
-                            </div>
+                                    </div>
 
-                        </td>
-
-
-                    </tr>
+                                </td>
 
 
-                @empty
+                                </tr>
 
 
-                    {{-- =================================================
+                                @empty
+
+
+                                {{-- =================================================
                         EMPTY STATE
                     ================================================== --}}
 
-                    <tr>
+                                <tr>
 
-                        <td
-                            colspan="11"
-                            class="empty-state"
-                        >
+                                    <td
+                                        colspan="11"
+                                        class="empty-state">
 
-                            <div>
+                                        <div>
 
-                                <strong>
-                                    No budgets found.
-                                </strong>
+                                            <strong>
+                                                No budgets found.
+                                            </strong>
 
-                                <p>
-                                    Create a budget for a project
-                                    to see it here.
-                                </p>
+                                            <p>
+                                                Create a budget for a project
+                                                to see it here.
+                                            </p>
 
 
-                                <a
-                                    href="{{ route(
+                                            <a
+                                                href="{{ route(
                                         'admin.budgets.create'
                                     ) }}"
-                                    class="primary-btn"
-                                >
-                                    + Add Budget
-                                </a>
+                                                class="primary-btn">
+                                                + Add Budget
+                                            </a>
 
-                            </div>
+                                        </div>
 
-                        </td>
+                                    </td>
 
-                    </tr>
+                                </tr>
 
 
-                @endforelse
+                                @endforelse
 
 
             </tbody>

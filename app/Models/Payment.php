@@ -9,61 +9,59 @@ class Payment extends Model
 {
     use HasFactory;
 
-
     /*
     |--------------------------------------------------------------------------
-    | MASS ASSIGNMENT
+    | Mass Assignable Attributes
     |--------------------------------------------------------------------------
     */
 
     protected $fillable = [
-
         'project_id',
-
+        'project_step_id',
         'milestone',
-
         'amount',
-
         'due_date',
-
         'payment_date',
-
         'status',
-
         'payment_method',
-
+        'transaction_reference',
         'note',
-
     ];
 
 
     /*
     |--------------------------------------------------------------------------
-    | ATTRIBUTE CASTS
+    | Attribute Casting
     |--------------------------------------------------------------------------
     */
 
     protected $casts = [
-
         'amount' => 'decimal:2',
-
         'due_date' => 'date',
-
         'payment_date' => 'date',
-
     ];
 
 
     /*
     |--------------------------------------------------------------------------
-    | PAYMENT → PROJECT
+    | Project Relationship
     |--------------------------------------------------------------------------
     */
 
     public function project()
     {
-        return $this->belongsTo(
-            Project::class
-        );
+        return $this->belongsTo(Project::class);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project Step Relationship
+    |--------------------------------------------------------------------------
+    */
+
+    public function projectStep()
+    {
+        return $this->belongsTo(ProjectStep::class);
     }
 }

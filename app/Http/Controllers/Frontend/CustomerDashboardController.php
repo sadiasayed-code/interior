@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Project;
 
@@ -13,29 +12,26 @@ class CustomerDashboardController extends Controller
      * =========================================================
      * CUSTOMER DASHBOARD
      * =========================================================
+     *
+     * Show logged-in customer's dashboard.
      */
     public function index()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGGED-IN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
-
-        $customerUserId = session(
-            'customer_user_id'
-        );
-
-
         /*
         |--------------------------------------------------------------------------
         | CUSTOMER USER
         |--------------------------------------------------------------------------
         */
 
-        $user = User::findOrFail(
-            $customerUserId
-        );
+        $customerUserId = session('customer_user_id');
+
+        if (!$customerUserId) {
+            return redirect()
+                ->route('customer.login')
+                ->withErrors([
+                    'customer' => 'Please login to access your dashboard.',
+                ]);
+        }
 
 
         /*
@@ -47,30 +43,47 @@ class CustomerDashboardController extends Controller
         $client = Client::where(
             'user_id',
             $customerUserId
-        )->firstOrFail();
+        )->first();
+
+        if (!$client) {
+            return redirect()
+                ->route('customer.login')
+                ->withErrors([
+                    'customer' => 'Customer profile was not found.',
+                ]);
+        }
 
 
         /*
         |--------------------------------------------------------------------------
-        | LOAD CUSTOMER PROJECTS
+        | USER
         |--------------------------------------------------------------------------
+        |
+        | Some existing dashboard fields use $user->email.
+        | Load the related user through the client relation when available.
+        |
+        */
+
+        $user = $client->user;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CUSTOMER PROJECTS
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        | Only projects belonging to this customer's client_id
+        | will be loaded.
+        |
         */
 
         $projects = Project::with([
-
-            'client',
-
+            'service',
             'budget',
-
             'payments',
-
-            'progressReports',
-
         ])
-        ->where(
-            'client_id',
-            $client->id
-        )
+        ->where('client_id', $client->id)
         ->latest()
         ->get();
 
@@ -84,245 +97,162 @@ class CustomerDashboardController extends Controller
         $totalProjects = $projects->count();
 
 
+        /*
+        | Pending means:
+        | - approval_status = pending
+        | OR
+        | - project is still waiting for proposal/review
+        |
+        */
+
         $pendingProjects = $projects
-            ->where(
-                'approval_status',
-                'pending'
-            )
+            ->where('approval_status', 'pending')
             ->count();
 
 
         $ongoingProjects = $projects
-            ->where(
-                'status',
-                'ongoing'
-            )
+            ->where('status', 'ongoing')
             ->count();
 
 
         $completedProjects = $projects
-            ->where(
-                'status',
-                'completed'
-            )
+            ->where('status', 'completed')
             ->count();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CANCELLED PROJECTS
-        |--------------------------------------------------------------------------
-        */
 
         $cancelledProjects = $projects
-            ->filter(
-                function ($project) {
-
-                    return in_array(
-                        $project->status,
-                        [
-                            'cancelled',
-                            'canceled',
-                        ]
-                    );
-
-                }
-            )
+            ->where('status', 'cancelled')
             ->count();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAUSED / ON-HOLD PROJECTS
-        |--------------------------------------------------------------------------
-        */
 
         $pausedProjects = $projects
-            ->filter(
-                function ($project) {
-
-                    return in_array(
-                        $project->status,
-                        [
-                            'paused',
-                            'on-hold',
-                        ]
-                    );
-
-                }
-            )
+            ->where('status', 'paused')
             ->count();
 
 
         /*
         |--------------------------------------------------------------------------
-        | GLOBAL FINANCIAL TOTALS
+        | FINANCIAL SUMMARY
         |--------------------------------------------------------------------------
+        |
+        | Customer can see:
+        | - Contract amount
+        | - Total paid
+        | - Total due
+        |
+        | Customer does NOT see:
+        | - Estimated internal cost
+        | - Actual cost
+        | - Profit / loss
+        |
         */
 
         $totalContractAmount = 0;
 
         $totalPaidAmount = 0;
 
-        $totalDueAmount = 0;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULATE EACH PROJECT
-        |--------------------------------------------------------------------------
-        */
 
         foreach ($projects as $project) {
-
 
             /*
             |--------------------------------------------------------------------------
             | CONTRACT AMOUNT
             |--------------------------------------------------------------------------
+            |
+            | Contract amount is customer-facing.
+            |
             */
 
-            $contractAmount = $project->budget
-                ? (float) $project->budget->contract_amount
-                : 0;
+            $contractAmount = 0;
+
+            if ($project->budget) {
+                $contractAmount = (float) (
+                    $project->budget->contract_amount ?? 0
+                );
+            }
+
+            $totalContractAmount += $contractAmount;
 
 
             /*
             |--------------------------------------------------------------------------
             | TOTAL PAID
             |--------------------------------------------------------------------------
+            |
+            | Only payments marked as "paid" are counted.
+            |
             */
 
-            $totalPaid = (float) $project
-                ->payments
-                ->where(
-                    'status',
-                    'paid'
-                )
-                ->sum(
-                    'amount'
-                );
+            $paidAmount = $project->payments
+                ->where('status', 'paid')
+                ->sum('amount');
+
+            $paidAmount = (float) $paidAmount;
+
+            $totalPaidAmount += $paidAmount;
 
 
             /*
             |--------------------------------------------------------------------------
-            | TOTAL DUE
+            | PROJECT PAYMENT STATUS
             |--------------------------------------------------------------------------
             */
 
-            $totalDue = max(
-                $contractAmount - $totalPaid,
-                0
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | PAYMENT STATUS
-            |--------------------------------------------------------------------------
-            */
-
-            if (!$project->budget) {
+            if ($contractAmount <= 0) {
 
                 $paymentStatus = 'No Budget';
 
-            }
-            elseif ($contractAmount <= 0) {
-
-                $paymentStatus = 'No Contract';
-
-            }
-            elseif ($totalPaid >= $contractAmount) {
+            } elseif ($paidAmount >= $contractAmount) {
 
                 $paymentStatus = 'Fully Paid';
 
-            }
-            elseif ($totalPaid > 0) {
+            } elseif ($paidAmount > 0) {
 
                 $paymentStatus = 'Partially Paid';
 
-            }
-            else {
+            } else {
 
                 $paymentStatus = 'Payment Due';
-
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | OVERALL PROJECT PROGRESS
+            | ATTACH CUSTOMER-SAFE CALCULATED VALUES
             |--------------------------------------------------------------------------
             |
-            | IMPORTANT:
-            |
-            | Database column is:
-            |
-            | progress_percent
-            |
-            | NOT:
-            |
-            | progress_percentage
+            | These values are temporary attributes.
+            | They are NOT database columns.
             |
             */
 
-            $overallProgress = (float) $project
-                ->progressReports
-                ->sum(
-                    'progress_percent'
-                );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | LIMIT PROGRESS 0 - 100
-            |--------------------------------------------------------------------------
-            */
-
-            $overallProgress = max(
-                0,
-                min(
-                    $overallProgress,
-                    100
-                )
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADD CALCULATED DATA TO PROJECT
-            |--------------------------------------------------------------------------
-            */
-
-            $project->contractAmount = $contractAmount;
-
-            $project->totalPaid = $totalPaid;
-
-            $project->totalDue = $totalDue;
-
-            $project->paymentStatus = $paymentStatus;
-
-            $project->overallProgress = $overallProgress;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADD TO GLOBAL TOTALS
-            |--------------------------------------------------------------------------
-            */
-
-            $totalContractAmount +=
+            $project->customer_contract_amount =
                 $contractAmount;
 
+            $project->customer_paid_amount =
+                $paidAmount;
 
-            $totalPaidAmount +=
-                $totalPaid;
+            $project->customer_due_amount =
+                max(
+                    $contractAmount - $paidAmount,
+                    0
+                );
 
-
-            $totalDueAmount +=
-                $totalDue;
-
+            $project->paymentStatus =
+                $paymentStatus;
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL DUE
+        |--------------------------------------------------------------------------
+        */
+
+        $totalDueAmount = max(
+            $totalContractAmount - $totalPaidAmount,
+            0
+        );
 
 
         /*
@@ -332,37 +262,21 @@ class CustomerDashboardController extends Controller
         */
 
         return view(
-
             'frontend.customer.dashboard',
-
             compact(
-
-                'user',
-
                 'client',
-
+                'user',
                 'projects',
-
                 'totalProjects',
-
                 'pendingProjects',
-
                 'ongoingProjects',
-
                 'completedProjects',
-
                 'cancelledProjects',
-
                 'pausedProjects',
-
                 'totalContractAmount',
-
                 'totalPaidAmount',
-
                 'totalDueAmount'
-
             )
-
         );
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\Service;
+use Illuminate\Http\Request;
 
 class CustomerProjectController extends Controller
 {
@@ -14,163 +16,54 @@ class CustomerProjectController extends Controller
      */
     public function show(Project $project)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGGED-IN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
-
-        $customerUserId = session(
-            'customer_user_id'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD PROJECT RELATIONSHIPS
-        |--------------------------------------------------------------------------
-        */
+        $this->authorizeCustomerProject($project);
 
         $project->load([
-
             'client',
-
+            'service',
             'budget',
-
             'payments',
-
             'progressReports',
-
             'projectMaterials.material',
-
+            'projectSteps',
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | SECURITY CHECK
-        |--------------------------------------------------------------------------
-        |
-        | Customer can only view his/her own project.
-        |
-        */
-
-        if (
-            !$project->client ||
-            $project->client->user_id !== $customerUserId
-        ) {
-
-            abort(
-                403,
-                'Unauthorized access.'
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CONTRACT AMOUNT
+        | CUSTOMER-SAFE CONTRACT AMOUNT
         |--------------------------------------------------------------------------
         */
 
         $contractAmount = $project->budget
-            ? (float) (
-                $project->budget->contract_amount ?? 0
-            )
+            ? (float) ($project->budget->contract_amount ?? 0)
             : 0;
 
 
         /*
         |--------------------------------------------------------------------------
-        | TOTAL MILESTONE AMOUNT
-        |--------------------------------------------------------------------------
-        |
-        | Total of all payment/milestone amounts.
-        |
-        */
-
-        $totalMilestoneAmount = (float) $project
-            ->payments
-            ->sum(
-                'amount'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL PAID AMOUNT
-        |--------------------------------------------------------------------------
-        |
-        | Only payments with status = paid
-        | are counted as received payment.
-        |
-        */
-
-        $totalPaidAmount = (float) $project
-            ->payments
-            ->where(
-                'status',
-                'paid'
-            )
-            ->sum(
-                'amount'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BLADE COMPATIBILITY
+        | PAYMENT SUMMARY
         |--------------------------------------------------------------------------
         */
+
+        $totalMilestoneAmount = (float) $project->payments
+            ->sum('amount');
+
+        $totalPaidAmount = (float) $project->payments
+            ->where('status', 'paid')
+            ->sum('amount');
 
         $totalPaid = $totalPaidAmount;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | REMAINING / DUE AMOUNT
-        |--------------------------------------------------------------------------
-        */
-
         $remainingAmount = max(
-
-            $contractAmount
-            -
-            $totalPaidAmount,
-
+            $contractAmount - $totalPaidAmount,
             0
-
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BLADE COMPATIBILITY
-        |--------------------------------------------------------------------------
-        */
 
         $totalDueAmount = $remainingAmount;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | UNPAID MILESTONE AMOUNT
-        |--------------------------------------------------------------------------
-        |
-        | All milestones except paid.
-        |
-        */
-
-        $unpaidMilestoneAmount = (float) $project
-            ->payments
-            ->where(
-                'status',
-                '!=',
-                'paid'
-            )
-            ->sum(
-                'amount'
-            );
+        $unpaidMilestoneAmount = (float) $project->payments
+            ->where('status', '!=', 'paid')
+            ->sum('amount');
 
 
         /*
@@ -183,26 +76,21 @@ class CustomerProjectController extends Controller
 
             $paymentStatus = 'No Budget';
 
-        }
-        elseif ($contractAmount <= 0) {
+        } elseif ($contractAmount <= 0) {
 
             $paymentStatus = 'No Contract';
 
-        }
-        elseif ($totalPaidAmount >= $contractAmount) {
+        } elseif ($totalPaidAmount >= $contractAmount) {
 
             $paymentStatus = 'Fully Paid';
 
-        }
-        elseif ($totalPaidAmount > 0) {
+        } elseif ($totalPaidAmount > 0) {
 
             $paymentStatus = 'Partially Paid';
 
-        }
-        else {
+        } else {
 
             $paymentStatus = 'Payment Due';
-
         }
 
 
@@ -212,166 +100,67 @@ class CustomerProjectController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($contractAmount > 0) {
-
-            $paymentProgress = (
-                $totalPaidAmount
-                /
-                $contractAmount
-            ) * 100;
-
-        }
-        else {
-
-            $paymentProgress = 0;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LIMIT PAYMENT PROGRESS
-        |--------------------------------------------------------------------------
-        */
+        $paymentProgress = $contractAmount > 0
+            ? ($totalPaidAmount / $contractAmount) * 100
+            : 0;
 
         $paymentProgress = max(
-
             0,
-
-            min(
-
-                (float) $paymentProgress,
-
-                100
-
-            )
-
+            min((float) $paymentProgress, 100)
         );
 
 
         /*
         |--------------------------------------------------------------------------
-        | PROGRESS REPORTS
+        | WORK PROGRESS
         |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        |
-        | Actual database column:
-        |
-        | progress_percent
-        |
-        | NOT:
-        |
-        | progress_percentage
-        |
-        |
-        | This variable is passed to Blade so customer can
-        | see the same work progress data as admin.
-        |
         */
 
-        $progressReports = $project
-            ->progressReports
-            ->sortByDesc(
-                'updated_at'
-            )
+        $progressReports = $project->progressReports
+            ->sortByDesc('updated_at')
             ->values();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PROJECT PROGRESS
-        |--------------------------------------------------------------------------
-        |
-        | Existing project logic is preserved.
-        |
-        | Overall progress =
-        | Sum of all progress report progress_percent.
-        |
-        */
-
         $overallProgress = (float) $progressReports
-            ->sum(
-                'progress_percent'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LIMIT PROJECT PROGRESS
-        |--------------------------------------------------------------------------
-        */
+            ->sum('progress_percent');
 
         $overallProgress = max(
-
             0,
-
-            min(
-
-                $overallProgress,
-
-                100
-
-            )
-
+            min($overallProgress, 100)
         );
 
 
         /*
         |--------------------------------------------------------------------------
-        | PAYMENT MILESTONE COUNTS
+        | PAYMENT MILESTONES
         |--------------------------------------------------------------------------
         */
 
-        $totalMilestones = $project
-            ->payments
+        $totalMilestones = $project->payments->count();
+
+        $paidMilestones = $project->payments
+            ->where('status', 'paid')
             ->count();
 
-
-        $paidMilestones = $project
-            ->payments
-            ->where(
-                'status',
-                'paid'
-            )
+        $pendingMilestones = $project->payments
+            ->where('status', 'pending')
             ->count();
 
-
-        $pendingMilestones = $project
-            ->payments
-            ->where(
-                'status',
-                'pending'
-            )
+        $upcomingMilestones = $project->payments
+            ->where('status', 'upcoming')
             ->count();
 
-
-        $upcomingMilestones = $project
-            ->payments
-            ->where(
-                'status',
-                'upcoming'
-            )
-            ->count();
-
-
-        $overdueMilestones = $project
-            ->payments
-            ->where(
-                'status',
-                'overdue'
-            )
+        $overdueMilestones = $project->payments
+            ->where('status', 'overdue')
             ->count();
 
 
         /*
         |--------------------------------------------------------------------------
-        | TOTAL PROJECT MATERIALS
+        | PROJECT MATERIAL COUNT
         |--------------------------------------------------------------------------
         */
 
-        $totalProjectMaterials = $project
-            ->projectMaterials
+        $totalProjectMaterials = $project->projectMaterials
             ->count();
 
 
@@ -379,84 +168,332 @@ class CustomerProjectController extends Controller
         |--------------------------------------------------------------------------
         | RETURN VIEW
         |--------------------------------------------------------------------------
-        |
-        | All old variables are preserved.
-        | New progressReports variable is added.
-        |
         */
 
         return view(
-
             'frontend.customer.project.show',
-
             compact(
-
                 'project',
 
-                /*
-                |----------------------------------------------
-                | PAYMENT / FINANCIAL
-                |----------------------------------------------
-                */
-
                 'contractAmount',
-
                 'totalMilestoneAmount',
-
                 'totalPaidAmount',
-
                 'totalPaid',
-
                 'remainingAmount',
-
                 'totalDueAmount',
-
                 'unpaidMilestoneAmount',
-
                 'paymentStatus',
-
                 'paymentProgress',
 
-
-                /*
-                |----------------------------------------------
-                | PAYMENT MILESTONE COUNTS
-                |----------------------------------------------
-                */
-
                 'totalMilestones',
-
                 'paidMilestones',
-
                 'pendingMilestones',
-
                 'upcomingMilestones',
-
                 'overdueMilestones',
 
-
-                /*
-                |----------------------------------------------
-                | PROJECT PROGRESS
-                |----------------------------------------------
-                */
-
                 'progressReports',
-
                 'overallProgress',
 
-
-                /*
-                |----------------------------------------------
-                | MATERIALS
-                |----------------------------------------------
-                */
-
                 'totalProjectMaterials'
-
             )
-
         );
+    }
+
+
+    /**
+     * =========================================================
+     * EDIT PROJECT REQUEST
+     * =========================================================
+     */
+    public function edit(Project $project)
+    {
+        $this->authorizeCustomerProject($project);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY REQUEST-PENDING PROJECT CAN BE EDITED
+        |--------------------------------------------------------------------------
+        */
+
+        if ($project->status !== 'request_pending') {
+            return redirect()
+                ->route('customer.project.show', $project)
+                ->with(
+                    'error',
+                    'This project request can no longer be edited.'
+                );
+        }
+
+        $services = Service::where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        return view(
+            'frontend.customer.project.edit',
+            compact(
+                'project',
+                'services'
+            )
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * UPDATE PROJECT REQUEST
+     * =========================================================
+     */
+    public function update(
+        Request $request,
+        Project $project
+    ) {
+        $this->authorizeCustomerProject($project);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY REQUEST-PENDING PROJECT CAN BE UPDATED
+        |--------------------------------------------------------------------------
+        */
+
+        if ($project->status !== 'request_pending') {
+            return redirect()
+                ->route('customer.project.show', $project)
+                ->with(
+                    'error',
+                    'This project request can no longer be updated.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'service_id' => [
+                'required',
+                'integer',
+                'exists:services,id',
+            ],
+
+            'location' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'description' => [
+                'nullable',
+                'string',
+            ],
+
+            'approximate_budget' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+
+            'customer_note' => [
+                'nullable',
+                'string',
+            ],
+
+            'start_date' => [
+                'required',
+                'date',
+                'after_or_equal:today',
+            ],
+
+            'end_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:start_date',
+            ],
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVE SERVICE CHECK
+        |--------------------------------------------------------------------------
+        */
+
+        $service = Service::where(
+            'id',
+            $validated['service_id']
+        )
+        ->where(
+            'status',
+            'active'
+        )
+        ->first();
+
+        if (!$service) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'service_id' =>
+                        'The selected service is not available.',
+                ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $project->update([
+
+            'service_id' => $service->id,
+
+            'project_name' => $service->name,
+
+            'location' =>
+                $validated['location'],
+
+            'description' =>
+                $validated['description'] ?? null,
+
+            'approximate_budget' =>
+                $validated['approximate_budget'] ?? null,
+
+            'customer_note' =>
+                $validated['customer_note'] ?? null,
+
+            'start_date' =>
+                $validated['start_date'] ?? null,
+
+            'end_date' =>
+                $validated['end_date'] ?? null,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route(
+                'customer.project.show',
+                $project
+            )
+            ->with(
+                'success',
+                'Project request updated successfully.'
+            );
+    }
+
+
+    /**
+     * =========================================================
+     * APPROVE ADMIN PROPOSAL
+     * =========================================================
+     */
+    public function approve(Project $project)
+    {
+        $this->authorizeCustomerProject($project);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROPOSAL MUST BE SENT
+        |--------------------------------------------------------------------------
+        */
+
+        if ($project->status !== 'proposal_sent') {
+            return back()->with(
+                'error',
+                'This project does not have an active proposal for approval.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | APPROVE
+        |--------------------------------------------------------------------------
+        */
+
+        $project->update([
+
+            'approval_status' => 'approved',
+
+            'status' => 'ongoing',
+
+            'customer_approved_at' => now(),
+
+            'customer_rejected_at' => null,
+        ]);
+
+
+        return redirect()
+            ->route(
+                'customer.project.show',
+                $project
+            )
+            ->with(
+                'success',
+                'Project proposal approved successfully. Your project is now ongoing.'
+            );
+    }
+
+
+    /**
+     * =========================================================
+     * REJECT ADMIN PROPOSAL
+     * =========================================================
+     */
+    public function reject(Project $project)
+    {
+        $this->authorizeCustomerProject($project);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROPOSAL MUST BE SENT
+        |--------------------------------------------------------------------------
+        */
+
+        if ($project->status !== 'proposal_sent') {
+            return back()->with(
+                'error',
+                'This project does not have an active proposal to reject.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REJECT
+        |--------------------------------------------------------------------------
+        */
+
+        $project->update([
+
+            'approval_status' => 'rejected',
+
+            'status' => 'customer_rejected',
+
+            'customer_rejected_at' => now(),
+
+            'customer_approved_at' => null,
+        ]);
+
+
+        return redirect()
+            ->route(
+                'customer.dashboard'
+            )
+            ->with(
+                'success',
+                'Project proposal rejected successfully.'
+            );
     }
 
 
@@ -467,49 +504,12 @@ class CustomerProjectController extends Controller
      */
     public function pause(Project $project)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGGED-IN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
-
-        $customerUserId = session(
-            'customer_user_id'
-        );
+        $this->authorizeCustomerProject($project);
 
 
         /*
         |--------------------------------------------------------------------------
-        | LOAD CLIENT
-        |--------------------------------------------------------------------------
-        */
-
-        $project->load(
-            'client'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECURITY CHECK
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$project->client ||
-            $project->client->user_id !== $customerUserId
-        ) {
-
-            abort(
-                403,
-                'Unauthorized access.'
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ONLY APPROVED + ONGOING PROJECT
+        | ONLY APPROVED ONGOING PROJECT
         |--------------------------------------------------------------------------
         */
 
@@ -517,7 +517,6 @@ class CustomerProjectController extends Controller
             $project->approval_status !== 'approved' ||
             $project->status !== 'ongoing'
         ) {
-
             return back()->with(
                 'error',
                 'Only an approved ongoing project can be paused.'
@@ -527,14 +526,12 @@ class CustomerProjectController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PAUSE PROJECT
+        | PAUSE
         |--------------------------------------------------------------------------
         */
 
         $project->update([
-
-            'status' => 'on-hold',
-
+            'status' => 'paused',
         ]);
 
 
@@ -552,57 +549,19 @@ class CustomerProjectController extends Controller
      */
     public function resume(Project $project)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGGED-IN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
-
-        $customerUserId = session(
-            'customer_user_id'
-        );
+        $this->authorizeCustomerProject($project);
 
 
         /*
         |--------------------------------------------------------------------------
-        | LOAD CLIENT
-        |--------------------------------------------------------------------------
-        */
-
-        $project->load(
-            'client'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECURITY CHECK
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$project->client ||
-            $project->client->user_id !== $customerUserId
-        ) {
-
-            abort(
-                403,
-                'Unauthorized access.'
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ONLY APPROVED + PAUSED PROJECT
+        | ONLY APPROVED PAUSED PROJECT
         |--------------------------------------------------------------------------
         */
 
         if (
             $project->approval_status !== 'approved' ||
-            $project->status !== 'on-hold'
+            $project->status !== 'paused'
         ) {
-
             return back()->with(
                 'error',
                 'Only an approved paused project can be resumed.'
@@ -612,14 +571,12 @@ class CustomerProjectController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | RESUME PROJECT
+        | RESUME
         |--------------------------------------------------------------------------
         */
 
         $project->update([
-
             'status' => 'ongoing',
-
         ]);
 
 
@@ -635,70 +592,20 @@ class CustomerProjectController extends Controller
      * CANCEL PROJECT
      * =========================================================
      */
-    public function cancel(Project $project)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGGED-IN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
-
-        $customerUserId = session(
-            'customer_user_id'
-        );
+    public function cancel(
+        Request $request,
+        Project $project
+    ) {
+        $this->authorizeCustomerProject($project);
 
 
         /*
         |--------------------------------------------------------------------------
-        | LOAD CLIENT
+        | ALREADY CANCELLED
         |--------------------------------------------------------------------------
         */
 
-        $project->load(
-            'client'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECURITY CHECK
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$project->client ||
-            $project->client->user_id !== $customerUserId
-        ) {
-
-            abort(
-                403,
-                'Unauthorized access.'
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ALREADY CANCELLED CHECK
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            in_array(
-
-                $project->status,
-
-                [
-
-                    'cancelled',
-
-                    'canceled',
-
-                ]
-
-            )
-        ) {
-
+        if ($project->status === 'cancelled') {
             return back()->with(
                 'error',
                 'This project has already been cancelled.'
@@ -712,10 +619,7 @@ class CustomerProjectController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (
-            $project->status === 'completed'
-        ) {
-
+        if ($project->status === 'completed') {
             return back()->with(
                 'error',
                 'Completed projects cannot be cancelled.'
@@ -725,7 +629,22 @@ class CustomerProjectController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CANCEL PROJECT
+        | VALIDATE CANCELLATION REASON
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'cancellation_reason' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CANCEL
         |--------------------------------------------------------------------------
         */
 
@@ -733,8 +652,18 @@ class CustomerProjectController extends Controller
 
             'status' => 'cancelled',
 
+            'cancelled_at' => now(),
+
+            'cancellation_reason' =>
+                $validated['cancellation_reason'] ?? null,
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -744,5 +673,36 @@ class CustomerProjectController extends Controller
                 'success',
                 'Project cancelled successfully.'
             );
+    }
+
+
+    /**
+     * =========================================================
+     * CUSTOMER PROJECT AUTHORIZATION
+     * =========================================================
+     *
+     * Customer can only access his/her own project.
+     */
+    private function authorizeCustomerProject(
+        Project $project
+    ): void {
+        $customerUserId = session(
+            'customer_user_id'
+        );
+
+        $project->loadMissing(
+            'client'
+        );
+
+        if (
+            !$project->client ||
+            (int) $project->client->user_id !==
+            (int) $customerUserId
+        ) {
+            abort(
+                403,
+                'Unauthorized access.'
+            );
+        }
     }
 }

@@ -47,6 +47,7 @@
 
         .print-container {
             width: 100%;
+
             max-width: 1200px;
 
             margin: 0 auto;
@@ -819,7 +820,7 @@
                 </th>
 
                 <th>
-                    Project
+                    Service / Project
                 </th>
 
                 <th>
@@ -912,12 +913,12 @@
 
 
 
-                    {{-- PROJECT --}}
+                    {{-- SERVICE / PROJECT --}}
 
                     <td>
 
                         <strong>
-                            {{ $project->project_name }}
+                            {{ $project->service?->name ?? '—' }}
                         </strong>
 
                     </td>
@@ -1056,9 +1057,13 @@
 
                             {{ ucfirst(
                                 str_replace(
-                                    '-',
+                                    '_',
                                     ' ',
-                                    $project->status
+                                    str_replace(
+                                        '-',
+                                        ' ',
+                                        $project->status
+                                    )
                                 )
                             ) }}
 

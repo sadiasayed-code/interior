@@ -43,7 +43,6 @@
 
 <div class="panel">
 
-
     <div class="panel-header">
 
         <div>
@@ -63,7 +62,6 @@
 
 
     <div class="form-container">
-
 
         <form
             action="{{ route('admin.payments.store') }}"
@@ -113,16 +111,7 @@
                             }}
                         >
 
-                            {{ $project->project_name }}
-
-                            —
-                            {{ ucfirst(
-                                str_replace(
-                                    '-',
-                                    ' ',
-                                    $project->status
-                                )
-                            ) }}
+                            {{ $project->service->name ?? 'Service not found' }}
 
                         </option>
 
@@ -134,9 +123,7 @@
                 @error('project_id')
 
                     <small class="field-error">
-
                         {{ $message }}
-
                     </small>
 
                 @enderror
@@ -159,7 +146,6 @@
                 class="payment-summary"
                 id="paymentSummary"
             >
-
 
                 <div class="payment-summary-header">
 
@@ -291,9 +277,7 @@
                 @error('milestone')
 
                     <small class="field-error">
-
                         {{ $message }}
-
                     </small>
 
                 @enderror
@@ -345,9 +329,7 @@
                     @error('amount')
 
                         <small class="field-error">
-
                             {{ $message }}
-
                         </small>
 
                     @enderror
@@ -382,9 +364,7 @@
                     @error('due_date')
 
                         <small class="field-error">
-
                             {{ $message }}
-
                         </small>
 
                     @enderror
@@ -419,7 +399,8 @@
                     required
                 >
 
-                    <option value="pending"
+                    <option
+                        value="pending"
                         {{ old('status', 'pending') === 'pending'
                             ? 'selected'
                             : ''
@@ -429,7 +410,8 @@
                     </option>
 
 
-                    <option value="upcoming"
+                    <option
+                        value="upcoming"
                         {{ old('status') === 'upcoming'
                             ? 'selected'
                             : ''
@@ -439,7 +421,8 @@
                     </option>
 
 
-                    <option value="paid"
+                    <option
+                        value="paid"
                         {{ old('status') === 'paid'
                             ? 'selected'
                             : ''
@@ -449,7 +432,8 @@
                     </option>
 
 
-                    <option value="overdue"
+                    <option
+                        value="overdue"
                         {{ old('status') === 'overdue'
                             ? 'selected'
                             : ''
@@ -464,9 +448,7 @@
                 @error('status')
 
                     <small class="field-error">
-
                         {{ $message }}
-
                     </small>
 
                 @enderror
@@ -483,7 +465,6 @@
                 id="paidDetails"
                 style="display:none;"
             >
-
 
                 <div class="form-grid">
 
@@ -517,9 +498,7 @@
                         @error('payment_date')
 
                             <small class="field-error">
-
                                 {{ $message }}
-
                             </small>
 
                         @enderror
@@ -549,15 +528,13 @@
                         >
 
                             <option value="">
-
                                 -- Select Payment Method --
-
                             </option>
 
 
                             <option
-                                value="Cash"
-                                {{ old('payment_method') === 'Cash'
+                                value="cash"
+                                {{ old('payment_method') === 'cash'
                                     ? 'selected'
                                     : ''
                                 }}
@@ -567,8 +544,8 @@
 
 
                             <option
-                                value="Bank Transfer"
-                                {{ old('payment_method') === 'Bank Transfer'
+                                value="bank"
+                                {{ old('payment_method') === 'bank'
                                     ? 'selected'
                                     : ''
                                 }}
@@ -578,19 +555,8 @@
 
 
                             <option
-                                value="Cheque"
-                                {{ old('payment_method') === 'Cheque'
-                                    ? 'selected'
-                                    : ''
-                                }}
-                            >
-                                Cheque
-                            </option>
-
-
-                            <option
-                                value="Mobile Banking"
-                                {{ old('payment_method') === 'Mobile Banking'
+                                value="mobile_banking"
+                                {{ old('payment_method') === 'mobile_banking'
                                     ? 'selected'
                                     : ''
                                 }}
@@ -600,8 +566,8 @@
 
 
                             <option
-                                value="Other"
-                                {{ old('payment_method') === 'Other'
+                                value="other"
+                                {{ old('payment_method') === 'other'
                                     ? 'selected'
                                     : ''
                                 }}
@@ -615,9 +581,7 @@
                         @error('payment_method')
 
                             <small class="field-error">
-
                                 {{ $message }}
-
                             </small>
 
                         @enderror
@@ -627,6 +591,43 @@
 
                 </div>
 
+            </div>
+
+
+
+            {{-- =================================================
+                TRANSACTION REFERENCE
+            ================================================== --}}
+
+            <div class="form-group">
+
+                <label for="transaction_reference">
+
+                    Transaction Reference
+
+                    <span class="optional">
+                        Optional
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="text"
+                    name="transaction_reference"
+                    id="transaction_reference"
+                    value="{{ old('transaction_reference') }}"
+                    placeholder="Bank / bKash / Nagad transaction ID"
+                >
+
+
+                @error('transaction_reference')
+
+                    <small class="field-error">
+                        {{ $message }}
+                    </small>
+
+                @enderror
 
             </div>
 
@@ -660,9 +661,7 @@
                 @error('note')
 
                     <small class="field-error">
-
                         {{ $message }}
-
                     </small>
 
                 @enderror
@@ -677,14 +676,12 @@
 
             <div class="form-actions">
 
-
                 <a
                     href="{{ route('admin.payments.index') }}"
                     class="secondary-btn"
                 >
                     Cancel
                 </a>
-
 
 
                 <button
@@ -695,15 +692,12 @@
                     Save Payment
                 </button>
 
-
             </div>
 
 
         </form>
 
-
     </div>
-
 
 </div>
 
@@ -810,8 +804,8 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        function formatMoney(value) {
-
+        function formatMoney(value)
+        {
             return Number(value)
                 .toLocaleString(
                     'en-US',
@@ -820,7 +814,31 @@ document.addEventListener(
                         maximumFractionDigits: 2
                     }
                 );
+        }
 
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        function formatStatus(status)
+        {
+            if (!status) {
+                return '';
+            }
+
+            return status
+                .replaceAll('_', ' ')
+                .replaceAll('-', ' ')
+                .replace(
+                    /\b\w/g,
+                    function (letter) {
+                        return letter.toUpperCase();
+                    }
+                );
         }
 
 
@@ -831,8 +849,8 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        function updatePaidDetails() {
-
+        function updatePaidDetails()
+        {
             if (
                 statusSelect.value === 'paid'
             ) {
@@ -856,9 +874,7 @@ document.addEventListener(
 
                 paymentMethod.required =
                     false;
-
             }
-
         }
 
 
@@ -869,8 +885,8 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        function resetSummary() {
-
+        function resetSummary()
+        {
             projectBudget.textContent =
                 'Not Available';
 
@@ -894,13 +910,11 @@ document.addEventListener(
             saveButton.disabled =
                 false;
 
-
             projectStatusMessage.textContent =
                 '';
 
             amountMessage.textContent =
                 '';
-
         }
 
 
@@ -911,8 +925,8 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        function updateProjectSummary() {
-
+        function updateProjectSummary()
+        {
             const projectId =
                 projectSelect.value;
 
@@ -922,7 +936,6 @@ document.addEventListener(
                 resetSummary();
 
                 return;
-
             }
 
 
@@ -935,8 +948,8 @@ document.addEventListener(
                 resetSummary();
 
                 return;
-
             }
+
 
 
             /*
@@ -962,13 +975,13 @@ document.addEventListener(
                     true;
 
                 return;
-
             }
+
 
 
             /*
             |--------------------------------------------------------------------------
-            | CONTRACT AMOUNT
+            | NO BUDGET
             |--------------------------------------------------------------------------
             */
 
@@ -990,7 +1003,6 @@ document.addEventListener(
                 availableMilestoneAmount.textContent =
                     'No Budget';
 
-
                 projectStatusMessage.textContent =
                     'This project does not have a budget yet.';
 
@@ -1004,8 +1016,8 @@ document.addEventListener(
                     true;
 
                 return;
-
             }
+
 
 
             /*
@@ -1038,11 +1050,14 @@ document.addEventListener(
             |--------------------------------------------------------------------------
             | CURRENT DUE
             |--------------------------------------------------------------------------
+            |
+            | Controller field = remaining_due
+            |
             */
 
             currentRemaining.textContent =
                 `৳${formatMoney(
-                    project.remaining
+                    project.remaining_due
                 )}`;
 
 
@@ -1055,11 +1070,7 @@ document.addEventListener(
 
             const availableAmount =
                 Number(
-                    project.contract_amount
-                )
-                -
-                Number(
-                    project.total_milestone_amount
+                    project.remaining_for_milestone
                     ?? 0
                 );
 
@@ -1071,6 +1082,7 @@ document.addEventListener(
                         0
                     )
                 )}`;
+
 
 
             /*
@@ -1099,8 +1111,8 @@ document.addEventListener(
                     true;
 
                 return;
-
             }
+
 
 
             /*
@@ -1119,16 +1131,17 @@ document.addEventListener(
                 false;
 
 
+
             /*
             |--------------------------------------------------------------------------
-            | STATUS
+            | PROJECT STATUS
             |--------------------------------------------------------------------------
             */
 
             projectStatusMessage.textContent =
-                `Project status: ${
+                `Project status: ${formatStatus(
                     project.status
-                }`;
+                )}`;
 
             projectStatusMessage.className =
                 'form-help';
@@ -1146,16 +1159,14 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        function validateAmount() {
-
+        function validateAmount()
+        {
             const projectId =
                 projectSelect.value;
 
 
             if (!projectId) {
-
                 return;
-
             }
 
 
@@ -1168,19 +1179,13 @@ document.addEventListener(
                 ||
                 project.contract_amount === null
             ) {
-
                 return;
-
             }
 
 
             const availableAmount =
                 Number(
-                    project.contract_amount
-                )
-                -
-                Number(
-                    project.total_milestone_amount
+                    project.remaining_for_milestone
                     ?? 0
                 );
 
@@ -1209,7 +1214,6 @@ document.addEventListener(
                     false;
 
                 return;
-
             }
 
 
@@ -1230,7 +1234,6 @@ document.addEventListener(
                     true;
 
                 return;
-
             }
 
 
@@ -1244,7 +1247,6 @@ document.addEventListener(
 
             saveButton.disabled =
                 false;
-
         }
 
 
@@ -1309,7 +1311,6 @@ document.addEventListener(
                 'submit',
                 function (event) {
 
-
                     const projectId =
                         projectSelect.value;
 
@@ -1327,7 +1328,6 @@ document.addEventListener(
                         );
 
                         return;
-
                     }
 
 
@@ -1343,7 +1343,6 @@ document.addEventListener(
                         );
 
                         return;
-
                     }
 
 
@@ -1359,17 +1358,12 @@ document.addEventListener(
                         );
 
                         return;
-
                     }
 
 
                     const availableAmount =
                         Number(
-                            project.contract_amount
-                        )
-                        -
-                        Number(
-                            project.total_milestone_amount
+                            project.remaining_for_milestone
                             ?? 0
                         );
 
@@ -1393,7 +1387,6 @@ document.addEventListener(
                         );
 
                         return;
-
                     }
 
 
@@ -1411,7 +1404,6 @@ document.addEventListener(
                         );
 
                         return;
-
                     }
 
 
@@ -1431,7 +1423,6 @@ document.addEventListener(
                             );
 
                             return;
-
                         }
 
 
@@ -1446,7 +1437,6 @@ document.addEventListener(
                             );
 
                             return;
-
                         }
 
                     }
@@ -1465,7 +1455,6 @@ document.addEventListener(
         updatePaidDetails();
 
         updateProjectSummary();
-
 
     }
 );

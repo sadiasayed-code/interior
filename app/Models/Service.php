@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Budget extends Model
+class Service extends Model
 {
     use HasFactory;
 
@@ -18,15 +18,21 @@ class Budget extends Model
 
     protected $fillable = [
 
-        'project_id',
+        'name',
 
-        'estimated_cost',
+        'slug',
 
-        'actual_cost',
+        'short_description',
 
-        'contract_amount',
+        'description',
 
-        'note',
+        'starting_budget',
+
+        'estimated_duration_days',
+
+        'image',
+
+        'status',
 
     ];
 
@@ -39,24 +45,20 @@ class Budget extends Model
 
     protected $casts = [
 
-        'estimated_cost' => 'decimal:2',
-
-        'actual_cost' => 'decimal:2',
-
-        'contract_amount' => 'decimal:2',
+        'starting_budget' => 'decimal:2',
 
     ];
 
 
     /*
     |--------------------------------------------------------------------------
-    | BUDGET → PROJECT
+    | SERVICE → PROJECTS
     |--------------------------------------------------------------------------
     */
 
-    public function project()
+    public function projects()
     {
-        return $this->belongsTo(
+        return $this->hasMany(
             Project::class
         );
     }

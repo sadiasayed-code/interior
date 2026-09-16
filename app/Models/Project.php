@@ -9,6 +9,7 @@ class Project extends Model
 {
     use HasFactory;
 
+
     /*
     |--------------------------------------------------------------------------
     | MASS ASSIGNMENT
@@ -16,14 +17,37 @@ class Project extends Model
     */
 
     protected $fillable = [
+
         'client_id',
+
+        'service_id',
+
         'user_id',
-        'project_name',
+
         'location',
+
+        'description',
+
+        'approximate_budget',
+
+        'customer_note',
+
         'start_date',
+
         'end_date',
+
         'approval_status',
+
         'status',
+
+        'customer_approved_at',
+
+        'customer_rejected_at',
+
+        'cancelled_at',
+
+        'cancellation_reason',
+
     ];
 
 
@@ -34,8 +58,19 @@ class Project extends Model
     */
 
     protected $casts = [
+
+        'approximate_budget' => 'decimal:2',
+
         'start_date' => 'date',
+
         'end_date' => 'date',
+
+        'customer_approved_at' => 'datetime',
+
+        'customer_rejected_at' => 'datetime',
+
+        'cancelled_at' => 'datetime',
+
     ];
 
 
@@ -43,29 +78,41 @@ class Project extends Model
     |--------------------------------------------------------------------------
     | PROJECT → CLIENT
     |--------------------------------------------------------------------------
-    |
-    | Every project belongs to one client.
-    |
     */
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(
+            Client::class
+        );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | PROJECT → USER
+    | PROJECT → SERVICE
     |--------------------------------------------------------------------------
-    |
-    | This is the Admin / Project Manager responsible for the project.
-    |
+    */
+
+    public function service()
+    {
+        return $this->belongsTo(
+            Service::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROJECT → ADMIN
+    |--------------------------------------------------------------------------
     */
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class
+        );
     }
 
 
@@ -73,14 +120,13 @@ class Project extends Model
     |--------------------------------------------------------------------------
     | PROJECT → BUDGET
     |--------------------------------------------------------------------------
-    |
-    | One project has one budget.
-    |
     */
 
     public function budget()
     {
-        return $this->hasOne(Budget::class);
+        return $this->hasOne(
+            Budget::class
+        );
     }
 
 
@@ -88,14 +134,29 @@ class Project extends Model
     |--------------------------------------------------------------------------
     | PROJECT → PAYMENTS
     |--------------------------------------------------------------------------
-    |
-    | One project can have multiple payments.
-    |
     */
 
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(
+            Payment::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROJECT → PROJECT STEPS
+    |--------------------------------------------------------------------------
+    */
+
+    public function projectSteps()
+    {
+        return $this->hasMany(
+            ProjectStep::class
+        )->orderBy(
+            'step_number'
+        );
     }
 
 
@@ -103,14 +164,13 @@ class Project extends Model
     |--------------------------------------------------------------------------
     | PROJECT → PROGRESS REPORTS
     |--------------------------------------------------------------------------
-    |
-    | One project can have multiple progress reports.
-    |
     */
 
     public function progressReports()
     {
-        return $this->hasMany(ProgressReport::class);
+        return $this->hasMany(
+            ProgressReport::class
+        );
     }
 
 
@@ -119,12 +179,15 @@ class Project extends Model
     | PROJECT → PROJECT MATERIALS
     |--------------------------------------------------------------------------
     |
-    | One project can have multiple project-material records.
+    | Internal admin information.
+    | Never expose directly to customer.
     |
     */
 
     public function projectMaterials()
     {
-        return $this->hasMany(ProjectMaterial::class);
+        return $this->hasMany(
+            ProjectMaterial::class
+        );
     }
 }

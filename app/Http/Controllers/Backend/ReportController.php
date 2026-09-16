@@ -87,13 +87,6 @@ class ReportController extends Controller
         | A project is included when its project period overlaps
         | the selected report period.
         |
-        | Example:
-        |
-        | From: 16 Aug
-        | To:   16 Aug
-        |
-        | A project active on 16 Aug will be included.
-        |
         */
 
         if ($fromDate && $toDate) {
@@ -135,7 +128,7 @@ class ReportController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | ORDER
+        | GET PROJECTS
         |--------------------------------------------------------------------------
         */
 
@@ -209,7 +202,6 @@ class ReportController extends Controller
                                 (float)
                                 ($material->unit_price ?? 0)
                             );
-
                     });
 
 
@@ -264,8 +256,8 @@ class ReportController extends Controller
             | ATTACH REPORT VALUES
             |--------------------------------------------------------------------------
             |
-            | These are temporary attributes.
-            | They are NOT stored in the database.
+            | Temporary attributes.
+            | These are NOT stored in database.
             |
             */
 
@@ -283,7 +275,6 @@ class ReportController extends Controller
 
             $project->overall_progress =
                 $overallProgress;
-
         });
 
 
@@ -442,6 +433,7 @@ class ReportController extends Controller
                             $material->total_price;
                     }
 
+
                     return
                         (
                             (float)
@@ -452,7 +444,6 @@ class ReportController extends Controller
                             (float)
                             ($material->unit_price ?? 0)
                         );
-
                 });
 
 
@@ -488,6 +479,12 @@ class ReportController extends Controller
             $project->progressReports
                 ->sum('progress_percent');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | LIMIT PROGRESS TO 100
+        |--------------------------------------------------------------------------
+        */
 
         $overallProgress =
             min(
@@ -558,6 +555,12 @@ class ReportController extends Controller
             ]
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATE VALUES
+        |--------------------------------------------------------------------------
+        */
 
         $fromDate =
             $validated['from_date'] ?? null;
@@ -640,11 +643,17 @@ class ReportController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CALCULATE REPORT DATA
+        | CALCULATE PROJECT REPORT DATA
         |--------------------------------------------------------------------------
         */
 
         $projects->each(function ($project) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | ESTIMATED BUDGET
+            |--------------------------------------------------------------------------
+            */
 
             $estimatedBudget =
                 $project->budget
@@ -652,9 +661,19 @@ class ReportController extends Controller
                     : 0;
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | MATERIAL COST
+            |--------------------------------------------------------------------------
+            */
+
             $materialCost =
                 $project->projectMaterials
                     ->sum(function ($material) {
+
+                        /*
+                        | Use total_price if available.
+                        */
 
                         if (
                             isset(
@@ -666,6 +685,13 @@ class ReportController extends Controller
                                 $material->total_price;
                         }
 
+
+                        /*
+                        | Otherwise:
+                        |
+                        | quantity × unit_price
+                        */
+
                         return
                             (
                                 (float)
@@ -676,24 +702,60 @@ class ReportController extends Controller
                                 (float)
                                 ($material->unit_price ?? 0)
                             );
-
                     });
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | TOTAL PAID
+            |--------------------------------------------------------------------------
+            */
 
             $totalPaid =
                 $project->payments
                     ->sum('amount');
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | REMAINING PAYMENT
+            |--------------------------------------------------------------------------
+            */
+
             $remainingPayment =
                 $estimatedBudget
                 - $totalPaid;
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | OVERALL PROGRESS
+            |--------------------------------------------------------------------------
+            */
+
             $overallProgress =
                 $project->progressReports
                     ->sum('progress_percent');
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | LIMIT PROGRESS TO 100
+            |--------------------------------------------------------------------------
+            */
+
+            $overallProgress =
+                min(
+                    $overallProgress,
+                    100
+                );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATTACH REPORT VALUES
+            |--------------------------------------------------------------------------
+            */
 
             $project->estimated_budget =
                 $estimatedBudget;
@@ -708,12 +770,56 @@ class ReportController extends Controller
                 $remainingPayment;
 
             $project->overall_progress =
-                min(
-                    $overallProgress,
-                    100
-                );
-
+                $overallProgress;
         });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRINT REPORT SUMMARY
+        |--------------------------------------------------------------------------
+        |
+        | These variables are required by:
+        | backend.reports.print
+        |
+        */
+
+        $projectCount =
+            $projects->count();
+
+
+        $totalBudget =
+            $projects->sum(
+                'estimated_budget'
+            );
+
+
+        $totalMaterialCost =
+            $projects->sum(
+                'material_cost'
+            );
+
+
+        $totalPaid =
+            $projects->sum(
+                'total_paid'
+            );
+
+
+        $totalRemaining =
+            $projects->sum(
+                'remaining_payment'
+            );
+
+
+        $averageProgress =
+            $projectCount > 0
+                ? round(
+                    $projects->avg(
+                        'overall_progress'
+                    )
+                )
+                : 0;
 
 
         /*
@@ -726,6 +832,12 @@ class ReportController extends Controller
             'backend.reports.print',
             compact(
                 'projects',
+                'projectCount',
+                'totalBudget',
+                'totalMaterialCost',
+                'totalPaid',
+                'totalRemaining',
+                'averageProgress',
                 'fromDate',
                 'toDate'
             )
@@ -759,7 +871,7 @@ class ReportController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CALCULATIONS
+        | ESTIMATED BUDGET
         |--------------------------------------------------------------------------
         */
 
@@ -768,6 +880,12 @@ class ReportController extends Controller
                 ? (float) $project->budget->estimated_cost
                 : 0;
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | MATERIAL COST
+        |--------------------------------------------------------------------------
+        */
 
         $materialCost =
             $project->projectMaterials
@@ -783,6 +901,7 @@ class ReportController extends Controller
                             $material->total_price;
                     }
 
+
                     return
                         (
                             (float)
@@ -793,24 +912,47 @@ class ReportController extends Controller
                             (float)
                             ($material->unit_price ?? 0)
                         );
-
                 });
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL PAID
+        |--------------------------------------------------------------------------
+        */
 
         $totalPaid =
             $project->payments
                 ->sum('amount');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | REMAINING PAYMENT
+        |--------------------------------------------------------------------------
+        */
+
         $remainingPayment =
             $estimatedBudget
             - $totalPaid;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | OVERALL PROGRESS
+        |--------------------------------------------------------------------------
+        */
+
         $overallProgress =
             $project->progressReports
                 ->sum('progress_percent');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | LIMIT PROGRESS TO 100
+        |--------------------------------------------------------------------------
+        */
 
         $overallProgress =
             min(

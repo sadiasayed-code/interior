@@ -116,16 +116,7 @@
                             }}
                         >
 
-                            {{ $project->project_name }}
-
-                            —
-                            {{ ucfirst(
-                                str_replace(
-                                    '-',
-                                    ' ',
-                                    $project->status
-                                )
-                            ) }}
+                            {{ $project->service->name ?? 'Service not found' }}
 
                         </option>
 

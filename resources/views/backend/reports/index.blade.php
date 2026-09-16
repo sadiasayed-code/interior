@@ -508,7 +508,7 @@
                         <td>
 
                             <strong>
-                                {{ $project->project_name }}
+                                {{ $project->service?->name ?? '—' }}
                             </strong>
 
                         </td>

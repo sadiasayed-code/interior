@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\Project;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -17,91 +18,92 @@ class BudgetController extends Controller
      *
      * Show all project budgets.
      */
-    public function index()
-    {
-        $budgets = Budget::with([
-            'project',
-        ])
+   public function index()
+{
+    $budgets = Budget::with([
+        'project.service',
+    ])
         ->latest()
         ->get();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate Variance + Profit/Loss
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($budgets as $budget) {
+
+        $estimatedCost = (float) $budget->estimated_cost;
+
+        $contractAmount = (float) $budget->contract_amount;
+
+        $actualCost = (float) ($budget->actual_cost ?? 0);
+
+
         /*
         |--------------------------------------------------------------------------
-        | Calculate Variance + Profit/Loss
+        | Variance
         |--------------------------------------------------------------------------
+        | Estimated Cost - Actual Cost
         */
 
-        foreach ($budgets as $budget) {
-
-            $estimatedCost = (float) $budget->estimated_cost;
-
-            $contractAmount = (float) $budget->contract_amount;
-
-            $actualCost = (float) ($budget->actual_cost ?? 0);
+        $budget->variance =
+            $estimatedCost - $actualCost;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Variance
-            |--------------------------------------------------------------------------
-            | Estimated Cost - Actual Cost
-            */
+        if ($budget->variance > 0) {
 
-            $budget->variance =
-                $estimatedCost - $actualCost;
+            $budget->variance_status =
+                'Under Budget';
 
+        } elseif ($budget->variance < 0) {
 
-            if ($budget->variance > 0) {
+            $budget->variance_status =
+                'Over Budget';
 
-                $budget->variance_status =
-                    'Under Budget';
+        } else {
 
-            } elseif ($budget->variance < 0) {
-
-                $budget->variance_status =
-                    'Over Budget';
-
-            } else {
-
-                $budget->variance_status =
-                    'On Budget';
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Profit / Loss
-            |--------------------------------------------------------------------------
-            | Contract Amount - Actual Cost
-            */
-
-            $budget->profit_loss =
-                $contractAmount - $actualCost;
-
-
-            if ($budget->profit_loss > 0) {
-
-                $budget->financial_status =
-                    'Profit';
-
-            } elseif ($budget->profit_loss < 0) {
-
-                $budget->financial_status =
-                    'Loss';
-
-            } else {
-
-                $budget->financial_status =
-                    'Break-even';
-            }
+            $budget->variance_status =
+                'On Budget';
         }
 
 
-        return view(
-            'backend.budgets.index',
-            compact('budgets')
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | Profit / Loss
+        |--------------------------------------------------------------------------
+        | Contract Amount - Actual Cost
+        */
+
+        $budget->profit_loss =
+            $contractAmount - $actualCost;
+
+
+        if ($budget->profit_loss > 0) {
+
+            $budget->financial_status =
+                'Profit';
+
+        } elseif ($budget->profit_loss < 0) {
+
+            $budget->financial_status =
+                'Loss';
+
+        } else {
+
+            $budget->financial_status =
+                'Break-even';
+        }
     }
+
+
+    return view(
+        'backend.budgets.index',
+        compact('budgets')
+    );
+}
 
 
     /**
@@ -115,12 +117,23 @@ class BudgetController extends Controller
     {
         /*
         |--------------------------------------------------------------------------
-        | Only projects without a budget
+        | ONLY PROJECTS WITHOUT A BUDGET
         |--------------------------------------------------------------------------
+        |
+        | Project table does NOT have project_name.
+        | Therefore projects are sorted by service name.
+        |
         */
 
-        $projects = Project::whereDoesntHave('budget')
-            ->orderBy('project_name')
+        $projects = Project::with('service')
+            ->whereDoesntHave('budget')
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
             ->get();
 
 

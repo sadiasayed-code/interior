@@ -6,9 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRIMARY KEY
+            |--------------------------------------------------------------------------
+            */
 
             $table->id();
 
@@ -17,11 +26,28 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             | PROJECT
             |--------------------------------------------------------------------------
+            |
+            | 
+            |
             */
 
             $table->foreignId('project_id')
-                ->constrained()
-                ->onDelete('cascade');
+                ->constrained('projects')
+                ->cascadeOnDelete();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PROJECT STEP
+            |--------------------------------------------------------------------------
+            
+            |
+            */
+
+            $table->foreignId('project_step_id')
+                ->nullable()
+                ->constrained('project_steps')
+                ->nullOnDelete();
 
 
             /*
@@ -29,34 +55,30 @@ return new class extends Migration
             | PAYMENT MILESTONE
             |--------------------------------------------------------------------------
             |
-            | Example:
-            | Advance
-            | 1st Installment
-            | 2nd Installment
-            | Final Payment
+           
             |
             */
 
-            $table->string('milestone');
+            $table->string('milestone')
+                ->nullable();
 
 
             /*
             |--------------------------------------------------------------------------
-            | AMOUNT
+            | PAYMENT AMOUNT
             |--------------------------------------------------------------------------
             */
 
-            $table->decimal(
-                'amount',
-                10,
-                2
-            );
+            $table->decimal('amount', 12, 2);
 
 
             /*
             |--------------------------------------------------------------------------
             | DUE DATE
             |--------------------------------------------------------------------------
+            |
+            | 
+            |
             */
 
             $table->date('due_date')
@@ -68,7 +90,7 @@ return new class extends Migration
             | PAYMENT DATE
             |--------------------------------------------------------------------------
             |
-            | Only required when status = paid.
+           
             |
             */
 
@@ -78,43 +100,48 @@ return new class extends Migration
 
             /*
             |--------------------------------------------------------------------------
-            | PAYMENT STATUS
+            | PAYMENT METHOD
             |--------------------------------------------------------------------------
-            |
-            | paid
-            | pending
-            | upcoming
-            | overdue
+           
             |
             */
 
-            $table->enum(
-                'status',
-                [
-                    'paid',
-                    'pending',
-                    'upcoming',
-                    'overdue',
-                ]
-            )
-            ->default('pending');
+            $table->enum('payment_method', [
+                'cash',
+                'bank',
+                'mobile_banking',
+                'other',
+            ])->default('cash');
 
 
             /*
             |--------------------------------------------------------------------------
-            | PAYMENT METHOD
+            | PAYMENT STATUS
             |--------------------------------------------------------------------------
             |
-            | Cash
-            | Bank
-            | Mobile Banking
-            | etc.
-            |
-            | Only necessary when payment is actually paid.
             |
             */
 
-            $table->string('payment_method')
+            $table->enum('status', [
+                'pending',
+                'upcoming',
+                'paid',
+                'overdue',
+                'cancelled',
+            ])->default('pending');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TRANSACTION REFERENCE
+            |--------------------------------------------------------------------------
+            |
+            | Bank / bKash / Nagad / 
+            | transaction ID বা reference number।
+            |
+            */
+
+            $table->string('transaction_reference')
                 ->nullable();
 
 
@@ -122,6 +149,9 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             | NOTE
             |--------------------------------------------------------------------------
+            |
+            | 
+            |
             */
 
             $table->text('note')
@@ -139,6 +169,9 @@ return new class extends Migration
     }
 
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('payments');

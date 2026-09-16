@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,8 +18,32 @@ class AuthController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function showRegister()
+    public function showRegister(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Remember Selected Service
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        | /customer/register?service=modern-bedroom
+        |
+        */
+
+        if ($request->filled('service')) {
+
+            $service = Service::where('slug', $request->service)
+                ->where('status', 'active')
+                ->first();
+
+            if ($service) {
+                session()->put(
+                    'selected_service_slug',
+                    $service->slug
+                );
+            }
+        }
+
         return view('frontend.auth.register');
     }
 
@@ -56,6 +81,17 @@ class AuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | REMEMBER SELECTED SERVICE BEFORE SESSION REGENERATION
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedServiceSlug = session(
+            'selected_service_slug'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
         | CREATE CUSTOMER USER
         |--------------------------------------------------------------------------
         */
@@ -65,7 +101,9 @@ class AuthController extends Controller
 
             'email' => $validated['email'],
 
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make(
+                $validated['password']
+            ),
 
             'role' => 'customer',
         ]);
@@ -98,19 +136,61 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-
-        $request->session()->put('customer_user_id', $user->id);
+        $request->session()->put(
+            'customer_user_id',
+            $user->id
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | REDIRECT TO CUSTOMER DASHBOARD
+        | REDIRECT TO PROJECT REQUEST
         |--------------------------------------------------------------------------
+        |
+        | If customer came from a Service Show Page,
+        | send them directly to the Project Request form
+        | with that service selected.
+        |
+        */
+
+        if ($selectedServiceSlug) {
+
+            /*
+            | Remove temporary service session
+            */
+
+            $request->session()->forget(
+                'selected_service_slug'
+            );
+
+            return redirect()->route(
+                'customer.project-request.create',
+                [
+                    'service' => $selectedServiceSlug
+                ]
+            )->with(
+                'success',
+                'Account created successfully. Please complete your project request.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMAL REGISTRATION
+        |--------------------------------------------------------------------------
+        |
+        | If customer registered directly without selecting
+        | a service first, go to dashboard.
+        |
         */
 
         return redirect()
             ->route('customer.dashboard')
-            ->with('success', 'Account created successfully. Welcome!');
+            ->with(
+                'success',
+                'Account created successfully. Welcome!'
+            );
     }
 
 
@@ -120,9 +200,38 @@ class AuthController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function showLogin()
+    public function showLogin(Request $request)
     {
-        return view('frontend.auth.login');
+        /*
+        |--------------------------------------------------------------------------
+        | Remember Selected Service
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('service')) {
+
+            $service = Service::where(
+                'slug',
+                $request->service
+            )
+                ->where(
+                    'status',
+                    'active'
+                )
+                ->first();
+
+            if ($service) {
+
+                session()->put(
+                    'selected_service_slug',
+                    $service->slug
+                );
+            }
+        }
+
+        return view(
+            'frontend.auth.login'
+        );
     }
 
 
@@ -153,8 +262,14 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $user = User::where('email', $credentials['email'])
-            ->where('role', 'customer')
+        $user = User::where(
+            'email',
+            $credentials['email']
+        )
+            ->where(
+                'role',
+                'customer'
+            )
             ->first();
 
 
@@ -171,12 +286,27 @@ class AuthController extends Controller
                 $user->password
             )
         ) {
+
             return back()
-                ->withInput($request->only('email'))
+                ->withInput(
+                    $request->only('email')
+                )
                 ->withErrors([
-                    'email' => 'Invalid customer email or password.',
+                    'email' =>
+                        'Invalid customer email or password.',
                 ]);
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET SELECTED SERVICE BEFORE SESSION REGENERATION
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedServiceSlug = session(
+            'selected_service_slug'
+        );
 
 
         /*
@@ -202,13 +332,40 @@ class AuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | REDIRECT
+        | REDIRECT TO PROJECT REQUEST IF SERVICE WAS SELECTED
+        |--------------------------------------------------------------------------
+        */
+
+        if ($selectedServiceSlug) {
+
+            $request->session()->forget(
+                'selected_service_slug'
+            );
+
+            return redirect()->route(
+                'customer.project-request.create',
+                [
+                    'service' => $selectedServiceSlug
+                ]
+            )->with(
+                'success',
+                'Welcome back! Please complete your project request.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMAL CUSTOMER LOGIN
         |--------------------------------------------------------------------------
         */
 
         return redirect()
             ->route('customer.dashboard')
-            ->with('success', 'Welcome back!');
+            ->with(
+                'success',
+                'Welcome back!'
+            );
     }
 
 
@@ -226,7 +383,13 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $request->session()->forget('customer_user_id');
+        $request->session()->forget(
+            'customer_user_id'
+        );
+
+        $request->session()->forget(
+            'selected_service_slug'
+        );
 
 
         /*
@@ -255,6 +418,9 @@ class AuthController extends Controller
 
         return redirect()
             ->route('customer.login')
-            ->with('success', 'You have been logged out.');
+            ->with(
+                'success',
+                'You have been logged out.'
+            );
     }
 }

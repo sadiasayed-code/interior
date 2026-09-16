@@ -1,275 +1,407 @@
-@extends('backend.layouts.admin')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-@section('content')
+    <title>Project Requests</title>
 
-<style>
-
-    .request-page {
-        padding: 20px;
-    }
-
-    .request-header {
-        margin-bottom: 25px;
-    }
-
-    .request-header h2 {
-        margin: 0 0 6px;
-        font-size: 26px;
-        color: #222;
-    }
-
-    .request-header p {
-        margin: 0;
-        color: #777;
-        font-size: 14px;
-    }
-
-    .message-success {
-        background: #dcfce7;
-        color: #166534;
-        padding: 13px 16px;
-        border-radius: 7px;
-        margin-bottom: 20px;
-    }
-
-    .message-error {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 13px 16px;
-        border-radius: 7px;
-        margin-bottom: 20px;
-    }
-
-    .request-card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
-        overflow: hidden;
-    }
-
-    .request-card-header {
-        padding: 18px 20px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .request-card-header h3 {
-        margin: 0;
-        font-size: 18px;
-        color: #333;
-    }
-
-    .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .request-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 750px;
-    }
-
-    .request-table th,
-    .request-table td {
-        padding: 14px 16px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        font-size: 14px;
-    }
-
-    .request-table th {
-        background: #f8fafc;
-        color: #555;
-        font-weight: 600;
-    }
-
-    .request-table tbody tr:hover {
-        background: #fafafa;
-    }
-
-    .customer-name {
-        font-weight: 600;
-        color: #222;
-    }
-
-    .customer-phone {
-        display: block;
-        margin-top: 4px;
-        color: #888;
-        font-size: 12px;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .view-btn {
-        display: inline-block;
-        padding: 8px 13px;
-        background: #2563eb;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .view-btn:hover {
-        background: #1d4ed8;
-    }
-
-    .empty-request {
-        text-align: center;
-        padding: 55px 20px;
-    }
-
-    .empty-request h3 {
-        margin-bottom: 8px;
-        color: #444;
-    }
-
-    .empty-request p {
-        color: #888;
-        margin: 0;
-    }
-
-
-    /* =========================
-       Responsive
-    ========================= */
-
-    @media (max-width: 700px) {
-
-        .request-page {
-            padding: 12px;
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .request-header h2 {
-            font-size: 22px;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fa;
+            color: #172033;
+            line-height: 1.5;
         }
 
-        .request-card-header {
-            padding: 15px;
+        .container {
+            width: min(100% - 40px, 1360px);
+            margin: 30px auto 50px;
         }
 
-    }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
 
-</style>
+        .page-header h1 {
+            font-size: 36px;
+            line-height: 1.15;
+            font-weight: 700;
+            color: #172033;
+            margin-bottom: 7px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: #667085;
+        }
+
+        .dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            padding: 0 20px;
+            border-radius: 9px;
+            background: #172033;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: .2s ease;
+        }
+
+        .dashboard-btn:hover {
+            background: #0f172a;
+            transform: translateY(-1px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e1e5eb;
+            border-radius: 13px;
+            padding: 23px 25px;
+            box-shadow: 0 5px 18px rgba(15, 23, 42, .05);
+        }
+
+        .stat-card h3 {
+            color: #7b8496;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 7px;
+        }
+
+        .stat-number {
+            color: #172033;
+            font-size: 31px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .request-card {
+            background: #fff;
+            border: 1px solid #e1e5eb;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 22px rgba(15, 23, 42, .06);
+        }
+
+        .card-header {
+            padding: 22px 26px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        .card-header h2 {
+            font-size: 21px;
+            font-weight: 700;
+            color: #253044;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1080px;
+        }
+
+        thead th {
+            padding: 15px 18px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e1e5eb;
+            color: #465166;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 18px;
+            border-bottom: 1px solid #edf0f4;
+            color: #344054;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fbfcfe;
+        }
+
+        .id-link {
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .id-link:hover {
+            text-decoration: underline;
+        }
+
+        .customer-name {
+            color: #172033;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .customer-email {
+            color: #7b8496;
+            font-size: 12px;
+        }
+
+        .service-name {
+            color: #253044;
+            font-weight: 600;
+        }
+
+        .budget {
+            white-space: nowrap;
+            color: #344054;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-review {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .approval-pending {
+            background: #fef3c7;
+            color: #a16207;
+        }
+
+        .date {
+            color: #667085;
+            white-space: nowrap;
+            line-height: 1.35;
+        }
+
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 14px;
+            border-radius: 7px;
+            background: #2563eb;
+            color: #fff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: .2s ease;
+        }
+
+        .view-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .empty {
+            padding: 55px 25px;
+            text-align: center;
+            color: #667085;
+            font-size: 15px;
+        }
+
+        .empty strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #344054;
+            font-size: 18px;
+        }
+
+        .notice {
+            margin-top: 18px;
+            padding: 13px 16px;
+            border-radius: 9px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            font-size: 13px;
+        }
+
+        .alert-success,
+        .alert-error {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                width: min(100% - 24px, 1360px);
+                margin-top: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .page-header h1 {
+                font-size: 29px;
+            }
+
+            .dashboard-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header {
+                padding: 19px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    {{-- =========================================================
+         PAGE HEADER
+    ========================================================== --}}
+
+    <div class="page-header">
+        <div>
+            <h1>Project Requests</h1>
+            <p>Manage and review customer project requests.</p>
+        </div>
+
+        <a
+            href="{{ route('admin.dashboard') }}"
+            class="dashboard-btn"
+        >
+            ← Dashboard
+        </a>
+    </div>
 
 
-<div class="request-page">
+    {{-- =========================================================
+         FLASH MESSAGES
+    ========================================================== --}}
+
+    @if(session('success'))
+        <div class="alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert-error">
+            {{ session('error') }}
+        </div>
+    @endif
 
 
-    {{-- Page Header --}}
+    {{-- =========================================================
+         STATISTICS
+         IMPORTANT:
+         These numbers include new customer requests and requests currently under admin review.
+    ========================================================== --}}
 
-    <div class="request-header">
+    <div class="stats">
 
-        <h2>
-            Project Requests
-        </h2>
+        <div class="stat-card">
+            <h3>Total Requests</h3>
 
-        <p>
-            Review and manage customer project requests.
-        </p>
+            <div class="stat-number">
+                {{ $totalRequests }}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Under Review</h3>
+
+            <div class="stat-number">
+                {{ $underReview }}
+            </div>
+        </div>
 
     </div>
 
 
-    {{-- Success Message --}}
-
-    @if(session('success'))
-
-        <div class="message-success">
-            {{ session('success') }}
-        </div>
-
-    @endif
-
-
-    {{-- Error Message --}}
-
-    @if($errors->any())
-
-        <div class="message-error">
-
-            @foreach($errors->all() as $error)
-
-                <div>
-                    {{ $error }}
-                </div>
-
-            @endforeach
-
-        </div>
-
-    @endif
-
-
-    {{-- Project Requests Card --}}
+    {{-- =========================================================
+         CUSTOMER REQUESTS
+         New requests and requests currently under admin review are displayed.
+    ========================================================== --}}
 
     <div class="request-card">
 
-
-        <div class="request-card-header">
-
-            <h3>
-                Pending Project Requests
-            </h3>
-
+        <div class="card-header">
+            <h2>Customer Requests</h2>
         </div>
 
-
-        @if($projects->count() > 0)
+        @if($projects->count())
 
             <div class="table-wrapper">
 
-                <table class="request-table">
+                <table>
 
                     <thead>
-
                         <tr>
-
-                            <th>
-                                #
-                            </th>
-
-                            <th>
-                                Customer
-                            </th>
-
-                            <th>
-                                Project
-                            </th>
-
-                            <th>
-                                Location
-                            </th>
-
-                            <th>
-                                Start Date
-                            </th>
-
-                            <th>
-                                Approval
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Location</th>
+                            <th>Approx. Budget</th>
+                            <th>Approval</th>
+                            <th>Project Status</th>
+                            <th>Request Date</th>
+                            <th>Action</th>
                         </tr>
-
                     </thead>
-
 
                     <tbody>
 
@@ -278,56 +410,69 @@
                             <tr>
 
                                 <td>
-                                    {{ $loop->iteration }}
+                                    <a
+                                        href="{{ route('admin.project-requests.show', $project) }}"
+                                        class="id-link"
+                                    >
+                                        #{{ $project->id }}
+                                    </a>
                                 </td>
-
 
                                 <td>
+                                    <div class="customer-name">
+                                        {{ $project->client?->name ?? $project->client?->user?->name ?? 'N/A' }}
+                                    </div>
 
-                                    <span class="customer-name">
-                                        {{ $project->client->name ?? 'N/A' }}
-                                    </span>
-
-                                    <span class="customer-phone">
-                                        {{ $project->client->phone ?? 'No phone' }}
-                                    </span>
-
+                                    <div class="customer-email">
+                                        {{ $project->client?->email ?? $project->client?->user?->email ?? '' }}
+                                    </div>
                                 </td>
-
 
                                 <td>
-                                    {{ $project->project_name }}
+                                    <div class="service-name">
+                                        {{ $project->service?->name ?? 'N/A' }}
+                                    </div>
                                 </td>
-
 
                                 <td>
                                     {{ $project->location ?? '-' }}
                                 </td>
 
-
-                                <td>
-                                    {{ $project->start_date?->format('d M Y') ?? '-' }}
+                                <td class="budget">
+                                    @if($project->approximate_budget !== null)
+                                        ৳ {{ number_format((float) $project->approximate_budget, 2) }}
+                                    @else
+                                        -
+                                    @endif
                                 </td>
 
-
                                 <td>
-
-                                    <span class="status-badge status-pending">
-                                        Pending
+                                    <span class="status-badge approval-pending">
+                                        {{ ucfirst($project->approval_status ?? 'pending') }}
                                     </span>
-
                                 </td>
 
+                                <td>
+                                    <span class="status-badge status-review">
+                                        Admin Review
+                                    </span>
+                                </td>
 
                                 <td>
+                                    <div class="date">
+                                        {{ $project->created_at?->format('d M Y') ?? '-' }}
+                                        <br>
+                                        {{ $project->created_at?->format('h:i A') ?? '' }}
+                                    </div>
+                                </td>
 
+                                <td>
                                     <a
-                                        href="{{ route('admin.project-requests.show', $project->id) }}"
+                                        href="{{ route('admin.project-requests.show', $project) }}"
                                         class="view-btn"
                                     >
-                                        View
+                                        View Request
                                     </a>
-
                                 </td>
 
                             </tr>
@@ -342,24 +487,24 @@
 
         @else
 
-            <div class="empty-request">
-
-                <h3>
-                    No Pending Project Requests
-                </h3>
-
-                <p>
-                    There are currently no new customer project requests.
-                </p>
-
+            <div class="empty">
+                <strong>No requests under admin review</strong>
+                There are currently no project requests waiting for admin review.
             </div>
 
         @endif
 
-
     </div>
 
 
+    <div class="notice">
+        <strong>Review Queue:</strong>
+        This page displays only projects whose
+        <strong>Project Status = Admin Review</strong>.
+        Other statuses are intentionally hidden from this request queue.
+    </div>
+
 </div>
 
-@endsection
+</body>
+</html>

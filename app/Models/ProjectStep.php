@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Budget extends Model
+class ProjectStep extends Model
 {
     use HasFactory;
-
 
     /*
     |--------------------------------------------------------------------------
@@ -20,13 +19,17 @@ class Budget extends Model
 
         'project_id',
 
+        'step_number',
+
+        'title',
+
+        'description',
+
+        'estimated_days',
+
         'estimated_cost',
 
-        'actual_cost',
-
-        'contract_amount',
-
-        'note',
+        'status',
 
     ];
 
@@ -41,16 +44,12 @@ class Budget extends Model
 
         'estimated_cost' => 'decimal:2',
 
-        'actual_cost' => 'decimal:2',
-
-        'contract_amount' => 'decimal:2',
-
     ];
 
 
     /*
     |--------------------------------------------------------------------------
-    | BUDGET → PROJECT
+    | PROJECT RELATIONSHIP
     |--------------------------------------------------------------------------
     */
 
@@ -58,6 +57,23 @@ class Budget extends Model
     {
         return $this->belongsTo(
             Project::class
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAYMENTS
+    |--------------------------------------------------------------------------
+    |
+    | A project step can have payment milestones.
+    |
+    */
+
+    public function payments()
+    {
+        return $this->hasMany(
+            Payment::class
         );
     }
 }

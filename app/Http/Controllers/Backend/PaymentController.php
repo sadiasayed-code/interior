@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-
-
     /*
     |--------------------------------------------------------------------------
     | INDEX
@@ -21,9 +20,7 @@ class PaymentController extends Controller
     | IMPORTANT LOGIC:
     |
     | Total Amount = Budget Contract Amount
-    |
     | Total Paid = Only status = paid
-    |
     | Total Due = Contract Amount - Total Paid
     |
     */
@@ -38,11 +35,12 @@ class PaymentController extends Controller
 
         $projects = Project::with([
             'client',
+            'service',
             'budget',
             'payments',
         ])
-        ->latest()
-        ->get();
+            ->latest()
+            ->get();
 
 
         /*
@@ -52,7 +50,6 @@ class PaymentController extends Controller
         */
 
         foreach ($projects as $project) {
-
 
             /*
             |--------------------------------------------------------------------------
@@ -135,21 +132,30 @@ class PaymentController extends Controller
         |--------------------------------------------------------------------------
         | LOAD PROJECTS
         |--------------------------------------------------------------------------
+        |
+        | Project table does NOT have project_name.
+        | Therefore service information is loaded.
+        |
         */
 
         $projects = Project::with([
             'payments',
             'budget',
+            'service',
         ])
-        ->where(
-            'status',
-            '!=',
-            'cancelled'
-        )
-        ->orderBy(
-            'project_name'
-        )
-        ->get();
+            ->where(
+                'status',
+                '!=',
+                'cancelled'
+            )
+            ->orderBy(
+                Service::select('name')
+                    ->whereColumn(
+                        'services.id',
+                        'projects.service_id'
+                    )
+            )
+            ->get();
 
 
         /*
@@ -162,7 +168,6 @@ class PaymentController extends Controller
 
 
         foreach ($projects as $project) {
-
 
             /*
             |--------------------------------------------------------------------------
@@ -281,6 +286,9 @@ class PaymentController extends Controller
             |--------------------------------------------------------------------------
             | STORE PROJECT DATA
             |--------------------------------------------------------------------------
+            |
+            | Service name is used instead of project_name.
+            |
             */
 
             $projectData[
@@ -288,7 +296,9 @@ class PaymentController extends Controller
             ] = [
 
                 'name' =>
-                    $project->project_name,
+                    $project->service
+                        ? $project->service->name
+                        : 'Service not found',
 
                 'status' =>
                     $project->status,
@@ -358,8 +368,13 @@ class PaymentController extends Controller
                 'exists:projects,id',
             ],
 
+            'project_step_id' => [
+                'nullable',
+                'exists:project_steps,id',
+            ],
+
             'milestone' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
             ],
@@ -382,13 +397,19 @@ class PaymentController extends Controller
 
             'status' => [
                 'required',
-                'in:paid,pending,upcoming,overdue',
+                'in:paid,pending,upcoming,overdue,cancelled',
             ],
 
             'payment_method' => [
                 'nullable',
                 'string',
                 'max:100',
+            ],
+
+            'transaction_reference' => [
+                'nullable',
+                'string',
+                'max:255',
             ],
 
             'note' => [
@@ -409,9 +430,9 @@ class PaymentController extends Controller
             'budget',
             'payments',
         ])
-        ->findOrFail(
-            $validated['project_id']
-        );
+            ->findOrFail(
+                $validated['project_id']
+            );
 
 
         /*
@@ -574,6 +595,22 @@ class PaymentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | PAYMENT METHOD
+        |--------------------------------------------------------------------------
+        |
+        | Database default is cash.
+        | Do not send null to the non-nullable enum column.
+        |
+        */
+
+        $paymentMethod =
+            $validated['payment_method']
+            ??
+            'cash';
+
+
+        /*
+        |--------------------------------------------------------------------------
         | CREATE PAYMENT
         |--------------------------------------------------------------------------
         */
@@ -583,8 +620,11 @@ class PaymentController extends Controller
             'project_id' =>
                 $project->id,
 
+            'project_step_id' =>
+                $validated['project_step_id'] ?? null,
+
             'milestone' =>
-                $validated['milestone'],
+                $validated['milestone'] ?? null,
 
             'amount' =>
                 $paymentAmount,
@@ -603,7 +643,10 @@ class PaymentController extends Controller
                 $validated['status'],
 
             'payment_method' =>
-                $validated['payment_method']
+                $paymentMethod,
+
+            'transaction_reference' =>
+                $validated['transaction_reference']
                 ??
                 null,
 
@@ -658,6 +701,8 @@ class PaymentController extends Controller
 
             'project.client',
 
+            'project.service',
+
             'project.budget',
 
             'project.payments' => function (
@@ -667,10 +712,9 @@ class PaymentController extends Controller
                 $query->orderBy(
                     'due_date'
                 )
-                ->orderBy(
-                    'id'
-                );
-
+                    ->orderBy(
+                        'id'
+                    );
             },
 
         ]);
@@ -831,6 +875,9 @@ class PaymentController extends Controller
     |--------------------------------------------------------------------------
     | EDIT
     |--------------------------------------------------------------------------
+    |
+    | Edit payment milestone.
+    |
     */
 
     public function edit(
@@ -993,6 +1040,9 @@ class PaymentController extends Controller
     |--------------------------------------------------------------------------
     | UPDATE
     |--------------------------------------------------------------------------
+    |
+    | Update payment milestone.
+    |
     */
 
     public function update(
@@ -1085,8 +1135,13 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
 
+            'project_step_id' => [
+                'nullable',
+                'exists:project_steps,id',
+            ],
+
             'milestone' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
             ],
@@ -1109,13 +1164,19 @@ class PaymentController extends Controller
 
             'status' => [
                 'required',
-                'in:paid,pending,upcoming,overdue',
+                'in:paid,pending,upcoming,overdue,cancelled',
             ],
 
             'payment_method' => [
                 'nullable',
                 'string',
                 'max:100',
+            ],
+
+            'transaction_reference' => [
+                'nullable',
+                'string',
+                'max:255',
             ],
 
             'note' => [
@@ -1263,6 +1324,21 @@ class PaymentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | PAYMENT METHOD
+        |--------------------------------------------------------------------------
+        |
+        | Database column has default cash.
+        |
+        */
+
+        $paymentMethod =
+            $validated['payment_method']
+            ??
+            'cash';
+
+
+        /*
+        |--------------------------------------------------------------------------
         | UPDATE PAYMENT
         |--------------------------------------------------------------------------
         */
@@ -1270,7 +1346,10 @@ class PaymentController extends Controller
         $payment->update([
 
             'milestone' =>
-                $validated['milestone'],
+                $validated['milestone'] ?? $payment->milestone,
+
+            'project_step_id' =>
+                $validated['project_step_id'] ?? $payment->project_step_id,
 
             'amount' =>
                 $paymentAmount,
@@ -1289,7 +1368,10 @@ class PaymentController extends Controller
                 $validated['status'],
 
             'payment_method' =>
-                $validated['payment_method']
+                $paymentMethod,
+
+            'transaction_reference' =>
+                $validated['transaction_reference']
                 ??
                 null,
 
@@ -1324,6 +1406,9 @@ class PaymentController extends Controller
     |--------------------------------------------------------------------------
     | DESTROY
     |--------------------------------------------------------------------------
+    |
+    | Delete payment milestone.
+    |
     */
 
     public function destroy(

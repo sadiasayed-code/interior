@@ -191,8 +191,27 @@
         }
 
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             border-color: #2563eb;
+        }
+
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #d5d9df;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
         }
 
 
@@ -360,7 +379,7 @@
 
             Submit your interior project details below.
             Our admin team will review your request and
-            contact you after approval.
+            prepare a project proposal for you.
 
         </p>
 
@@ -416,39 +435,37 @@
 
 
             <!-- =========================
-                 Project Name
+                 Service
             ========================= -->
 
             <div class="form-group">
 
-                <label
-                    for="project_name"
-                >
-                    Project Name
+                <label for="service_id">
+                    Interior Service
                 </label>
 
+                <select id="service_id" name="service_id" required>
+                    <option value="">-- Select a Service --</option>
 
-                <input
-                    type="text"
-                    id="project_name"
-                    name="project_name"
-                    value="{{ old('project_name') }}"
-                    placeholder="Example: Living Room Interior"
-                    required
-                >
+                    @foreach($services as $service)
+                        <option
+                            value="{{ $service->id }}"
+                            {{ old('service_id', optional($selectedService)->id) == $service->id ? 'selected' : '' }}
+                        >
+                            {{ $service->name }}
+                        </option>
+                    @endforeach
+                </select>
 
-
-                @error('project_name')
-
+                @error('service_id')
                     <div class="error">
-
                         {{ $message }}
-
                     </div>
-
                 @enderror
 
             </div>
+
+
 
 
 
@@ -487,6 +504,89 @@
 
             </div>
 
+
+
+            <!-- =========================
+                 Project Description
+            ========================= -->
+
+            <div class="form-group">
+
+                <label for="description">
+                    Project Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="Describe your interior project requirements..."
+                >{{ old('description') }}</textarea>
+
+                @error('description')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            <!-- =========================
+                 Approximate Budget
+            ========================= -->
+
+            <div class="form-group">
+
+                <label for="approximate_budget">
+                    Approximate Budget
+                </label>
+
+                <input
+                    type="number"
+                    id="approximate_budget"
+                    name="approximate_budget"
+                    value="{{ old('approximate_budget') }}"
+                    placeholder="Example: 500000"
+                    min="0"
+                    step="0.01"
+                >
+
+                <div class="help-text">
+                    Optional. Enter your approximate budget in BDT.
+                </div>
+
+                @error('approximate_budget')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            <!-- =========================
+                 Customer Note
+            ========================= -->
+
+            <div class="form-group">
+
+                <label for="customer_note">
+                    Additional Note
+                </label>
+
+                <textarea
+                    id="customer_note"
+                    name="customer_note"
+                    placeholder="Any additional requirements or notes..."
+                >{{ old('customer_note') }}</textarea>
+
+                @error('customer_note')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
 
 
             <!-- =========================
@@ -609,13 +709,10 @@
                 Note:
             </strong>
 
-            Your project request will remain
-            <strong>
-                Pending
-            </strong>
-
-            until an administrator reviews and
-            approves it.
+            Your project request will first be reviewed by
+            the administrator. After review, the final budget,
+            project steps and payment plan will be prepared
+            and sent to your dashboard for approval.
 
         </div>
 
