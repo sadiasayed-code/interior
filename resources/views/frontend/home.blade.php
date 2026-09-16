@@ -52,7 +52,7 @@
         </div>
     </nav>
     <!-- Parallax Image -->
-    <div id="home" data-scroll-index="0" class="banner-header full-height valign bg-img bg-imgfixed" data-overlay-dark="6" data-background="https://duruthemes.com/demo/html/ornava/light/img/banner.jpg">
+    <div id="home" data-scroll-index="0" class="banner-header full-height valign bg-img bg-imgfixed" data-overlay-dark="6" data-background="https://duruthemes.com/demo/html/ornava/light/img/about.jpg">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-7">
@@ -209,7 +209,7 @@
                 <div class="portfolio2-container">
                 <div class="owl-carousel owl-theme">
                     <div class="item mb-25">
-                        <div class="img"> <img src="img/01.jpg" alt=""> </div>
+                        <div class="img"> <img src="https://duruthemes.com/demo/html/ornava/light/img/01.jpg" alt=""> </div>
                         <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
                             <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
                         </div>
@@ -225,7 +225,7 @@
                         </div>
                     </div>
                     <div class="item mb-25">
-                        <div class="img"> <img src="img/03.jpg" alt=""> </div>
+                        <div class="img"> <img src="https://duruthemes.com/demo/html/ornava/light/img/03.jpg" alt=""> </div>
                         <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
                             <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
                         </div>
@@ -241,7 +241,7 @@
                         </div>
                     </div>
                     <div class="item mb-25">
-                        <div class="img"> <img src="img/02.jpg" alt=""> </div>
+                        <div class="img"> <img src="https://duruthemes.com/demo/html/ornava/light/img/02.jpg" alt=""> </div>
                         <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
                             <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
                         </div>
@@ -257,7 +257,7 @@
                         </div>
                     </div>
                     <div class="item mb-25">
-                        <div class="img"> <img src="img/04.jpg" alt=""> </div>
+                        <div class="img"> <img src="https://duruthemes.com/demo/html/ornava/light/img/04.jpg" alt=""> </div>
                         <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
                             <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
                         </div>
@@ -289,7 +289,7 @@
                         </div>
                     </div>
                     <div class="item mb-25">
-                        <div class="img"> <img src="img/06.jpg" alt=""> </div>
+                        <div class="img"> <img src="https://duruthemes.com/demo/html/ornava/light/img/06.jpg" alt=""> </div>
                         <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
                             <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
                         </div>
@@ -558,12 +558,12 @@
     <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.isotope.v3.0.2.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/popper.min.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/bootstrap.min.js"></script>
-    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/scrollIt.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/scrollIt.min.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.waypoints.min.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/owl.carousel.min.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.stellar.min.js"></script>
     <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.magnific-popup.js"></script>
-    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/YouTubePopUp.js"></script>
-    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/custom.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/YouTubePopUp.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/custom.js"></script>
 </body>
 </html>
