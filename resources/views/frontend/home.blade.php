@@ -1,608 +1,569 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-nav {
-  padding: 0px 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-family: "Poppins", sans-serif;
-}
-ul {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 36px;
-}
-li {
-  list-style: none;
-}
-#logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: #153d3d;
-}
-nav button {
-  padding: 5px 20px;
-  border-radius: 15px;
-  border: transparent;
-  background-color: #153d3d;
-  color: white;
-  font-family: "Poppins", sans-serif;
-}
-.main {
-  width: 100%;
-  height: 850px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 4fr 0.8fr;
-  column-gap: 12px;
-  row-gap: 24px;
-}
-.txt {
-  grid-column: 1/2;
-  grid-row: 1/2;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  justify-content: center;
-  padding: 20px;
-  text-wrap: wrap;
-}
-.txt h2 {
-  font-size: 65px;
-  margin: 0;
-  color: #286318;
-}
-.txt p {
-  font-size: 25px;
-  color: #153d3d;
-}
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: left;
-  gap: 24px;
-}
-.button {
-  border-radius: 20px;
-  border: transparent;
-  font-weight: bold;
-  font-size: 16px;
-  height: 100%;
-}
-#btn1 {
-  background-color: #153d3d;
-  color: white;
-  padding: 5px 20px;
-}
-#btn2 {
-  color: #153d3d;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0px;
-  padding-right: 10px;
-}
-#btn2 img {
-  height: 30px;
-  width: 40px;
-  padding: 5px;
-  border-radius: 50%;
-}
-.circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30%;
-  height: 100%;
-  background-color: #153d3d;
-  border-radius: 20px;
-}
-.pictures {
-  grid-column: 2/3;
-  grid-row: 1/2;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 30px;
-  gap: 10px;
-  background: radial-gradient(#153d3dce, #153d3d4f, white, white);
-  position: relative;
-}
-.img {
-  width: 30%;
-  height: 80%;
-  border-radius: 70px;
-}
-#img1 {
-  background-image: url("https://assets-news.housing.com/news/wp-content/uploads/2022/08/18184418/Green-colour-wall-paint-design-ideas-to-give-your-home-a-fresh-look-03.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center right;
-  align-self: flex-start;
-}
-#img2 {
-  background-image: url("https://cdn.shopify.com/s/files/1/0305/9521/9595/files/Screenshot_2022-04-01_at_08.45.14_480x480.png?v=1648799148");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  align-self: flex-end;
-}
-#img3 {
-  background-image: url("https://i.pinimg.com/736x/05/91/78/0591788328fe38fe3f691b0028630595.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center left;
-  align-self: flex-start;
-}
-
-.brands {
-  grid-column: 1/3;
-  grid-row: 2/3;
-  border-radius: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
-  padding: 20px;
-  background-color: #e2eddf;
-  gap: 30px;
-}
-.brands img {
-  max-width: 150px;
-  width: 100px;
-}
-/* =========================
-   SERVICES SECTION
-========================= */
-
-.services-section {
-  width: 100%;
-  padding: 100px 6%;
-  box-sizing: border-box;
-  background: #f7faf6;
-  font-family: "Poppins", sans-serif;
-}
-
-.services-heading {
-  max-width: 700px;
-  margin: 0 auto 55px;
-  text-align: center;
-}
-
-.services-heading span {
-  color: #286318;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 3px;
-}
-
-.services-heading h2 {
-  margin: 10px 0 15px;
-  color: #153d3d;
-  font-size: 48px;
-}
-
-.services-heading p {
-  margin: 0;
-  color: #687878;
-  font-size: 16px;
-  line-height: 1.8;
-}
-
-
-/* SERVICE GRID */
-
-.services-grid {
-  max-width: 1250px;
-  margin: auto;
-
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-}
-
-
-/* CARD */
-
-.service-card {
-  background: #fff;
-  border-radius: 25px;
-  overflow: hidden;
-
-  box-shadow: 0 15px 40px rgba(21, 61, 61, 0.08);
-
-  transition: all 0.35s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 25px 55px rgba(21, 61, 61, 0.15);
-}
-
-
-/* IMAGE */
-
-.service-image {
-  width: 100%;
-  height: 230px;
-  overflow: hidden;
-  background: #e2eddf;
-}
-
-.service-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-
-  transition: transform 0.5s ease;
-}
-
-.service-card:hover .service-image img {
-  transform: scale(1.07);
-}
-
-.no-service-image {
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #286318;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-
-/* CARD CONTENT */
-
-.service-content {
-  padding: 25px;
-}
-
-.service-content h3 {
-  margin: 0 0 10px;
-
-  color: #153d3d;
-  font-size: 21px;
-  font-weight: 700;
-}
-
-.service-content > p {
-  margin: 0 0 20px;
-
-  color: #718080;
-  font-size: 14px;
-  line-height: 1.7;
-
-  min-height: 48px;
-}
-
-
-/* PRICE + DURATION */
-
-.service-info {
-  display: flex;
-  gap: 35px;
-
-  padding: 15px 0;
-
-  border-top: 1px solid #edf1ed;
-  border-bottom: 1px solid #edf1ed;
-
-  margin-bottom: 20px;
-}
-
-.service-info div {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.service-info small {
-  color: #8a9696;
-  font-size: 11px;
-}
-
-.service-info strong {
-  color: #286318;
-  font-size: 14px;
-}
-
-
-/* VIEW DETAILS */
-
-.service-details-btn {
-  width: 100%;
-  box-sizing: border-box;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 13px 18px;
-
-  border-radius: 12px;
-
-  background: #153d3d;
-  color: #fff;
-
-  text-decoration: none;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  transition: all 0.3s ease;
-}
-
-.service-details-btn:hover {
-  background: #286318;
-}
-
-.service-details-btn span {
-  font-size: 20px;
-}
-
-
-/* NO SERVICE */
-
-.no-services {
-  grid-column: 1 / -1;
-
-  text-align: center;
-
-  padding: 70px 20px;
-
-  background: #fff;
-  border-radius: 20px;
-}
-
-.no-services h3 {
-  color: #153d3d;
-  margin-bottom: 8px;
-}
-
-.no-services p {
-  color: #777;
-}
-
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 900px) {
-
-  .services-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .services-heading h2 {
-    font-size: 40px;
-  }
-
-}
-
-
-@media (max-width: 600px) {
-
-  .services-section {
-    padding: 70px 20px;
-  }
-
-  .services-heading {
-    margin-bottom: 40px;
-  }
-
-  .services-heading h2 {
-    font-size: 34px;
-  }
-
-  .services-heading p {
-    font-size: 14px;
-  }
-
-  .services-grid {
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-
-  .service-image {
-    height: 220px;
-  }
-
-  .service-content {
-    padding: 22px;
-  }
-
-}
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ornava - Architecture & Interior HTML Template</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:ital,wght@0,100..900;1,100..900&display=swap">
+    <link rel="stylesheet" href="https://duruthemes.com/demo/html/ornava/light/css/plugins.css">
+    <link rel="stylesheet" href="https://duruthemes.com/demo/html/ornava/light/css/style.css">
 </head>
 <body>
-    <nav>
-  <p id="logo">MODULARS</p>
-  <ul class="links">
-    <li>Home</li>
-    <li>About</li>
-    <li>Blog</li>
-    <li>Contact</li>
-  </ul>
-  
-  <a href="{{ route('customer.register') }}" style="padding: 10px; background-color:#286318; color:#fff">Request Project</a>
-</nav>
-<div class="main">
-  <div class="txt">
-    <h2>We're a creative design agency.</h2>
-    <p>A brilliant, modular agency template for startup's build yours today. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo quia esse nihil.</p>
-    <div class="buttons">
-      <a href="{{ route('customer.register') }}" style="padding: 20px; background-color:#286318; color:#fff">Request Project</a>
-      <button class="button" id="btn2">
-        <div class="circle"><img src="https://static.vecteezy.com/system/resources/previews/017/196/544/non_2x/play-button-icon-transparent-background-free-png.png" alt="play"></div>Watch Video
-      </button>
+    <!-- Preloader -->
+    <!-- <div class="preloader-bg"></div>
+    <div id="preloader">
+        <div id="preloader-status">
+            <div class="preloader-position loader"> <span></span> </div>
+        </div>
+    </div> -->
+    <!-- Cursor -->
+    <div class="cursor js-cursor"></div>
+    <!-- Progress scroll totop -->
+    <div class="progress-wrap cursor-pointer">
+        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+        </svg>
     </div>
-  </div>
-  <div class="pictures">
-    <div class="img" id="img1"></div>
-    <div class="img" id="img2"></div>
-    <div class="img" id="img3"></div>
-  </div>
-  <!-- <div class="brands">
-    <img src="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-google-sva-scholarship-20.png" alt="google">
-    <img src="https://1000logos.net/wp-content/uploads/2021/06/Slack-logo.png" alt="slack">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Agworld_Logo.svg/3840px-Agworld_Logo.svg.png" alt="Agworld">
-    <img src="https://download.logo.wine/logo/Rio_Tinto_(corporation)/Rio_Tinto_(corporation)-Logo.wine.png" alt="riotinto">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Heroku_logo.svg/960px-Heroku_logo.svg.png?_=20210504043420" alt="heroku">
-  </div> -->
-</div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <!-- Logo -->
+            <div class="logo-wrapper">
+                <a class="logo" href="#"><img src="img/logo.png" class="logo-img" alt=""></a>
+            </div>
+            <!-- Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"><i class="ti-menu"></i></span> </button>
+            <!-- Menu -->
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="#" class="nav-link active" data-scroll-nav="0"><span class="rolling-text">Home</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" data-scroll-nav="1"><span class="rolling-text">About</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" data-scroll-nav="2"><span class="rolling-text">Services</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" data-scroll-nav="3"><span class="rolling-text">Portfolio</span></a></li>
 
-
-
-<!-- =========================
-     OUR SERVICES SECTION
-========================= -->
-
-<section class="services-section">
-
-    <div class="services-heading">
-        <span>WHAT WE DO</span>
-
-        <h2>Our Services</h2>
-
-        <p>
-            We provide professional interior design solutions
-            to transform your space into a beautiful, modern,
-            and comfortable environment.
-        </p>
-    </div>
-
-    <div class="services-grid">
-
-        @forelse($services as $service)
-
-            <div class="service-card">
-
-                <!-- Service Image -->
-                <div class="service-image">
-
-                    @if($service->image)
-
-                        <img
-                            src="{{ asset('storage/' . $service->image) }}"
-                            alt="{{ $service->name }}"
-                        >
-
-                    @else
-
-                        <div class="no-service-image">
-                            Interior Design
+                    <li class="nav-item"><a href="#" class="nav-link" data-scroll-nav="6"><span class="rolling-text">Contact</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Parallax Image -->
+    <div id="home" data-scroll-index="0" class="banner-header full-height valign bg-img bg-imgfixed" data-overlay-dark="6" data-background="https://duruthemes.com/demo/html/ornava/light/img/banner.jpg">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h6>Sustainable Project</h6>
+                    <h2>Contemporary Villa Living</h2>
+                    <a href="portfolio-details.html" class="durubtn"><span class="text-wrapper"><span class="text slide-up">Explore project</span><span class="text slide-down">Explore project</span></span></a>
+                </div>
+                <div class="col-md-3 offset-md-2 text-center">
+                    <a href="portfolio-details.html" class="hover-this circle-button-overlay">
+                        <div class="circle-button in-bord hover-anim">
+                            <div class="rotate-circle">
+                                <svg class="textcircle" viewBox="0 0 500 500">
+                                    <defs>
+                                        <path id="textcircle" d="M250,400 a150,150 0 0,1 0,-300a150,150 0 0,1 0,300Z"></path>
+                                    </defs>
+                                    <text><textPath xlink:href="#textcircle" startOffset="0"> Villa Project Completed </textPath></text>
+                                </svg>
+                            </div>
+                            <div class="in-circle text-center"><i class="ti-check"></i></div>
                         </div>
-
-                    @endif
-
-                </div>
-
-
-                <!-- Service Content -->
-                <div class="service-content">
-
-                    <h3>
-                        {{ $service->name }}
-                    </h3>
-
-
-                    @if($service->short_description)
-
-                        <p>
-                            {{ Str::limit($service->short_description, 100) }}
-                        </p>
-
-                    @else
-
-                        <p>
-                            Professional interior design solutions
-                            tailored to your needs.
-                        </p>
-
-                    @endif
-
-
-                    <!-- Service Information -->
-                    <div class="service-info">
-
-                        @if($service->starting_budget !== null)
-
-                            <div>
-                                <small>Starting From</small>
-
-                                <strong>
-                                    ৳ {{ number_format((float) $service->starting_budget) }}
-                                </strong>
-                            </div>
-
-                        @endif
-
-
-                        @if($service->estimated_duration_days)
-
-                            <div>
-                                <small>Estimated Time</small>
-
-                                <strong>
-                                    {{ $service->estimated_duration_days }} Days
-                                </strong>
-                            </div>
-
-                        @endif
-
-                    </div>
-
-
-                    <!-- View Details -->
-                    <a
-                        href="{{ route('services.show', $service->slug) }}"
-                        class="service-details-btn"
-                    >
-                        <span>View Details</span>
-
-                        <span>→</span>
                     </a>
-
                 </div>
-
             </div>
-
-
-        @empty
-
-            <div class="no-services">
-
-                <h3>No Services Available</h3>
-
-                <p>
-                    We are currently preparing our services.
-                    Please check back soon.
-                </p>
-
-            </div>
-
-        @endforelse
-
+        </div>
+        <!-- button scroll -->
+        <a href="#" data-scroll-nav="1" class="mouse smoothscroll"> <span class="mouse-icon"><span class="mouse-wheel"></span> </span></a>
     </div>
-
-</section>
+    <!-- About -->
+    <section id="about" data-scroll-index="1" class="about section-padding">
+        <div class="container">
+            <div class="section-linetitle">
+                <div class="d-flex align-items-center">
+                    <div class="leter">
+                        <h4>A</h4>
+                    </div>
+                    <div class="line"></div>
+                </div>
+                <div class="title">
+                    <h6 class="sub-title">About.</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-md-12 mb-30">
+                    <div class="section-title">Building Modern Dreams</div>
+                    <p>At Ornava, we merge creativity and functionality to design spaces that reflect your vision. We turn ordinary areas into extraordinary experiences, where every detail tells a story.</p>
+                    <ul class="page-list list-unstyled mb-25">
+                        <li>
+                            <div class="page-list-icon"> <span class="ti-check"></span> </div>
+                            <div class="page-list-text">
+                                <p>Bespoke interior solutions.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="page-list-icon"> <span class="ti-check"></span> </div>
+                            <div class="page-list-text">
+                                <p>Modern and timeless design vision.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="page-list-icon"> <span class="ti-check"></span> </div>
+                            <div class="page-list-text">
+                                <p>Design that tells your story.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="#" class="durubtn4"> <span class="text-wrapper"><span class="text slide-up">Read more</span><span class="text slide-down">Read more</span></span></a>
+                </div>
+                <div class="col-lg-5 offset-lg-2 col-md-12">
+                    <div class="year15 line vert-move"><div class="txt">Years of experience</div><span>15</span></div>
+                    <img src="https://duruthemes.com/demo/html/ornava/light/img/about.jpg" class="img-fluid" alt=""> 
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Services -->
+    <section id="services" data-scroll-index="2" class="services section-padding">
+        <div class="container">
+            <div class="section-linetitle">
+                <div class="d-flex align-items-center">
+                    <div class="leter">
+                        <h4 class="white">S</h4>
+                    </div>
+                    <div class="line white"></div>
+                </div>
+                <div class="title">
+                    <h6 class="sub-title white">Services.</h6>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="owl-carousel owl-theme">
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-houses"></i></div>
+                            <h5>Architecture</h5>
+                            <p>Architectural designs that balance aesthetics, interior, function and innovative thinking.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-living-room"></i></div>
+                            <h5>Interior design</h5>
+                            <p>We create elegant, functional interiors that reflect your lifestyle and personal taste.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-interior-design"></i></div>
+                            <h5>3D modelling</h5>
+                            <p>High-quality 3D modelling solutions for architecture, interiors, exterior, design and products.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-medieval-house"></i></div>
+                            <h5>Urban design</h5>
+                            <p>Sustainable urban design that enhances community life and environmental harmony.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-blueprint"></i></div>
+                            <h5>Planing</h5>
+                            <p>Strategic planning that guides spaces toward functionality, innovation and lasting value.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-houses"></i></div>
+                            <h5>Decor plan</h5>
+                            <p>Creative decor plans that balance style, comfort and functional harmony.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-kitchen"></i></div>
+                            <h5>Kitchen design</h5>
+                            <p>Transforming everyday cooking with elegant modern and functional kitchen design.</p>
+                        </div>
+                        <div class="item mb-25"> <a href="#"><span class="arrow fa-thin fa-arrow-up-right"></span></a>
+                            <div class="icon"><i class="flaticon-bathtub"></i></div>
+                            <h5>Bathroom design</h5>
+                            <p>Elevating daily routines with timeless, modern and elegant bathroom design.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dots-half bg-img bg-imgfixed" data-overlay-dark="6" data-background="https://duruthemes.com/demo/html/ornava/light/img/banner2.jpg"></div>
+    </section>
+    <!-- Portfolio 2 -->
+    <section id="portfolio" data-scroll-index="3" class="portfolio2 section-padding bg-darkbrown">
+        <div class="container">
+            <div class="section-linetitle">
+                <div class="d-flex align-items-center">
+                    <div class="leter">
+                        <h4>P</h4>
+                    </div>
+                    <div class="line"></div>
+                </div>
+                <div class="title">
+                    <h6 class="sub-title">Portfolio.</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                <div class="portfolio2-container">
+                <div class="owl-carousel owl-theme">
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/01.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>Casa Minimal Kitchen</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>30 m²</span> 
+                                <span><i class="fa-light fa-building"></i>Casa</span> 
+                                <span><i class="fa-light fa-location-dot"></i>NY, USA</span>
+                                <span><i class="fa-light fa-circle-check"></i>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/03.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>Armada Center</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>1,450 m²</span> 
+                                <span><i class="fa-light fa-building"></i>4</span> 
+                                <span><i class="fa-light fa-location-dot"></i>SF, USA</span>
+                                <span><i class="fa-light fa-spinner fa-spin"></i> In Progress</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/02.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>Vista Modern Villa</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>400 m²</span> 
+                                <span><i class="fa-light fa-building"></i>2</span> 
+                                <span><i class="fa-light fa-location-dot"></i>Houston</span>
+                                <span><i class="fa-light fa-circle-check"></i>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/04.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>The Horizon Residence</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>750 m²</span> 
+                                <span><i class="fa-light fa-building"></i>3</span> 
+                                <span><i class="fa-light fa-location-dot"></i>Washington</span>
+                                <span><i class="fa-light fa-spinner fa-spin"></i> In Progress</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/05.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>Loft Living Room</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>50 m²</span> 
+                                <span><i class="fa-light fa-building"></i>Loft</span> 
+                                <span><i class="fa-light fa-location-dot"></i>Miami</span>
+                                <span><i class="fa-light fa-circle-check"></i>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item mb-25">
+                        <div class="img"> <img src="img/06.jpg" alt=""> </div>
+                        <div class="icon-wrapper"> <i class="ti-arrow-top-right default-icon"></i>
+                            <a href="portfolio-details.html" class="hover-icon-link" title="View Project"> <i class="ti-arrow-top-right hover-icon"></i> </a>
+                        </div>
+                        <div class="con">
+                            <h5>Noir Bedroom Design</h5>
+                            <div class="line"></div>
+                            <div class="details"> 
+                                <span><i class="fa-light fa-ruler-combined"></i>40 m²</span> 
+                                <span><i class="fa-light fa-building"></i>Noir</span> 
+                                <span><i class="fa-light fa-location-dot"></i>Seattle</span>
+                                <span><i class="fa-light fa-spinner fa-spin"></i> In Progress</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Testimonials 2 -->
+    <section class="testimonials2 pt-80 mt-100 mb-0">
+        <div class="container">
+            <div class="bg-img bg-imgfixed" data-background="img/banner3.jpg" data-overlay-dark="6">
+                <div class="play-button">
+                    <a href="https://youtu.be/XVM-4riPX4k" class="btn vid">
+                        <svg width="100px" height="100px" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <circle class="circle" cx="50" cy="50" r="48" stroke="white" stroke-width="2" fill="none" />
+                        </svg> <i class="fa-solid fa-play"></i> </a>
+                    <div class="text"><span>Watch the trailer</span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-12 mb-60">
+                    <div class="item-cover animate-box" data-animate-effect="fadeInLeft">
+                        <div class="owl-carousel owl-theme">
+                            <div class="item">
+                                <div class="cont"> <span class="quote-icon"><img src="img/quote.svg" alt=""></span>
+                                    <p>A seamless design journey from start to finish. Every detail was thoughtfully planned and perfectly executed.</p>
+                                    <div class="icons"> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> </div>
+                                    <div class="info">
+                                        <div class="author-img valign">
+                                            <div class="circle"> <img src="img/team/4.jpg" alt=""> </div>
+                                        </div>
+                                        <div class="author-info valign">
+                                            <div class="full-width">
+                                                <h6>Emily Collins</h6>
+                                                <p>Interior Consultant</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="cont"> <span class="quote-icon"><img src="img/quote.svg" alt=""></span>
+                                    <p>They transformed our space beyond expectations. Elegant and truly timeless design work throughout.</p>
+                                    <div class="icons"> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> </div>
+                                    <div class="info">
+                                        <div class="author-img valign">
+                                            <div class="circle"> <img src="img/team/1.jpg" alt=""> </div>
+                                        </div>
+                                        <div class="author-info valign">
+                                            <div class="full-width">
+                                                <h6>Martin Dan</h6>
+                                                <p>Real Estate Developer</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="cont"> <span class="quote-icon"><img src="img/quote.svg" alt=""></span>
+                                    <p>Their vision and professionalism made the entire project effortless. We love every inch of our new space.</p>
+                                    <div class="icons"> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> </div>
+                                    <div class="info">
+                                        <div class="author-img valign">
+                                            <div class="circle"> <img src="img/team/5.jpg" alt=""> </div>
+                                        </div>
+                                        <div class="author-info valign">
+                                            <div class="full-width">
+                                                <h6>Lina Moretti</h6>
+                                                <p>Creative Director</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Ornava text -->
+        <div class="ornava-text">Ornava</div>
+    </section>
+    <!-- Scrolling -->
+    <div class="scrolling scrolling-ticker">
+        <div class="wrapper feather-shadow2">
+            <div class="content"> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Interior Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Architecture</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Minimalist</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Modern Living</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Space Planning</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Lighting Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">3D Visualization</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Sustainable Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Color Theory</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Furniture Layout</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">CAD Drafting</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Scandinavian Style</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Open Concept</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Material Selection</span> </div>
+            <div class="content"> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Interior Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Architecture</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Minimalist</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Modern Living</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Space Planning</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Lighting Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">3D Visualization</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Sustainable Design</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Color Theory</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Furniture Layout</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">CAD Drafting</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Scandinavian Style</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Open Concept</span> <span><img src="img/asterisk-icon.svg" alt="" loading="lazy">Material Selection</span> </div>
+        </div>
+    </div>
+    <!-- Team -->
+    
+    <!-- FAQs -->
+    <section class="faqs section-padding bg-darkbrown">
+        <div class="container">
+            <div class="section-linetitle">
+                <div class="d-flex align-items-center">
+                    <div class="leter">
+                        <h4>F</h4>
+                    </div>
+                    <div class="line"></div>
+                </div>
+                <div class="title">
+                    <h6 class="sub-title">FAQs.</h6>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-5 col-md-12 mb-30">
+                    <div class="section-title mb-25">Frequently Asked Questions</div>
+                    <ul class="accordion-box clearfix">
+                        <li class="accordion block">
+                            <div class="acc-btn"><span class="count">1.</span> What does your design package include?</div>
+                            <div class="acc-content">
+                                <div class="content">
+                                    <p>Our packages cover concept development, space planning, material selection, 3D visualization tailored to your needs.</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="accordion block">
+                            <div class="acc-btn"><span class="count">2.</span> How long does a typical project take?</div>
+                            <div class="acc-content">
+                                <div class="content">
+                                    <p>Project duration depends on scope, but most designs are completed within 2 to 6 weeks efficiently.</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="accordion block">
+                            <div class="acc-btn"><span class="count">3.</span> Will I receive 3D visuals of the project?</div>
+                            <div class="acc-content">
+                                <div class="content">
+                                    <p>Yes, 3D renderings are part of our service to help you clearly visualize the final outcome.</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-60 position-relative z-2"> <img class="animation-float1 float-overlap" src="img/about4.jpg" alt=""> </div>
+                <div class="col-lg-4 col-md-6 mb-20 position-relative z-1"> <img class="animation-float2" src="img/about3.jpg" alt=""> </div>
+            </div>
+        </div>
+    </section>
+    <!-- Blog -->
+    
+    <!-- Contact -->
+    <section id="contact" data-scroll-index="6" class="info-box section-padding bg-darkbrown">
+        <div class="container">
+            <div class="section-linetitle">
+                <div class="d-flex align-items-center">
+                    <div class="leter">
+                        <h4>C</h4>
+                    </div>
+                    <div class="line"></div>
+                </div>
+                <div class="title">
+                    <h6 class="sub-title">Contact.</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-12 mb-30">
+                    <div class="section-title">Let's Build Your Dream</div>
+                    <p class="mb-30">Have a project in mind or want to discuss your ideas? Get in touch with us and let’s bring your vision to life.</p>
+                </div>
+                <div class="col-lg-7 offset-lg-1 col-md-12">
+                    <div class="contact-form">
+                        <form method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group"> <span class="form-icon"><i class="fa-light fa-face-smile"></i></span>
+                                        <input type="text" name="name" id="name" placeholder="Your name" required="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group"> <span class="form-icon"><i class="fa-light fa-envelope"></i></span>
+                                        <input type="email" name="email" id="email" placeholder="Your email" required="">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group"> <span class="form-icon"><i class="fa-light fa-book"></i></span>
+                                        <input type="text" name="subject" id="subject" placeholder="Subject" required="">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group form-textarea"> <span class="form-icon"><i class="fa-light fa-comment"></i></span>
+                                        <textarea name="message" id="message" cols="30" rows="3" placeholder="Message" required=""></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="durubtn4"><span class="text-wrapper"><span class="text slide-up">Send message</span><span class="text slide-down">Send message</span></span></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="background banner-img bg-img bg-imgfixed bg-position-top" data-background="img/banner.jpg" data-overlay-dark="6">
+            <div class="container">
+                <!-- top -->
+                <div class="top">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="item">
+                                <div class="logo mb-30"><img src="img/logo-light.png" alt=""></div>
+                                <p class="mb-15">Ornava designs timeless, functional spaces with aesthetic clarity and material harmony.</p>
+                                <div class="social-icons mb-30">
+                                    <ul class="list-inline">
+                                        <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+                                        <li><a href="#"><i class="fab fa-x-twitter"></i></a></li>
+                                        <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="item text-end-left">
+                                <h3 class="mb-30">Get in touch</h3>
+                                <p class="mb-5">0665 Broadway st. 10234 NY, USA</p>
+                                <div class="phone mb-5"><a href="tel:+11235678910">+1 123 567 8910</a></div>
+                                <div class="mail"><a href="mailto:design@ornava.com">design@ornava.com</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- bottom -->
+                <div class="bottom">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-12">
+                            <div class="links">
+                                <ul>
+                                    <li><a href="index.html">Home</a></li>
+                                    <li><a href="about.html">About</a></li>
+                                    <li><a href="services.html">Services</a></li>
+                                    <li><a href="portfolio.html">Portfolio</a></li>
+                                    <li><a href="contact.html">Contact</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 text-end">
+                            <p>Copyright 2026 by <a href="#">DuruThemes</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- jQuery -->
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery-3.7.1.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery-migrate-3.5.0.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/modernizr-2.6.2.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/imagesloaded.pkgd.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.isotope.v3.0.2.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/popper.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/bootstrap.min.js"></script>
+    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/scrollIt.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.waypoints.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/owl.carousel.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.stellar.min.js"></script>
+    <script src="https://duruthemes.com/demo/html/ornava/light/js/jquery.magnific-popup.js"></script>
+    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/YouTubePopUp.js"></script>
+    <script src="jhttps://duruthemes.com/demo/html/ornava/light/js/custom.js"></script>
 </body>
 </html>
