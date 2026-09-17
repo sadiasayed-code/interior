@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\SupplierController;
 use App\Http\Controllers\Backend\ProjectMaterialController;
 use App\Http\Controllers\Backend\BudgetController;
 use App\Http\Controllers\Backend\PaymentController;
+use App\Http\Controllers\Backend\PreviousWorkController;
 use App\Http\Controllers\Backend\ProgressReportController;
 use App\Http\Controllers\Backend\ProjectProposalController;
 use App\Http\Controllers\Backend\ReportController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Frontend\AuthController as CustomerAuthController;
 use App\Http\Controllers\Frontend\CustomerDashboardController;
 use App\Http\Controllers\Frontend\ProjectRequestController;
 use App\Http\Controllers\Frontend\CustomerProjectController;
+use App\Http\Controllers\Frontend\PreviousWorkController as FrontendPreviousWorkController;
 
 
 
@@ -63,6 +65,11 @@ Route::get('/services', [FrontendServiceController::class, 'index'])
 
 Route::get('/services/{service:slug}', [FrontendServiceController::class, 'show'])
     ->name('services.show');
+
+Route::get(
+    '/previous-works/{previousWork:slug}',
+    [FrontendPreviousWorkController::class, 'show']
+)->name('previous-works.show');
 
 // =========================
 // Customer Dashboard
@@ -651,19 +658,19 @@ Route::prefix('admin')
 
 
         Route::get(
-    '/project-requests',
-    [AdminProjectRequestController::class, 'index']
-)->name('project-requests.index');
+            '/project-requests',
+            [AdminProjectRequestController::class, 'index']
+        )->name('project-requests.index');
 
-Route::get(
-    '/project-requests/{project}',
-    [AdminProjectRequestController::class, 'show']
-)->name('project-requests.show');
+        Route::get(
+            '/project-requests/{project}',
+            [AdminProjectRequestController::class, 'show']
+        )->name('project-requests.show');
 
-Route::post(
-    '/project-requests/{project}/review',
-    [AdminProjectRequestController::class, 'review']
-)->name('project-requests.review');
+        Route::post(
+            '/project-requests/{project}/review',
+            [AdminProjectRequestController::class, 'review']
+        )->name('project-requests.review');
 
 
 
@@ -772,4 +779,50 @@ Route::post(
             '/reports/{project}',
             [ReportController::class, 'show']
         )->name('reports.show');
+
+        /*
+ |--------------------------------------------------------------------------
+ | Previous Works
+ |--------------------------------------------------------------------------
+ */
+
+        Route::get(
+            '/previous-works',
+            [PreviousWorkController::class, 'index']
+        )->name('previous-works.index');
+
+        Route::get(
+            '/previous-works/create',
+            [PreviousWorkController::class, 'create']
+        )->name('previous-works.create');
+
+        Route::post(
+            '/previous-works',
+            [PreviousWorkController::class, 'store']
+        )->name('previous-works.store');
+
+        Route::get(
+            '/previous-works/{previousWork}',
+            [PreviousWorkController::class, 'show']
+        )->name('previous-works.show');
+
+        Route::get(
+            '/previous-works/{previousWork}/edit',
+            [PreviousWorkController::class, 'edit']
+        )->name('previous-works.edit');
+
+        Route::post(
+            '/previous-works/{previousWork}/update',
+            [PreviousWorkController::class, 'update']
+        )->name('previous-works.update');
+
+        Route::post(
+            '/previous-works/{previousWork}/delete',
+            [PreviousWorkController::class, 'destroy']
+        )->name('previous-works.destroy');
+
+        Route::post(
+            '/previous-works/{previousWork}/images/{image}/delete',
+            [PreviousWorkController::class, 'destroyImage']
+        )->name('previous-works.images.destroy');
     });

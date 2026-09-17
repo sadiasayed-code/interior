@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Service;
+use App\Models\PreviousWork;
 
 class HomeController extends Controller
 {
@@ -14,6 +15,22 @@ class HomeController extends Controller
             ->latest()
             ->get();
 
-        return view('frontend.home', compact('services'));
+        $previousWorks = PreviousWork::query()
+            ->where('status', 'active')
+            ->with([
+                'images' => function ($query) {
+                    $query->orderBy('sort_order');
+                }
+            ])
+            ->latest()
+            ->get();
+
+        return view(
+            'frontend.home',
+            compact(
+                'services',
+                'previousWorks'
+            )
+        );
     }
 }

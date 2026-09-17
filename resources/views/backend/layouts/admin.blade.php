@@ -111,6 +111,27 @@
 
 
                 {{-- =================================================
+                    Previous Works
+                ================================================== --}}
+
+                <a
+                    href="{{ route('admin.previous-works.index') }}"
+                    class="menu-item
+                    {{ request()->routeIs('admin.previous-works.*') ? 'active' : '' }}"
+                >
+
+                    <span class="icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Previous Works
+                    </span>
+
+                </a>
+
+
+                {{-- =================================================
                     Clients
                 ================================================== --}}
 
@@ -595,6 +616,7 @@
 
 
             </section>
+
 
         </main>
 

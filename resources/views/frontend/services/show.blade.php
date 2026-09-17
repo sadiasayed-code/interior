@@ -1,601 +1,1405 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $service->name }} | MODULARS</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ $service->name }} | Canvas & Corner Interiors
+    </title>
+
+
+    <!-- =====================================================
+         TAILWIND CSS
+    ====================================================== -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+    <script>
+
+        tailwind.config = {
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        primary: '#0056b3',
+
+                        'primary-dark': '#003d82',
+
+                        offwhite: '#f9fbfc'
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
 
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: "Poppins", sans-serif;
-            background: #f7faf6;
-            color: #153d3d;
+
+        html {
+            scroll-behavior: smooth;
         }
 
-        /* =========================
-           NAVBAR
-        ========================= */
 
-        nav {
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #ffffff;
+            color: #1f2937;
+        }
+
+
+        /* =====================================================
+           NAVBAR
+        ====================================================== */
+
+        .main-navbar {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
             width: 100%;
-            padding: 20px 6%;
+
+            z-index: 999;
+
+            background:
+                rgba(255, 255, 255, 0.94);
+
+            backdrop-filter:
+                blur(14px);
+
+            -webkit-backdrop-filter:
+                blur(14px);
+
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.05);
+
+        }
+
+
+        .navbar-inner {
+
+            width: 100%;
+
+            padding:
+                16px 6%;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
-            background: #ffffff;
+            gap: 30px;
+
         }
 
-        #logo {
-            font-size: 22px;
+
+        /* =====================================================
+           LOGO
+        ====================================================== */
+
+        .company-logo {
+
+            text-decoration: none;
+
+            display: inline-block;
+
+            line-height: 1.1;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .company-logo-main {
+
+            font-size: 21px;
+
             font-weight: 800;
-            color: #153d3d;
-            text-decoration: none;
+
+            color: #0056b3;
+
+            letter-spacing: -0.5px;
+
         }
 
-        nav ul {
+
+        .company-logo-sub {
+
+            display: block;
+
+            font-size: 12px;
+
+            font-weight: 300;
+
+            color: #374151;
+
+            letter-spacing: 0;
+
+            margin-top: 3px;
+
+        }
+
+
+        /* =====================================================
+           NAV LINKS
+        ====================================================== */
+
+        .nav-links {
+
             display: flex;
+
             align-items: center;
+
             gap: 32px;
+
             list-style: none;
+
+            margin: 0;
+
+            padding: 0;
+
         }
 
-        nav ul li a {
+
+        .nav-links a {
+
             text-decoration: none;
-            color: #153d3d;
+
+            color: #374151;
+
             font-size: 14px;
+
             font-weight: 500;
-            transition: 0.3s;
+
+            transition: 0.25s ease;
+
         }
 
-        nav ul li a:hover {
-            color: #286318;
+
+        .nav-links a:hover {
+
+            color: #0056b3;
+
         }
 
-        .nav-button {
-            padding: 11px 22px;
 
-            background: #286318;
+        /* =====================================================
+           NAV BUTTON
+        ====================================================== */
+
+        .nav-consultation {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding:
+                10px 19px;
+
+            background: #0056b3;
+
             color: #ffffff;
 
-            border-radius: 10px;
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            white-space: nowrap;
+
+            transition: 0.25s ease;
+
+            box-shadow:
+                0 5px 15px rgba(0, 86, 179, 0.18);
+
+        }
+
+
+        .nav-consultation:hover {
+
+            background: #003d82;
+
+            transform:
+                translateY(-1px);
+
+        }
+
+
+        /* =====================================================
+           MAIN PAGE
+        ====================================================== */
+
+        .service-page {
+
+            max-width: 1280px;
+
+            margin:
+                0 auto;
+
+            padding:
+                125px 24px 80px;
+
+        }
+
+
+        /* =====================================================
+           BREADCRUMB / BACK LINK
+        ====================================================== */
+
+        .back-link {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            margin-bottom: 28px;
+
+            color: #0056b3;
+
             text-decoration: none;
 
             font-size: 13px;
+
             font-weight: 600;
 
-            transition: 0.3s;
+            transition: 0.25s ease;
+
         }
 
-        .nav-button:hover {
-            background: #153d3d;
-        }
-
-
-        /* =========================
-           PAGE
-        ========================= */
-
-        .service-page {
-            max-width: 1250px;
-            margin: auto;
-            padding: 70px 25px 100px;
-        }
-
-
-        /* =========================
-           BACK LINK
-        ========================= */
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            margin-bottom: 30px;
-
-            color: #286318;
-            text-decoration: none;
-
-            font-size: 14px;
-            font-weight: 600;
-        }
 
         .back-link:hover {
-            color: #153d3d;
+
+            color: #003d82;
+
+            transform:
+                translateX(-2px);
+
         }
 
 
-        /* =========================
+        /* =====================================================
            SERVICE HERO
-        ========================= */
+        ====================================================== */
 
         .service-hero {
+
             display: grid;
-            grid-template-columns: 1.1fr 1fr;
+
+            grid-template-columns:
+                1.08fr
+                1fr;
 
             background: #ffffff;
 
-            border-radius: 30px;
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 22px;
+
             overflow: hidden;
 
-            box-shadow: 0 20px 60px rgba(21, 61, 61, 0.08);
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.07);
+
         }
 
 
-        /* IMAGE */
+        /* =====================================================
+           IMAGE
+        ====================================================== */
 
-        .service-main-image {
-            width: 100%;
-            min-height: 520px;
+        .service-image-wrapper {
 
-            background: #e2eddf;
+            min-height: 540px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef5fb,
+                    #dceafa
+                );
+
+            overflow: hidden;
+
         }
 
-        .service-main-image img {
+
+        .service-image-wrapper img {
+
             width: 100%;
+
             height: 100%;
+
+            min-height: 540px;
 
             object-fit: cover;
+
             display: block;
+
+            transition:
+                transform 0.6s ease;
+
         }
+
+
+        .service-hero:hover
+        .service-image-wrapper img {
+
+            transform:
+                scale(1.025);
+
+        }
+
 
         .no-image {
+
             width: 100%;
-            height: 100%;
-            min-height: 520px;
+
+            min-height: 540px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            color: #286318;
-            font-size: 25px;
-            font-weight: 600;
-        }
-
-
-        /* CONTENT */
-
-        .service-main-content {
-            padding: 55px;
-
-            display: flex;
             flex-direction: column;
-            justify-content: center;
+
+            gap: 12px;
+
+            color: #0056b3;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f3f8fc,
+                    #e6f0f9
+                );
+
         }
 
-        .service-label {
-            display: inline-block;
 
-            color: #286318;
+        .no-image i {
 
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 48px;
 
-            letter-spacing: 3px;
-
-            margin-bottom: 15px;
         }
 
-        .service-main-content h1 {
-            font-size: 46px;
-            line-height: 1.2;
 
-            color: #153d3d;
-
-            margin-bottom: 20px;
-        }
-
-        .service-description {
-            color: #687878;
+        .no-image span {
 
             font-size: 15px;
-            line-height: 1.9;
 
-            margin-bottom: 35px;
+            font-weight: 600;
+
         }
 
 
-        /* =========================
-           SERVICE INFO
-        ========================= */
+        /* =====================================================
+           SERVICE CONTENT
+        ====================================================== */
 
-        .service-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .service-content {
 
-            gap: 15px;
+            padding:
+                55px 52px;
 
-            margin-bottom: 35px;
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
         }
 
-        .detail-box {
-            padding: 18px;
 
-            background: #f4f8f2;
+        .service-label {
 
-            border-radius: 14px;
-        }
+            display: inline-flex;
 
-        .detail-box small {
-            display: block;
+            align-items: center;
 
-            color: #7d8989;
+            gap: 8px;
+
+            color: #0056b3;
 
             font-size: 11px;
 
-            margin-bottom: 5px;
+            font-weight: 700;
+
+            letter-spacing: 2.5px;
+
+            margin-bottom: 16px;
+
         }
+
+
+        .service-label::before {
+
+            content: "";
+
+            width: 25px;
+
+            height: 2px;
+
+            background: #0056b3;
+
+        }
+
+
+        .service-content h1 {
+
+            margin: 0 0 18px;
+
+            color: #111827;
+
+            font-size: 43px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            letter-spacing: -1px;
+
+        }
+
+
+        .service-description {
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+            line-height: 1.9;
+
+            margin:
+                0 0 30px;
+
+        }
+
+
+        /* =====================================================
+           SERVICE DETAILS
+        ====================================================== */
+
+        .service-details {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .detail-box {
+
+            background: #f7fafc;
+
+            border:
+                1px solid #e5edf5;
+
+            border-radius: 10px;
+
+            padding:
+                17px 18px;
+
+            transition:
+                0.25s ease;
+
+        }
+
+
+        .detail-box:hover {
+
+            border-color:
+                #b9d4ed;
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        .detail-box small {
+
+            display: block;
+
+            color: #6b7280;
+
+            font-size: 10px;
+
+            font-weight: 500;
+
+            margin-bottom: 5px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.6px;
+
+        }
+
 
         .detail-box strong {
-            color: #286318;
+
+            display: block;
+
+            color: #0056b3;
 
             font-size: 17px;
+
+            font-weight: 700;
+
         }
 
 
-        /* =========================
+        /* =====================================================
            REQUEST BUTTON
-        ========================= */
+        ====================================================== */
 
         .request-button {
+
             width: 100%;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
-            padding: 17px 22px;
+            padding:
+                15px 20px;
 
-            background: #153d3d;
+            background: #0056b3;
+
             color: #ffffff;
 
-            border-radius: 13px;
+            border-radius: 8px;
 
             text-decoration: none;
 
-            font-size: 15px;
+            font-size: 14px;
+
             font-weight: 600;
 
-            transition: 0.3s;
+            box-shadow:
+                0 8px 20px
+                rgba(0, 86, 179, 0.18);
+
+            transition:
+                0.25s ease;
+
         }
+
 
         .request-button:hover {
-            background: #286318;
-            transform: translateY(-2px);
+
+            background: #003d82;
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 12px 25px
+                rgba(0, 61, 130, 0.22);
+
         }
 
-        .request-button span {
-            font-size: 22px;
+
+        .request-button i {
+
+            font-size: 14px;
+
+            transition:
+                transform 0.25s ease;
+
         }
 
 
-        /* =========================
-           DESCRIPTION SECTION
-        ========================= */
+        .request-button:hover i {
+
+            transform:
+                translateX(4px);
+
+        }
+
+
+        /* =====================================================
+           FULL DESCRIPTION
+        ====================================================== */
 
         .description-section {
-            margin-top: 45px;
+
+            margin-top: 35px;
+
+            padding:
+                48px 50px;
 
             background: #ffffff;
 
-            padding: 50px;
+            border:
+                1px solid #e8edf2;
 
-            border-radius: 25px;
+            border-radius: 18px;
 
-            box-shadow: 0 15px 45px rgba(21, 61, 61, 0.06);
+            box-shadow:
+                0 12px 40px
+                rgba(0, 0, 0, 0.045);
+
         }
 
-        .description-section .section-label {
-            color: #286318;
 
-            font-size: 12px;
+        .section-label {
+
+            display: inline-block;
+
+            color: #0056b3;
+
+            font-size: 11px;
+
             font-weight: 700;
 
-            letter-spacing: 3px;
+            letter-spacing: 2.5px;
+
+            margin-bottom: 8px;
+
         }
+
 
         .description-section h2 {
-            margin: 10px 0 20px;
 
-            color: #153d3d;
+            margin:
+                5px 0 17px;
 
-            font-size: 32px;
+            color: #111827;
+
+            font-size: 30px;
+
+            line-height: 1.3;
+
         }
 
-        .description-section p {
-            color: #687878;
 
-            font-size: 15px;
+        .description-section p {
+
+            margin: 0;
+
+            color: #6b7280;
+
+            font-size: 14px;
+
             line-height: 2;
 
             white-space: pre-line;
+
         }
 
 
-        /* =========================
+        /* =====================================================
            CTA
-        ========================= */
+        ====================================================== */
 
         .service-cta {
-            margin-top: 45px;
 
-            padding: 55px;
+            margin-top: 35px;
 
-            border-radius: 25px;
+            padding:
+                55px 30px;
 
-            background: #153d3d;
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #003d82,
+                    #0056b3
+                );
 
             text-align: center;
+
+            position: relative;
+
+            overflow: hidden;
+
         }
+
+
+        .service-cta::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+
+            height: 250px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255,255,255,0.06);
+
+            top: -130px;
+
+            right: -80px;
+
+        }
+
+
+        .service-cta::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+
+            height: 180px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255,255,255,0.05);
+
+            bottom: -100px;
+
+            left: -50px;
+
+        }
+
 
         .service-cta h2 {
+
+            position: relative;
+
+            z-index: 2;
+
             color: #ffffff;
 
-            font-size: 32px;
+            font-size: 30px;
 
-            margin-bottom: 12px;
+            margin:
+                0 0 10px;
+
         }
 
+
         .service-cta p {
-            color: #cbd8d2;
+
+            position: relative;
+
+            z-index: 2;
+
+            color: #dbeafe;
 
             font-size: 14px;
 
             max-width: 650px;
 
-            margin: 0 auto 25px;
+            margin:
+                0 auto 25px;
 
             line-height: 1.8;
+
         }
 
+
         .cta-button {
-            display: inline-block;
 
-            padding: 14px 28px;
+            position: relative;
 
-            background: #286318;
-            color: #ffffff;
+            z-index: 2;
 
-            border-radius: 10px;
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                13px 25px;
+
+            background: #ffffff;
+
+            color: #0056b3;
+
+            border-radius: 7px;
 
             text-decoration: none;
 
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px;
 
-            transition: 0.3s;
+            font-weight: 700;
+
+            transition:
+                0.25s ease;
+
         }
+
 
         .cta-button:hover {
-            background: #ffffff;
-            color: #153d3d;
+
+            background: #f0f7ff;
+
+            transform:
+                translateY(-2px);
+
         }
 
 
-        /* =========================
+        /* =====================================================
            FOOTER
-        ========================= */
+        ====================================================== */
 
         footer {
-            padding: 35px 20px;
+
+            padding:
+                30px 20px;
 
             text-align: center;
 
-            background: #ffffff;
+            background: #f9fbfc;
 
-            color: #7a8585;
+            border-top:
+                1px solid #edf1f5;
 
-            font-size: 13px;
+            color: #6b7280;
+
+            font-size: 12px;
+
         }
 
 
-        /* =========================
+        footer strong {
+
+            color: #0056b3;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =====================================================
+           MOBILE NAV
+        ====================================================== */
+
+        .mobile-menu-button {
+
+            display: none;
+
+            border: none;
+
+            background: transparent;
+
+            color: #0056b3;
+
+            font-size: 21px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* =====================================================
            RESPONSIVE
-        ========================= */
+        ====================================================== */
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
 
-            nav {
-                padding: 18px 25px;
+            .navbar-inner {
+
+                padding:
+                    15px 25px;
+
             }
 
-            nav ul {
-                display: none;
+
+            .nav-links {
+
+                gap: 20px;
+
             }
+
 
             .service-hero {
+
                 grid-template-columns: 1fr;
+
             }
 
-            .service-main-image {
-                min-height: 400px;
+
+            .service-image-wrapper {
+
+                min-height: 420px;
+
             }
+
+
+            .service-image-wrapper img {
+
+                min-height: 420px;
+
+            }
+
 
             .no-image {
-                min-height: 400px;
+
+                min-height: 420px;
+
             }
 
-            .service-main-content {
-                padding: 40px;
+
+            .service-content {
+
+                padding:
+                    42px;
+
             }
 
-            .service-main-content h1 {
-                font-size: 38px;
+
+            .service-content h1 {
+
+                font-size: 36px;
+
             }
 
         }
 
 
-        @media (max-width: 600px) {
+        @media (max-width: 720px) {
 
-            nav {
-                padding: 16px 20px;
+            .navbar-inner {
+
+                padding:
+                    14px 20px;
+
             }
 
-            #logo {
-                font-size: 19px;
+
+            .nav-links {
+
+                display: none;
+
             }
 
-            .nav-button {
-                padding: 9px 14px;
-                font-size: 12px;
+
+            .nav-consultation {
+
+                display: none;
+
             }
+
+
+            .mobile-menu-button {
+
+                display: block;
+
+            }
+
 
             .service-page {
-                padding: 35px 15px 70px;
+
+                padding:
+                    105px 15px 60px;
+
             }
+
+
+            .back-link {
+
+                margin-bottom: 20px;
+
+            }
+
 
             .service-hero {
-                border-radius: 20px;
+
+                border-radius: 16px;
+
             }
 
-            .service-main-image {
-                min-height: 280px;
+
+            .service-image-wrapper {
+
+                min-height: 300px;
+
             }
+
+
+            .service-image-wrapper img {
+
+                min-height: 300px;
+
+            }
+
 
             .no-image {
-                min-height: 280px;
+
+                min-height: 300px;
+
             }
 
-            .service-main-content {
-                padding: 28px 22px;
+
+            .service-content {
+
+                padding:
+                    30px 22px;
+
             }
 
-            .service-main-content h1 {
+
+            .service-content h1 {
+
                 font-size: 30px;
+
+                letter-spacing: -0.5px;
+
             }
+
 
             .service-description {
-                font-size: 14px;
+
+                font-size: 13px;
+
+                line-height: 1.8;
+
             }
+
 
             .service-details {
+
                 grid-template-columns: 1fr;
+
             }
+
 
             .description-section {
-                padding: 30px 22px;
-                border-radius: 20px;
+
+                padding:
+                    30px 22px;
+
+                border-radius: 15px;
+
             }
+
 
             .description-section h2 {
-                font-size: 26px;
+
+                font-size: 25px;
+
             }
+
+
+            .description-section p {
+
+                font-size: 13px;
+
+                line-height: 1.9;
+
+            }
+
 
             .service-cta {
-                padding: 40px 22px;
-                border-radius: 20px;
+
+                padding:
+                    42px 20px;
+
+                border-radius: 15px;
+
             }
 
+
             .service-cta h2 {
-                font-size: 25px;
+
+                font-size: 24px;
+
+            }
+
+
+            .service-cta p {
+
+                font-size: 13px;
+
             }
 
         }
+
+
+        @media (max-width: 420px) {
+
+            .company-logo-main {
+
+                font-size: 18px;
+
+            }
+
+
+            .company-logo-sub {
+
+                font-size: 10px;
+
+            }
+
+
+            .service-content h1 {
+
+                font-size: 27px;
+
+            }
+
+
+            .request-button {
+
+                padding:
+                    14px 16px;
+
+                font-size: 13px;
+
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
 
-    <!-- =========================
+    <!-- =====================================================
          NAVBAR
-    ========================= -->
+         SAME STYLE AS HOME PAGE
+    ====================================================== -->
 
-    <nav>
+    <header class="main-navbar">
 
-        <a href="{{ url('/') }}" id="logo">
-            MODULARS
-        </a>
+        <div class="navbar-inner">
 
-        <ul>
 
-            <li>
-                <a href="{{ url('/') }}">
-                    Home
-                </a>
-            </li>
+            <!-- COMPANY LOGO -->
 
-            <li>
-                <a href="{{ url('/#services') }}">
-                    Services
-                </a>
-            </li>
+            <a
+                href="{{ url('/#home') }}"
+                class="company-logo"
+            >
 
-            <li>
-                <a href="#">
-                    About
-                </a>
-            </li>
+                <span class="company-logo-main">
+                    Canvas & Corner
+                </span>
 
-            <li>
-                <a href="#">
-                    Contact
-                </a>
-            </li>
+                <span class="company-logo-sub">
+                    Interiors
+                </span>
 
-        </ul>
-
-        <a
-            href="{{ route('customer.register') }}"
-            class="nav-button"
-        >
-            Request Project
-        </a>
-
-    </nav>
+            </a>
 
 
 
-    <!-- =========================
-         SERVICE PAGE
-    ========================= -->
+            <!-- NAVIGATION -->
+
+            <nav>
+
+                <ul class="nav-links">
+
+                    <li>
+
+                        <a href="{{ url('/#home') }}">
+                            Home
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="{{ url('/#services') }}">
+                            Services
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="{{ url('/#gallery') }}">
+                            Portfolio
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="{{ url('/#contact') }}">
+                            Contact
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+
+
+            <!-- BOOK CONSULTATION -->
+
+            <a
+                href="{{ url('/#contact') }}"
+                class="nav-consultation"
+            >
+
+                Book Consultation
+
+            </a>
+
+
+            <!-- MOBILE ICON -->
+
+            <button
+                type="button"
+                class="mobile-menu-button"
+                onclick="window.location.href='{{ url('/#services') }}'"
+                aria-label="Services"
+            >
+
+                <i class="fa-solid fa-bars"></i>
+
+            </button>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN SERVICE PAGE
+    ====================================================== -->
 
     <main class="service-page">
+
+
+        <!-- =================================================
+             BACK TO SERVICES
+        ================================================== -->
 
         <a
             href="{{ url('/#services') }}"
             class="back-link"
         >
-            ← Back to Services
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Services
+
         </a>
 
 
-        <!-- =========================
+
+        <!-- =================================================
              SERVICE HERO
-        ========================= -->
+        ================================================== -->
 
         <div class="service-hero">
 
 
-            <!-- IMAGE -->
+            <!-- =================================================
+                 SERVICE IMAGE
+            ================================================== -->
 
-            <div class="service-main-image">
+            <div class="service-image-wrapper">
 
                 @if($service->image)
 
-                    <img
-                        src="{{ asset('storage/' . $service->image) }}"
-                        alt="{{ $service->name }}"
-                    >
+                    @if(
+                        \Illuminate\Support\Str::startsWith(
+                            $service->image,
+                            ['http://', 'https://']
+                        )
+                    )
+
+                        <img
+                            src="{{ $service->image }}"
+                            alt="{{ $service->name }}"
+                        >
+
+                    @else
+
+                        <img
+                            src="{{ asset('storage/' . $service->image) }}"
+                            alt="{{ $service->name }}"
+                        >
+
+                    @endif
 
                 @else
 
                     <div class="no-image">
-                        Interior Design
+
+                        <i class="fa-solid fa-house-chimney"></i>
+
+                        <span>
+                            Interior Design Service
+                        </span>
+
                     </div>
 
                 @endif
@@ -604,85 +1408,160 @@
 
 
 
-            <!-- SERVICE CONTENT -->
+            <!-- =================================================
+                 SERVICE CONTENT
+            ================================================== -->
 
-            <div class="service-main-content">
+            <div class="service-content">
+
+
+                <!-- LABEL -->
 
                 <span class="service-label">
                     OUR SERVICE
                 </span>
 
 
+
+                <!-- SERVICE NAME -->
+
                 <h1>
                     {{ $service->name }}
                 </h1>
 
 
+
+                <!-- SHORT DESCRIPTION -->
+
                 @if($service->short_description)
 
                     <p class="service-description">
+
                         {{ $service->short_description }}
+
+                    </p>
+
+                @elseif($service->description)
+
+                    <p class="service-description">
+
+                        {{ \Illuminate\Support\Str::limit(
+                            $service->description,
+                            220
+                        ) }}
+
+                    </p>
+
+                @else
+
+                    <p class="service-description">
+
+                        Professional interior design solutions
+                        tailored to your space, lifestyle and
+                        requirements.
+
                     </p>
 
                 @endif
 
 
-                <!-- SERVICE INFORMATION -->
 
-                <div class="service-details">
+                <!-- =================================================
+                     SERVICE INFORMATION
+                ================================================== -->
 
-                    @if($service->starting_budget !== null)
+                @if(
+                    $service->starting_budget !== null ||
+                    $service->estimated_duration_days
+                )
 
-                        <div class="detail-box">
-
-                            <small>
-                                Starting From
-                            </small>
-
-                            <strong>
-                                ৳ {{ number_format((float) $service->starting_budget) }}
-                            </strong>
-
-                        </div>
-
-                    @endif
+                    <div class="service-details">
 
 
-                    @if($service->estimated_duration_days)
+                        <!-- STARTING BUDGET -->
 
-                        <div class="detail-box">
+                        @if($service->starting_budget !== null)
 
-                            <small>
-                                Estimated Duration
-                            </small>
+                            <div class="detail-box">
 
-                            <strong>
-                                {{ $service->estimated_duration_days }} Days
-                            </strong>
+                                <small>
+                                    Starting From
+                                </small>
 
-                        </div>
+                                <strong>
 
-                    @endif
+                                    ৳ {{ number_format(
+                                        (float) $service->starting_budget
+                                    ) }}
 
-                </div>
+                                </strong>
+
+                            </div>
+
+                        @endif
 
 
-                <!-- REQUEST SERVICE -->
+
+                        <!-- ESTIMATED DURATION -->
+
+                        @if($service->estimated_duration_days)
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Estimated Duration
+                                </small>
+
+                                <strong>
+
+                                    {{ $service->estimated_duration_days }}
+
+                                    {{
+                                        $service->estimated_duration_days == 1
+                                            ? 'Day'
+                                            : 'Days'
+                                    }}
+
+                                </strong>
+
+                            </div>
+
+                        @endif
+
+
+                    </div>
+
+                @endif
+
+
+
+                <!-- =================================================
+                     REQUEST SERVICE
+                ================================================== -->
 
                 <a
                     href="{{ session()->has('customer_user_id')
-        ? route('customer.project-request.create', ['service' => $service->slug])
-        : route('customer.register', ['service' => $service->slug]) }}"
+                        ? route(
+                            'customer.project-request.create',
+                            ['service' => $service->slug]
+                        )
+                        : route(
+                            'customer.register',
+                            ['service' => $service->slug]
+                        )
+                    }}"
                     class="request-button"
                 >
+
                     <span>
                         Request This Service
                     </span>
 
-                    <span>
-                        →
-                    </span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
                 </a>
+
 
             </div>
 
@@ -690,25 +1569,29 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              FULL DESCRIPTION
-        ========================= -->
+        ================================================== -->
 
         @if($service->description)
 
             <section class="description-section">
 
+
                 <span class="section-label">
                     SERVICE DETAILS
                 </span>
+
 
                 <h2>
                     About This Service
                 </h2>
 
+
                 <p>
                     {{ $service->description }}
                 </p>
+
 
             </section>
 
@@ -716,46 +1599,71 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              CTA
-        ========================= -->
+        ================================================== -->
 
         <section class="service-cta">
+
 
             <h2>
                 Ready to Start Your Project?
             </h2>
 
+
             <p>
                 Tell us about your project and our team will
-                review your requirements and prepare the next steps.
+                review your requirements and prepare the next
+                steps for your interior project.
             </p>
+
 
             <a
                 href="{{ session()->has('customer_user_id')
-        ? route('customer.project-request.create', ['service' => $service->slug])
-        : route('customer.register', ['service' => $service->slug]) }}"
+                    ? route(
+                        'customer.project-request.create',
+                        ['service' => $service->slug]
+                    )
+                    : route(
+                        'customer.register',
+                        ['service' => $service->slug]
+                    )
+                }}"
                 class="cta-button"
             >
+
                 Request This Service
+
+                <i class="fa-solid fa-arrow-right"></i>
+
             </a>
 
+
         </section>
+
 
     </main>
 
 
 
-    <!-- =========================
+    <!-- =====================================================
          FOOTER
-    ========================= -->
+    ====================================================== -->
 
     <footer>
 
-        © {{ date('Y') }} MODULARS. All rights reserved.
+        &copy; {{ date('Y') }}
+
+        <strong>
+            Canvas & Corner Interiors
+        </strong>
+
+        . All Rights Reserved.
 
     </footer>
 
 
+
 </body>
+
 </html>

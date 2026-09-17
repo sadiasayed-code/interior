@@ -23,10 +23,30 @@ return new class extends Migration
             $table->string('slug')
                 ->unique();
 
-            $table->string('short_description')
+            /*
+            |--------------------------------------------------------------------------
+            | SHORT DESCRIPTION
+            |--------------------------------------------------------------------------
+            |
+            | TEXT ব্যবহার করা হয়েছে যাতে 255 character-এর বেশি
+            | content রাখা যায়।
+            |
+            */
+
+            $table->text('short_description')
                 ->nullable();
 
-            $table->text('description')
+            /*
+            |--------------------------------------------------------------------------
+            | FULL / LONG DESCRIPTION
+            |--------------------------------------------------------------------------
+            |
+            | LONGTEXT ব্যবহার করা হয়েছে যাতে অনেক বড় description
+            | রাখা যায়।
+            |
+            */
+
+            $table->longText('description')
                 ->nullable();
 
 
